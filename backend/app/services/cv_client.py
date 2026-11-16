@@ -88,7 +88,9 @@ async def run_cv_inference(
     }
 
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        # Render's free ML instance may need up to a minute to wake before it
+        # accepts the first inference request.
+        async with httpx.AsyncClient(timeout=httpx.Timeout(90.0, connect=20.0)) as client:
             response = await client.post(url, files=files, data=data)
     except httpx.RequestError as exc:
         logger.error("Failed to connect to CV service: %s", exc)
