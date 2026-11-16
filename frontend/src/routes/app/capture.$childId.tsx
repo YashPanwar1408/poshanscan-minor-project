@@ -201,7 +201,7 @@ function Capture() {
     }
   }
   return (
-    <WorkerShell title="Capture screening photo">
+    <WorkerShell title="Capture screening photo" backAgeCategory={effectiveAgeCategory ?? undefined}>
       <div className="grid max-w-5xl gap-10 lg:grid-cols-[1.2fr_.8fr]">
         <div>
           {queued ? (

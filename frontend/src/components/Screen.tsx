@@ -24,10 +24,12 @@ export function WorkerShell({
   children,
   title,
   backToScreening = false,
+  backAgeCategory,
 }: {
   children: ReactNode;
   title: string;
   backToScreening?: boolean;
+  backAgeCategory?: "child_6_59m" | "adult";
 }) {
   const { logout, user } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -116,10 +118,19 @@ export function WorkerShell({
       <main className="mx-auto max-w-6xl px-5 py-10">
         <Link
           to={backToScreening ? "/app/scan" : "/app/children"}
-          search={backToScreening ? {} : { register: false }}
+          search={
+            backToScreening
+              ? {}
+              : { register: false, age_category: backAgeCategory }
+          }
           className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
         >
-          <ArrowLeft size={16} /> {backToScreening ? "Back to screening" : "All children"}
+          <ArrowLeft size={16} />{" "}
+          {backToScreening
+            ? "Back to screening"
+            : backAgeCategory === "adult"
+              ? "All adults"
+              : "All children"}
         </Link>
         <h1 className="mb-8 font-display text-3xl font-semibold">{title}</h1>
         {children}

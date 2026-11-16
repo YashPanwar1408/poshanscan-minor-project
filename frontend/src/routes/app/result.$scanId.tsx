@@ -64,7 +64,7 @@ function Result() {
   }, [scanId]);
 
   return (
-    <WorkerShell title="Screening report">
+    <WorkerShell title="Screening report" backAgeCategory={result?.age_category}>
       {result ? <Report result={result} /> : <p className="text-muted-foreground">{error || "Loading report…"}</p>}
     </WorkerShell>
   );
