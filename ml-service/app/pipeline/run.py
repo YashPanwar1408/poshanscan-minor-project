@@ -48,7 +48,10 @@ def _crop_size_from_marker(image: np.ndarray, marker_corners: Optional[np.ndarra
         float(np.linalg.norm(pts[0] - pts[3])),
     ]
     mean_side = float(np.mean(sides))
-    return int(np.clip(mean_side * 4.5, 280, cap))
+    # The marker is already placed at the MUAC site. A large crop causes the
+    # skin baseline to include the torso and background when pose detection
+    # misses, which produces impossible widths.
+    return int(np.clip(mean_side * 2.5, 280, cap))
 
 
 def _segmentation_ok(mask: np.ndarray, width_px: float) -> bool:
@@ -163,7 +166,7 @@ def run_muac_pipeline(
         search_radius_px=int(marker_side_px / 2 + 25) if corners is not None else 0,
         min_width_px=marker_side_px * 0.4 if corners is not None else 0.0,
         max_width_px=(
-            marker_side_px * (1.8 if age_category == "child_6_59m" else 2.5)
+            marker_side_px * (0.95 if age_category == "child_6_59m" else 2.5)
             if corners is not None
             else None
         ),
