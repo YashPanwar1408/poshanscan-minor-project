@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session
@@ -16,6 +17,30 @@ from app.schemas.child import (
 )
 
 router = APIRouter(prefix="/children", tags=["Children"])
+
+
+def resolve_category(child: Child, scans: List[Scan]) -> str:
+    """Resolve legacy records that were saved with the wrong category."""
+    declared_category = child.age_category or "child_6_59m"
+    if declared_category == "adult":
+        return "adult"
+
+    scan_categories = {(scan.age_category or "child_6_59m") for scan in scans}
+    if "adult" in scan_categories and "child_6_59m" not in scan_categories:
+        return "adult"
+
+    try:
+        birth_date = datetime.strptime(child.dob, "%Y-%m-%d").date()
+        today = date.today()
+        age_months = (today.year - birth_date.year) * 12 + today.month - birth_date.month
+        if today.day < birth_date.day:
+            age_months -= 1
+        if age_months >= 60:
+            return "adult"
+    except (TypeError, ValueError):
+        pass
+
+    return "child_6_59m"
 
 
 @router.get("/search", response_model=List[ChildResponse])
@@ -60,16 +85,11 @@ def search_children(
         c_scans = scans_by_child.get(c.id, [])
         has_child = any((s.age_category or "child_6_59m") == "child_6_59m" for s in c_scans)
         has_adult = any((s.age_category or "child_6_59m") == "adult" for s in c_scans)
-        declared_category = c.age_category or "child_6_59m"
         # Older records may still have the default child category even though
-        # they were created and scanned as adults. Keep those records out of
-        # the child list without changing the stored database row here.
-        effective_category = (
-            "adult"
-            if declared_category == "child_6_59m" and has_adult and not has_child
-            else declared_category
-        )
-        if age_category in ("child_6_59m", "adult") and effective_category != age_category:
+        # they were created for adult screening. Keep those records out of the
+        # child list without changing the stored database row here.
+        resolved_category = resolve_category(c, c_scans)
+        if age_category in ("child_6_59m", "adult") and resolved_category != age_category:
             continue
         summaries = [
             ChildScanSummary(
@@ -84,7 +104,7 @@ def search_children(
             for s in c_scans
         ]
         
-        target_category = age_category or effective_category
+        target_category = age_category or resolved_category
         category_scans = [
             s for s in c_scans
             if (s.age_category or "child_6_59m") == target_category
@@ -108,7 +128,7 @@ def search_children(
                 gender=c.gender,
                 guardian_name=c.guardian_name,
                 village=c.village,
-                age_category=effective_category,
+                age_category=resolved_category,
                 has_child_scan=has_child,
                 has_adult_scan=has_adult,
                 scans=summaries,
