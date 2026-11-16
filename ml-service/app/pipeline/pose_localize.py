@@ -239,9 +239,24 @@ def locate_from_marker(
         return _empty_result()
     try:
         mid = _marker_center(marker_corners)
+        points = np.asarray(marker_corners, dtype=np.float64).reshape(4, 2)
+        marker_side = float(
+            np.mean(
+                [
+                    np.linalg.norm(points[(i + 1) % 4] - points[i])
+                    for i in range(4)
+                ]
+            )
+        )
     except Exception:
         return _empty_result()
-    angle = _skin_axis_angle_degrees(image, mid)
+    # A full-image skin PCA can mix the upper arm with the forearm or face.
+    # Keep the fallback axis local to the marker neighbourhood.
+    angle = _skin_axis_angle_degrees(
+        image,
+        mid,
+        window_px=int(np.clip(marker_side * 4.0, 100, 220)),
+    )
     return {
         "detected": True,
         "midpoint_px": mid,

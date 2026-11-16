@@ -1,13 +1,14 @@
 import os
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import Base, engine
+from app.services.storage import fetch_storage_object
 from app.routers import (
     auth_router,
     children_router,
@@ -79,6 +80,16 @@ async def get_uploaded_image(filename: str):
     if os.path.exists(default_img):
         return FileResponse(default_img)
     return Response(content=FALLBACK_JPEG, media_type="image/jpeg")
+
+
+@app.get("/media/{object_path:path}", tags=["Uploads"])
+async def get_storage_image(object_path: str):
+    """Proxy Supabase images so dashboard/result pages do not depend on bucket policy."""
+    try:
+        content, content_type = fetch_storage_object(object_path)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return Response(content=content, media_type=content_type)
 
 
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)

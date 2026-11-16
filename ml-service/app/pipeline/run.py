@@ -164,12 +164,11 @@ def run_muac_pipeline(
         angle,
         bridge_internal_gaps=corners is not None,
         search_radius_px=int(marker_side_px / 2 + 25) if corners is not None else 0,
-        min_width_px=marker_side_px * 0.4 if corners is not None else 0.0,
-        max_width_px=(
-            marker_side_px * (0.95 if age_category == "child_6_59m" else 2.5)
-            if corners is not None
-            else None
-        ),
+        min_width_px=marker_side_px * 0.2 if corners is not None else 0.0,
+        # The final physical MUAC range is the safety bound. A marker-pixel
+        # ratio is unreliable when the upload has been resized by a camera or
+        # browser before reaching the service.
+        max_width_px=None,
     )
     seg_ok = _segmentation_ok(mask, width_px)
     seg_quality = _segmentation_quality(mask)
