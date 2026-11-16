@@ -1,0 +1,280 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+@custom-variant dark (&:is(.dark *));
+@custom-variant high-contrast (&:is(.high-contrast *));
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--foreground);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+  --color-hero: var(--hero);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-band: var(--band);
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+}
+:root {
+  --background: #faf9f6;
+  --foreground: #1c1b19;
+  --card: #ffffff;
+  --card-foreground: #1c1b19;
+  --primary: #0f6b5c;
+  --primary-foreground: #ffffff;
+  --secondary: #f1efea;
+  --secondary-foreground: #1c1b19;
+  --muted: #f1efea;
+  --muted-foreground: #5c5a56;
+  --accent: #e4efea;
+  --border: #d4d0c8;
+  --hero: #faf9f6;
+  --success: #1f7a4d;
+  --success-soft: #e7f4ec;
+  --warning: #8a5a12;
+  --warning-soft: #f7eedc;
+  --danger: #9b2c2c;
+  --danger-soft: #f8e8e8;
+  --band: #0a4a40;
+  --sv-bg: #faf9f6;
+  --sv-surface: #ffffff;
+  --sv-text: #1c1b19;
+  --sv-muted: #5c5a56;
+  --sv-border: #d4d0c8;
+}
+html.dark {
+  --background: #101614;
+  --foreground: #e7efec;
+  --card: #17211e;
+  --card-foreground: #e7efec;
+  --primary: #35a98c;
+  --primary-foreground: #07110e;
+  --secondary: #1d2b27;
+  --secondary-foreground: #e7efec;
+  --muted: #1d2b27;
+  --muted-foreground: #a9bbb5;
+  --accent: #244139;
+  --accent-foreground: #e7efec;
+  --border: #31443d;
+  --hero: #101614;
+  --success: #54c38c;
+  --success-soft: #173a2a;
+  --warning: #f0b840;
+  --warning-soft: #3a2d11;
+  --danger: #f07870;
+  --danger-soft: #3d1c1b;
+  --band: #8ce0c4;
+  --sv-bg: #101614;
+  --sv-surface: #17211e;
+  --sv-text: #e7efec;
+  --sv-muted: #a9bbb5;
+  --sv-border: #31443d;
+}
+html.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --primary: #3ddc97;
+  --primary-foreground: #000000;
+  --secondary: #000000;
+  --secondary-foreground: #ffffff;
+  --muted: #111111;
+  --muted-foreground: #ffffff;
+  --accent: #111111;
+  --border: #ffffff;
+  --hero: #000000;
+  --success: #3ddc97;
+  --success-soft: #000000;
+  --warning: #ffe066;
+  --warning-soft: #000000;
+  --danger: #ff6b6b;
+  --danger-soft: #000000;
+  --band: #000000;
+}
+html[data-text-scale="sm"] {
+  font-size: 15px;
+}
+html[data-text-scale="md"] {
+  font-size: 16px;
+}
+html[data-text-scale="lg"] {
+  font-size: 18px;
+}
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+    font-style: normal;
+  }
+  em {
+    font-style: normal;
+  }
+}
+@layer components {
+  .eyebrow {
+    color: var(--primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .field {
+    width: 100%;
+    height: 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--card);
+    padding: 0 0.85rem;
+    outline: none;
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+  .field:focus {
+    border-color: var(--primary);
+    box-shadow: none;
+  }
+  .field::placeholder {
+    color: var(--muted-foreground);
+  }
+  .panel {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--card);
+  }
+  .portal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .portal-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .portal-btn-solid {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+  .portal-btn-solid:hover {
+    filter: brightness(0.94);
+  }
+  .portal-btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+  .portal-btn-outline:hover {
+    background: var(--accent);
+  }
+  .portal-btn-lg {
+    min-height: 3.15rem;
+    padding: 0 1.5rem;
+    font-size: 0.95rem;
+  }
+  .portal-btn-on-band {
+    background: #ffffff;
+    color: var(--band);
+    border-color: #ffffff;
+  }
+  .portal-btn-on-band:hover {
+    background: #f1efea;
+  }
+  html.dark .portal-btn-on-band {
+    background: #17211e;
+    color: #8ce0c4;
+    border-color: #31443d;
+  }
+  html.dark .portal-btn-on-band:hover {
+    background: #1d2b27;
+  }
+  .viewfinder {
+    position: absolute;
+    inset: 18px;
+    pointer-events: none;
+  }
+  .viewfinder span {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-color: #ffffff;
+    border-style: solid;
+  }
+  .viewfinder .tl {
+    top: 0;
+    left: 0;
+    border-width: 3px 0 0 3px;
+  }
+  .viewfinder .tr {
+    top: 0;
+    right: 0;
+    border-width: 3px 3px 0 0;
+  }
+  .viewfinder .bl {
+    bottom: 0;
+    left: 0;
+    border-width: 0 0 3px 3px;
+  }
+  .viewfinder .br {
+    bottom: 0;
+    right: 0;
+    border-width: 0 3px 3px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
