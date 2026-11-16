@@ -75,10 +75,11 @@ function Report({ result }: { result: ScanResult }) {
     result.age_category === "adult" ? "adult" : "child_6_59m";
   const bands = getMuacBands(category);
   const value = Number(result.muac_estimate_mm);
-  const clampedValue = Math.max(bands.min, Math.min(bands.max, value));
-  const position = ((clampedValue - bands.min) / (bands.max - bands.min)) * 100;
-  const severeWidth = ((bands.severeBelow - bands.min) / (bands.max - bands.min)) * 100;
-  const moderateWidth = ((bands.moderateBelow - bands.severeBelow) / (bands.max - bands.min)) * 100;
+  const scaleMin = Math.min(bands.min, value);
+  const scaleMax = Math.max(bands.max, value);
+  const position = ((value - scaleMin) / (scaleMax - scaleMin)) * 100;
+  const severeWidth = ((bands.severeBelow - scaleMin) / (scaleMax - scaleMin)) * 100;
+  const moderateWidth = ((bands.moderateBelow - bands.severeBelow) / (scaleMax - scaleMin)) * 100;
   const normalWidth = 100 - severeWidth - moderateWidth;
   const subject = result.child ?? {};
   const subjectName = subject.name ?? result.child_name ?? result.name ?? result.child_id;
@@ -173,10 +174,10 @@ function Report({ result }: { result: ScanResult }) {
             </div>
           </div>
           <div className="mt-2 flex justify-between font-mono text-xs text-muted-foreground">
-            <span>{bands.min} mm</span>
+            <span>{scaleMin} mm</span>
             <span>{bands.severeBelow} mm</span>
             <span>{bands.moderateBelow} mm</span>
-            <span>{bands.max} mm</span>
+            <span>{scaleMax} mm</span>
           </div>
         </div>
       </section>

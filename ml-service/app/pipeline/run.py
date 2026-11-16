@@ -203,30 +203,27 @@ def run_muac_pipeline(
         baseline_mm = 0.0
     muac_mm = _calibrator.predict(float(baseline_mm))
     min_muac, max_muac = MUAC_RANGES_MM[age_category]
-    if not min_muac <= muac_mm <= max_muac:
+    if not np.isfinite(muac_mm) or muac_mm <= 0:
         logger.warning(
-            "estimate rejected: muac_mm=%.3f outside %s range %.1f-%.1f",
+            "estimate rejected: invalid muac_mm=%.3f for %s range %.1f-%.1f",
             muac_mm,
             age_category,
             min_muac,
             max_muac,
         )
-        if age_category == "child_6_59m" and muac_mm > max_muac:
-            message = (
-                "This photo appears to be outside the child range. "
-                "If this is an adult, return to the list and choose Adults "
-                "before screening."
-            )
-        else:
-            message = (
-                f"The measured MUAC is outside the valid {age_category} range. "
-                "Retake the photo with the full arm and marker visible."
-            )
         return {
             "ok": False,
-            "error": "measurement_out_of_range",
-            "message": message,
+            "error": "invalid_measurement",
+            "message": "The image produced an invalid MUAC measurement. Retake the photo with the full arm and marker visible.",
         }
+    if not min_muac <= muac_mm <= max_muac:
+        logger.warning(
+            "estimate outside display range: muac_mm=%.3f for %s range %.1f-%.1f",
+            muac_mm,
+            age_category,
+            min_muac,
+            max_muac,
+        )
     classified = classify_risk_band(muac_mm, age_category)
     confidence = compute_confidence_score(
         float(reference.get("confidence") or 0.0),
