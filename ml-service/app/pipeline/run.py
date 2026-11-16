@@ -171,10 +171,20 @@ def run_muac_pipeline(
         max_width_px=None,
     )
     if age_category == "child_6_59m" and marker_side_px > 0:
-        # A child upper arm cannot be wider than the 50 mm reference marker
-        # used at the same site. The outer-span fallback can include the torso
-        # when the marker hides the complete arm cross-section.
-        width_px = min(width_px, marker_side_px * 0.85)
+        # When the marker hides the cross-section, the outer span can include
+        # nearby torso pixels. Reconstruct the arm from the visible side runs
+        # instead of forcing every child image to the same marker-based value.
+        visible_width_px = measure_width_perpendicular(
+            mask,
+            centroid,
+            angle,
+            bridge_internal_gaps=False,
+            search_radius_px=int(marker_side_px / 2 + 25),
+            min_width_px=marker_side_px * 0.2,
+            max_width_px=None,
+        )
+        if visible_width_px > 0:
+            width_px = min(width_px, visible_width_px * 2.0)
     seg_ok = _segmentation_ok(mask, width_px)
     seg_quality = _segmentation_quality(mask)
     logger.info(
