@@ -170,6 +170,11 @@ def run_muac_pipeline(
         # browser before reaching the service.
         max_width_px=None,
     )
+    if age_category == "child_6_59m" and marker_side_px > 0:
+        # A child upper arm cannot be wider than the 50 mm reference marker
+        # used at the same site. The outer-span fallback can include the torso
+        # when the marker hides the complete arm cross-section.
+        width_px = min(width_px, marker_side_px * 0.85)
     seg_ok = _segmentation_ok(mask, width_px)
     seg_quality = _segmentation_quality(mask)
     logger.info(
@@ -196,13 +201,21 @@ def run_muac_pipeline(
             min_muac,
             max_muac,
         )
+        if age_category == "child_6_59m" and muac_mm > max_muac:
+            message = (
+                "This photo appears to be outside the child range. "
+                "If this is an adult, return to the list and choose Adults "
+                "before screening."
+            )
+        else:
+            message = (
+                f"The measured MUAC is outside the valid {age_category} range. "
+                "Retake the photo with the full arm and marker visible."
+            )
         return {
             "ok": False,
             "error": "measurement_out_of_range",
-            "message": (
-                f"The measured MUAC is outside the valid {age_category} range. "
-                "Retake the photo with the full arm and marker visible."
-            ),
+            "message": message,
         }
     classified = classify_risk_band(muac_mm, age_category)
     confidence = compute_confidence_score(
