@@ -153,6 +153,25 @@ def run_migrations(engine: Engine):
                         text("UPDATE children SET age_category = 'child_6_59m' WHERE age_category IS NULL")
                     )
                     conn.commit()
+                if "scans" in table_names:
+                    # Repair legacy adult registrations whose scan retained the
+                    # old child default. Avoid changing a child that has both
+                    # category-specific scans.
+                    conn.execute(text("""
+                        UPDATE scans
+                        SET age_category = 'adult'
+                        WHERE age_category = 'child_6_59m'
+                          AND child_id IN (
+                              SELECT id FROM children WHERE age_category = 'adult'
+                          )
+                          AND NOT EXISTS (
+                              SELECT 1
+                              FROM scans adult_scan
+                              WHERE adult_scan.child_id = scans.child_id
+                                AND adult_scan.age_category = 'adult'
+                          )
+                    """))
+                    conn.commit()
             if "users" in table_names:
                 user_columns = [c["name"] for c in inspector.get_columns("users")]
                 if "email" not in user_columns:

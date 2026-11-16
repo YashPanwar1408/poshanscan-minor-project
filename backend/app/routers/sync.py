@@ -12,7 +12,7 @@ from app.models.user import User
 from app.models.child import Child
 from app.models.scan import Scan
 from app.schemas.scan import SyncScanItemResponse
-from app.services.storage import save_upload_file
+from app.services.storage import save_upload_file, upload_url
 from app.services.cv_client import run_cv_inference, CVInferenceError
 
 logger = logging.getLogger("poshanscan-backend.sync")
@@ -131,7 +131,11 @@ async def sync_offline_scans(
 
         try:
             image_bytes = await img.read()
-            image_path = save_upload_file(image_bytes, img.filename or f"{client_scan_id}.jpg")
+            image_path = save_upload_file(
+                image_bytes,
+                img.filename or f"{client_scan_id}.jpg",
+                img.content_type or "image/jpeg",
+            )
             
             cv_res = await run_cv_inference(
                 image_bytes=image_bytes,
@@ -185,9 +189,7 @@ async def sync_offline_scans(
                 else datetime.now(timezone.utc).isoformat()
             )
 
-            import os
-            img_name = os.path.basename(scan_rec.image_path) if scan_rec.image_path else f"{scan_rec.id}.jpg"
-            img_url = f"https://poshanscan-backend.onrender.com/uploads/{img_name}"
+            img_url = upload_url(scan_rec.image_path, "")
 
             results.append(
                 SyncScanItemResponse(

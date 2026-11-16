@@ -11,7 +11,7 @@ from app.models.user import User
 from app.models.child import Child
 from app.models.scan import Scan
 from app.schemas.scan import ScanResultResponse
-from app.services.storage import save_upload_file
+from app.services.storage import save_upload_file, upload_url
 from app.services.cv_client import run_cv_inference, CVInferenceError
 
 router = APIRouter(prefix="/scans", tags=["Scans"])
@@ -111,7 +111,11 @@ async def submit_scan(
 
     # 2. Read image content and save to storage
     image_bytes = await image.read()
-    image_path = save_upload_file(image_bytes, image.filename or "scan.jpg")
+    image_path = save_upload_file(
+        image_bytes,
+        image.filename or "scan.jpg",
+        image.content_type or "image/jpeg",
+    )
 
     # 3. Forward to CV service
     try:
@@ -186,9 +190,10 @@ async def submit_scan(
 
     created_iso = persisted_created_at.isoformat() if persisted_created_at else datetime.now(timezone.utc).isoformat()
 
-    import os
-    img_name = os.path.basename(scan_record.image_path) if scan_record.image_path else f"{scan_record.id}.jpg"
-    img_url = f"{str(request.base_url).rstrip('/')}/uploads/{img_name}" if request else f"/uploads/{img_name}"
+    img_url = upload_url(
+        scan_record.image_path,
+        str(request.base_url) if request else "",
+    )
 
     return ScanResultResponse(
         id=scan_record.id,
@@ -227,9 +232,7 @@ def get_scan(
             detail="Scan record not found.",
         )
     created_iso = scan.created_at.isoformat() if scan.created_at else datetime.now(timezone.utc).isoformat()
-    import os
-    img_name = os.path.basename(scan.image_path) if scan.image_path else f"{scan.id}.jpg"
-    img_url = f"{str(request.base_url).rstrip('/')}/uploads/{img_name}"
+    img_url = upload_url(scan.image_path, str(request.base_url))
     child = db.query(Child).filter(Child.id == scan.child_id).first()
     worker = db.query(User).filter(User.id == scan.worker_id).first()
 

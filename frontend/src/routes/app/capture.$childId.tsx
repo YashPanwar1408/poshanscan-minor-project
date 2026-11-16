@@ -221,7 +221,7 @@ function Capture() {
             </div>
           ) : (
             <>
-              <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-foreground">
+              <div className="relative h-[min(65vh,560px)] min-h-[280px] w-full overflow-hidden rounded-md bg-foreground">
                 {photo ? (
                   <img
                     src={preview}

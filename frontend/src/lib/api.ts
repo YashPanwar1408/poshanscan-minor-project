@@ -103,6 +103,9 @@ export function errorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (error.response?.status === 401)
       return "Your session has expired or the credentials are incorrect. Please log in again.";
+    if (typeof error.response?.data === "string" && /<html|<!doctype/i.test(error.response.data)) {
+      return "The server is temporarily unavailable. Please wait a moment and try again.";
+    }
     return (
       error.response?.data?.message || error.message || "Something went wrong. Please try again."
     );

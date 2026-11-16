@@ -300,7 +300,11 @@ export function OverviewPage() {
             <div>
               <p className="sv-eyebrow">Risk Classification Distribution</p>
               <h2 className="text-sm font-semibold text-[var(--sv-text)]">
-                Screening bands (6–59 months)
+                {ageCategory === "adult"
+                  ? "Adult MUAC Screening Bands"
+                  : ageCategory === "child_6_59m"
+                    ? "Screening bands (6–59 months)"
+                    : "Screening bands (all categories)"}
               </h2>
             </div>
             <span className="font-mono text-xs text-[var(--sv-muted)]">

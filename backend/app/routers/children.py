@@ -32,8 +32,6 @@ def search_children(
     Matches Navya's GET /children/search?q=
     """
     query = db.query(Child)
-    if age_category in ("child_6_59m", "adult"):
-        query = query.filter(Child.age_category == age_category)
     if q:
         search_pattern = f"%{q.strip().lower()}%"
         query = query.filter(
@@ -45,7 +43,9 @@ def search_children(
             )
         )
     
-    results = query.limit(30).all()
+    # Fetch matching records before applying the category so legacy rows whose
+    # category was migrated from their scan history are classified correctly.
+    results = query.limit(100).all()
     if not results:
         return []
 
@@ -60,6 +60,17 @@ def search_children(
         c_scans = scans_by_child.get(c.id, [])
         has_child = any((s.age_category or "child_6_59m") == "child_6_59m" for s in c_scans)
         has_adult = any((s.age_category or "child_6_59m") == "adult" for s in c_scans)
+        declared_category = c.age_category or "child_6_59m"
+        # Older records may still have the default child category even though
+        # they were created and scanned as adults. Keep those records out of
+        # the child list without changing the stored database row here.
+        effective_category = (
+            "adult"
+            if declared_category == "child_6_59m" and has_adult and not has_child
+            else declared_category
+        )
+        if age_category in ("child_6_59m", "adult") and effective_category != age_category:
+            continue
         summaries = [
             ChildScanSummary(
                 scan_id=s.id,
@@ -73,14 +84,20 @@ def search_children(
             for s in c_scans
         ]
         
-        category_scans = [s for s in c_scans if (s.age_category or "child_6_59m") == (age_category or c.age_category or "child_6_59m")]
+        target_category = age_category or effective_category
+        category_scans = [
+            s for s in c_scans
+            if (s.age_category or "child_6_59m") == target_category
+        ]
         latest_scan = max(category_scans, key=lambda x: x.created_at.timestamp() if x.created_at else 0) if category_scans else None
 
         img_url = None
         if latest_scan and latest_scan.image_path:
-            import os
-            fname = os.path.basename(latest_scan.image_path)
-            img_url = f"{str(request.base_url).rstrip('/')}/uploads/{fname}" if request else f"/uploads/{fname}"
+            from app.services.storage import upload_url
+            img_url = upload_url(
+                latest_scan.image_path,
+                str(request.base_url) if request else "",
+            )
 
         items.append(
             ChildResponse(
@@ -91,7 +108,7 @@ def search_children(
                 gender=c.gender,
                 guardian_name=c.guardian_name,
                 village=c.village,
-                age_category=c.age_category or "child_6_59m",
+                age_category=effective_category,
                 has_child_scan=has_child,
                 has_adult_scan=has_adult,
                 scans=summaries,

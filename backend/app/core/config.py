@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./poshanscan.db"
     SUPABASE_URL: str = ""
     SUPABASE_PUBLISHABLE_KEY: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+    SUPABASE_STORAGE_BUCKET: str = "scan-images"
 
     # Security & JWT
     JWT_SECRET: str = "poshanscan-gtbit-secret-key-2026-cse-ds"

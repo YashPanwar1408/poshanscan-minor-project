@@ -13,6 +13,7 @@ from app.models.user import User
 from app.models.child import Child
 from app.models.scan import Scan
 from app.models.location import Location
+from app.services.storage import upload_url
 from app.schemas.dashboard import (
     OverviewStats,
     TrendItem,
@@ -366,8 +367,7 @@ def get_flagged_scans(
         item_status = "reviewed" if s.sync_status == "reviewed" else "pending"
 
         # Construct image URL
-        img_name = os.path.basename(s.image_path) if s.image_path else f"{s.id}.jpg"
-        img_url = f"{str(request.base_url).rstrip('/')}/uploads/{img_name}"
+        img_url = upload_url(s.image_path, str(request.base_url))
 
         flagged.append(
             FlaggedScan(
@@ -382,7 +382,7 @@ def get_flagged_scans(
                 image_url=img_url,
                 photo_url=img_url,
                 media_url=img_url,
-                age_category=s.age_category or "child_6_59m",
+                age_category=s.age_category or c.age_category or "child_6_59m",
                 muac_estimate_mm=s.muac_estimate_mm,
                 risk_band=s.risk_band.capitalize() if s.risk_band == "NORMAL" else s.risk_band,
                 confidence=s.confidence_score,
