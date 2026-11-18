@@ -1,5 +1,6 @@
 import logging
 import random
+import asyncio
 from typing import Optional
 import httpx
 from fastapi import HTTPException, status
@@ -88,10 +89,15 @@ async def run_cv_inference(
     }
 
     try:
-        # Render's free ML instance may need up to a minute to wake before it
-        # accepts the first inference request.
-        async with httpx.AsyncClient(timeout=httpx.Timeout(90.0, connect=20.0)) as client:
-            response = await client.post(url, files=files, data=data)
+        # Render's free ML instance can return a transient gateway response while
+        # waking. Retry only gateway/service failures; validation errors are final.
+        async with httpx.AsyncClient(timeout=httpx.Timeout(85.0, connect=20.0)) as client:
+            response = None
+            for attempt in range(2):
+                response = await client.post(url, files=files, data=data)
+                if response.status_code not in (502, 503, 504) or attempt == 1:
+                    break
+                await asyncio.sleep(2.0)
     except httpx.RequestError as exc:
         logger.error("Failed to connect to CV service: %s", exc)
         raise CVInferenceError(
@@ -108,9 +114,15 @@ async def run_cv_inference(
     # Error handling from Yash's API (422 / 500)
     try:
         err_payload = response.json()
+        if isinstance(err_payload.get("detail"), list):
+            message = "; ".join(
+                str(item.get("msg", item)) if isinstance(item, dict) else str(item)
+                for item in err_payload["detail"]
+            )
+        else:
+            message = err_payload.get("message", "Error from CV service.")
         error_code = err_payload.get("error", "cv_error")
-        message = err_payload.get("message", "Error from CV service.")
-    except Exception:
+    except (ValueError, TypeError, AttributeError):
         error_code = "cv_error"
         message = response.text or "Error from CV service."
 

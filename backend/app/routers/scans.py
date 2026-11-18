@@ -109,13 +109,8 @@ async def submit_scan(
             },
         )
 
-    # 2. Read image content and save to storage
+    # 2. Read image content
     image_bytes = await image.read()
-    image_path = save_upload_file(
-        image_bytes,
-        image.filename or "scan.jpg",
-        image.content_type or "image/jpeg",
-    )
 
     # 3. Forward to CV service
     try:
@@ -131,6 +126,14 @@ async def submit_scan(
             status_code=exc.status_code,
             content={"error": exc.error, "message": exc.message},
         )
+
+    # Persist only validated scans so transient CV failures do not leave orphaned
+    # images that look like completed records.
+    image_path = save_upload_file(
+        image_bytes,
+        image.filename or "scan.jpg",
+        image.content_type or "image/jpeg",
+    )
 
     # 4. Standardize risk band to uppercase ('NORMAL', 'MAM', 'SAM')
     raw_band = (cv_result.risk_band or "NORMAL").upper()

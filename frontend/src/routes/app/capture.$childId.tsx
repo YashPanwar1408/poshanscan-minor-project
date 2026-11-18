@@ -191,8 +191,6 @@ function Capture() {
             ? "We couldn't see the marker clearly. Please retake the photo with the marker fully visible."
             : code === "arm_not_detected"
               ? "We couldn't clearly see the arm. Please retake with better lighting and framing."
-              : code === "measurement_out_of_range"
-              ? "The measured MUAC is outside the expected range for this category. Please retake with the full arm and marker clearly visible."
               : errorMessage(e),
         );
       }

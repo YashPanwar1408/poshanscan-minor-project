@@ -106,6 +106,15 @@ export function errorMessage(error: unknown) {
     if (typeof error.response?.data === "string" && /<html|<!doctype/i.test(error.response.data)) {
       return "The server is temporarily unavailable. Please wait a moment and try again.";
     }
+    if (Array.isArray(error.response?.data?.detail)) {
+      return error.response.data.detail
+        .map((item: unknown) =>
+          typeof item === "object" && item !== null && "msg" in item
+            ? String((item as { msg: unknown }).msg)
+            : String(item),
+        )
+        .join("; ");
+    }
     return (
       error.response?.data?.message || error.message || "Something went wrong. Please try again."
     );
