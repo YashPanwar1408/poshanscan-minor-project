@@ -103,11 +103,21 @@ export function errorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (error.response?.status === 401)
       return "Your session has expired or the credentials are incorrect. Please log in again.";
-    if (typeof error.response?.data === "string" && /<html|<!doctype/i.test(error.response.data)) {
+    const responseData = error.response?.data;
+    const responseMessage =
+      typeof responseData === "object" &&
+      responseData !== null &&
+      "message" in responseData
+        ? String((responseData as { message: unknown }).message)
+        : "";
+    if (
+      (typeof responseData === "string" && /<html|<!doctype/i.test(responseData)) ||
+      /<html|<!doctype/i.test(responseMessage)
+    ) {
       return "The server is temporarily unavailable. Please wait a moment and try again.";
     }
-    if (Array.isArray(error.response?.data?.detail)) {
-      return error.response.data.detail
+    if (Array.isArray(responseData?.detail)) {
+      return responseData.detail
         .map((item: unknown) =>
           typeof item === "object" && item !== null && "msg" in item
             ? String((item as { msg: unknown }).msg)
@@ -115,8 +125,11 @@ export function errorMessage(error: unknown) {
         )
         .join("; ");
     }
+    if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
+      return "The backend is temporarily unavailable. Please wait a moment and try again.";
+    }
     return (
-      error.response?.data?.message || error.message || "Something went wrong. Please try again."
+      responseMessage || error.message || "Something went wrong. Please try again."
     );
   }
   return error instanceof Error ? error.message : "Something went wrong. Please try again.";
