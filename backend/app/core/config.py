@@ -22,7 +22,9 @@ class Settings(BaseSettings):
 
     # AI/CV Microservice (Yash's service)
     CV_SERVICE_URL: str = "http://localhost:8001"
-    MOCK_CV: bool = True
+    # Real CV inference is the safe default. Tests may explicitly set
+    # MOCK_CV=True in their isolated process.
+    MOCK_CV: bool = False
 
     # Image upload directory
     UPLOAD_DIR: str = "./uploads"

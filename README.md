@@ -134,7 +134,7 @@ The backend applies database migrations during startup. The database is not
 reset by normal startup. Use the project's explicit maintenance/reset process
 only when a fresh dataset is intended.
 
-For isolated backend tests only, enable mock CV in the test process:
+For isolated backend tests only, explicitly enable mock CV in the test process:
 
 ```powershell
 $env:MOCK_CV = "True"
