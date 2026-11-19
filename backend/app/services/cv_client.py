@@ -57,9 +57,9 @@ async def run_cv_inference(
         # waking. Retry only gateway/service failures; validation errors are final.
         async with httpx.AsyncClient(timeout=httpx.Timeout(85.0, connect=20.0)) as client:
             response = None
-            for attempt in range(2):
+            for attempt in range(3):
                 response = await client.post(url, files=files, data=data)
-                if response.status_code not in (502, 503, 504) or attempt == 1:
+                if response.status_code not in (502, 503, 504) or attempt == 2:
                     break
                 await asyncio.sleep(2.0)
     except httpx.RequestError as exc:

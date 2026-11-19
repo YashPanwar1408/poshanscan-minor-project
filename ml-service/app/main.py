@@ -45,9 +45,6 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-def startup() -> None:
-    logger.info("startup: PoshanScan CV service ready")
 
 
 def _error(status_code: int, error: str, message: str) -> JSONResponse:

@@ -1,5 +1,6 @@
 import os
 import logging
+import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,6 +40,18 @@ async def lifespan(app: FastAPI):
     # Apply database schema migrations & cleanup
     from app.core.migration import run_migrations
     run_migrations(engine)
+
+    # Wake the ML service during backend startup so the first real scan does
+    # not compete with a free-tier cold start.
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            cv_health = await client.get(f"{settings.CV_SERVICE_URL.rstrip('/')}/health")
+            if cv_health.status_code == 200:
+                logger.info("ML service is reachable")
+            else:
+                logger.warning("ML service health check returned %s", cv_health.status_code)
+    except httpx.RequestError as exc:
+        logger.warning("ML service could not be reached during startup: %s", exc)
 
     yield
 
