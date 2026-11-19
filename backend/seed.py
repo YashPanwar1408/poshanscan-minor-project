@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 import random
+import os
 from app.core.database import Base, engine, SessionLocal
 from app.core.security import get_password_hash
 from app.core.migration import run_migrations
@@ -11,6 +12,8 @@ from app.models.scan import Scan
 
 def seed():
     """Seed comprehensive dataset for PoshanScan so supervisor dashboard is fully populated."""
+    if os.getenv("POSHANSCAN_SEED_DEMO", "").strip().lower() not in {"1", "true", "yes"}:
+        raise RuntimeError("Demo seeding is disabled. Set POSHANSCAN_SEED_DEMO=true explicitly.")
     Base.metadata.create_all(bind=engine)
     run_migrations(engine)
     db = SessionLocal()

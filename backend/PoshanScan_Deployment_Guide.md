@@ -64,7 +64,6 @@ Commit and push this before deploying. This is the only code change required; ev
 | `ALGORITHM` | `HS256` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `1440` |
 | `CV_SERVICE_URL` | Your Hugging Face Space URL from Step 1 (e.g. `https://yourname-poshanscan-cv.hf.space`) |
-| `MOCK_CV` | `False` — **this is the switch that makes the backend call your real CV service instead of returning fake random results** |
 | `UPLOAD_DIR` | `./uploads` |
 | `DEBUG` | `False` |
 
@@ -175,7 +174,6 @@ If all three of those work, your four repos are now one connected, working app.
 ## Troubleshooting Checklist
 
 - **Worker app shows login error** → check `VITE_API_BASE_URL` has no trailing slash and points to the Render URL, not localhost
-- **Scan always returns random-looking results** → `MOCK_CV` is still `True` on Render; flip it to `False` and redeploy
 - **Dashboard shows fake demo data no matter what** → `VITE_USE_MOCKS` is still `true` on Vercel; flip it to `false` and redeploy
 - **Backend crashes on startup after deploying** → almost certainly the missing `psycopg2-binary` fix from the top of this guide
 - **First scan after inactivity takes ~30–60 seconds** → expected; both Render's free tier and Hugging Face Spaces cold-start after idling. Your worker app's `config.ts` already accounts for this with a 90-second `scanTimeoutMs` and an 8-second "server is waking up" hint — no fix needed, just open the backend/CV URLs a minute before any live demo to warm them up

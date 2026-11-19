@@ -20,11 +20,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
-    # AI/CV Microservice (Yash's service)
+    # AI/CV Microservice
     CV_SERVICE_URL: str = "http://localhost:8001"
-    # Real CV inference is the safe default. Tests may explicitly set
-    # MOCK_CV=True in their isolated process.
-    MOCK_CV: bool = False
 
     # Image upload directory
     UPLOAD_DIR: str = "./uploads"

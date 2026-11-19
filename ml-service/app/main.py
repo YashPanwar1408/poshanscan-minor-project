@@ -45,6 +45,11 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+def startup() -> None:
+    logger.info("startup: PoshanScan CV service ready")
+
+
 def _error(status_code: int, error: str, message: str) -> JSONResponse:
     return JSONResponse(
         status_code=status_code,
@@ -68,6 +73,7 @@ def root() -> RedirectResponse:
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     """Return a simple liveness check."""
+    logger.info("health: service=liveness status=ok")
     return HealthResponse(status="ok")
 
 
@@ -86,6 +92,11 @@ async def infer(
     reference_size_mm: float = Form(50.0, description="Printed marker edge length in millimetres."),
 ) -> InferResponse | JSONResponse:
     """Run the MUAC pipeline on an uploaded image."""
+    logger.info(
+        "infer: started category=%s reference_mm=%.1f",
+        age_category,
+        reference_size_mm,
+    )
     try:
         # Validate age_category before any expensive work — never infer or default.
         _age_category_err = _error(
@@ -116,6 +127,15 @@ async def infer(
             )
 
         result = run_muac_pipeline(bgr, float(reference_size_mm), validated_age_category.value)
+        logger.info(
+            "infer: result=%s",
+            {
+                "ok": result.get("ok"),
+                "error": result.get("error"),
+                "muac_mm": result.get("muac_estimate_mm"),
+                "risk_band": result.get("risk_band"),
+            },
+        )
         if not result.get("ok"):
             return _error(
                 422,

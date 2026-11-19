@@ -89,7 +89,7 @@ credentials:
 - ML service: uses its Python defaults unless overridden
 
 The backend `.env` contains the working URL-encoded database connection and
-points to the local ML service with `MOCK_CV=False`. If you use another
+points to the local ML service. If you use another
 database, update `DATABASE_URL` and restart the backend.
 
 Frontend configuration:
@@ -134,10 +134,9 @@ The backend applies database migrations during startup. The database is not
 reset by normal startup. Use the project's explicit maintenance/reset process
 only when a fresh dataset is intended.
 
-For isolated backend tests only, explicitly enable mock CV in the test process:
+For isolated backend tests, the test suite replaces CV calls with deterministic test responses:
 
 ```powershell
-$env:MOCK_CV = "True"
 pytest -q
 ```
 
@@ -225,7 +224,6 @@ npm test -- --run
 npm run build
 
 cd ..\backend
-$env:MOCK_CV = "True"
 pytest -q
 
 cd ..\ml-service
@@ -257,7 +255,6 @@ Confirm both services are running and that `backend/.env` contains:
 
 ```text
 CV_SERVICE_URL=http://127.0.0.1:8001
-MOCK_CV=False
 ```
 
 Use the 50 mm marker, keep the full upper arm visible, and grant browser

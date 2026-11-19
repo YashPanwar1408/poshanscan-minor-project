@@ -81,7 +81,6 @@ category so adult records never skew child malnutrition data.
 
 ### 4. Computer Vision Microservice Integration (Yash)
 - Central backend forwards multipart requests to Yash's `POST /infer` endpoint with `reference_type`, `reference_size_mm`, and `age_category`.
-- Built-in dual-scale simulation engine (`MOCK_CV=True`) supporting isolated tests only:
   - **Child (`child_6_59m`):** `<115mm` SAM, `115–124.9mm` MAM, `≥125mm` Normal.
   - **Adult (`adult`):** `<210mm` SAM, `210–229mm` MAM, `≥230mm` Normal.
 

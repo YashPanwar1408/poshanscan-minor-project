@@ -1,4 +1,5 @@
 import pytest
+import os
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -9,14 +10,18 @@ from app.models.user import User
 from app.models.child import Child
 from app.main import app
 
-from sqlalchemy.pool import StaticPool
+from app.schemas.cv import CVInferResponse, CVQualityFlags
+from app.routers import scans as scans_router
+from app.routers import sync as sync_router
 
 # In-memory SQLite for isolated test runs with StaticPool
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+TEST_DB_PATH = "test_poshanscan.db"
+if os.path.exists(TEST_DB_PATH):
+    os.remove(TEST_DB_PATH)
+SQLALCHEMY_DATABASE_URL = f"sqlite:///./{TEST_DB_PATH}"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -59,6 +64,9 @@ def setup_test_db():
     db.close()
     yield
     Base.metadata.drop_all(bind=engine)
+    engine.dispose()
+    if os.path.exists(TEST_DB_PATH):
+        os.remove(TEST_DB_PATH)
 
 
 def override_get_db():
@@ -70,6 +78,42 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_cv_for_tests():
+    async def fake_cv_inference(
+        image_bytes,
+        filename="scan.jpg",
+        reference_type="aruco",
+        reference_size_mm=50.0,
+        age_category="child_6_59m",
+    ):
+        norm_age = "adult" if str(age_category).strip().lower() == "adult" else "child_6_59m"
+        muac = 260.0 if norm_age == "adult" else 130.0
+        risk_band = "Normal" if norm_age == "adult" else "Normal"
+        if norm_age == "adult":
+            risk_band = "Normal"
+        return CVInferResponse(
+            muac_estimate_mm=muac,
+            risk_band=risk_band,
+            confidence_score=0.9,
+            quality_flags=CVQualityFlags(
+                reference_detected=True,
+                arm_detected=True,
+                segmentation_ok=True,
+            ),
+            pipeline_version="test",
+            age_category=norm_age,
+        )
+
+    original_scans = scans_router.run_cv_inference
+    original_sync = sync_router.run_cv_inference
+    scans_router.run_cv_inference = fake_cv_inference
+    sync_router.run_cv_inference = fake_cv_inference
+    yield
+    scans_router.run_cv_inference = original_scans
+    sync_router.run_cv_inference = original_sync
 
 
 @pytest.fixture
