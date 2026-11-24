@@ -7,9 +7,12 @@ import pytest
 
 from app.pipeline.pose_localize import (
     arm_axis_angle_degrees,
+    axis_angle_difference_degrees,
+    estimate_arm_axis_from_mask,
     locate_arm_midpoint,
     locate_from_marker,
     midpoint_px,
+    normalize_axis_angle_degrees,
 )
 from app.pipeline.segment import (
     measure_width_at_row,
@@ -119,11 +122,90 @@ def test_measure_width_at_row_empty_or_oob() -> None:
 
 
 def test_measure_width_perpendicular_can_bridge_reference_gap() -> None:
+    mask = np.zeros((300, 300), dtype=np.uint8)
+    mask[20:280, 20:80] = 255
+    mask[140:160, 45:55] = 0
+    assert measure_width_perpendicular(mask, (50, 150), 90) == pytest.approx(25.0)
+    assert measure_width_perpendicular(mask, (50, 150), 90, bridge_internal_gaps=True) == pytest.approx(60.0)
+
+
+@pytest.mark.parametrize("arm_angle", [0.0, 90.0, 27.0, 135.0])
+def test_mask_axis_and_direct_width_sampling_for_horizontal_vertical_and_diagonal_arms(arm_angle: float) -> None:
+    import cv2
+
+    size = 360
+    center = np.array([180.0, 180.0])
+    radians = np.deg2rad(arm_angle)
+    axis = np.array([np.cos(radians), np.sin(radians)])
+    normal = np.array([-axis[1], axis[0]])
+    corners = np.array([
+        center - 130 * axis - 22 * normal,
+        center + 130 * axis - 22 * normal,
+        center + 130 * axis + 22 * normal,
+        center - 130 * axis + 22 * normal,
+    ], dtype=np.int32)
+    mask = np.zeros((size, size), dtype=np.uint8)
+    cv2.fillConvexPoly(mask, corners, 255)
+
+    estimate = estimate_arm_axis_from_mask(mask, tuple(center))
+    assert estimate["angle_degrees"] is not None
+    assert axis_angle_difference_degrees(float(estimate["angle_degrees"]), arm_angle) < 1.0
+    assert measure_width_perpendicular(mask, tuple(center), float(estimate["angle_degrees"])) == pytest.approx(
+        44.0, abs=2.0
+    )
+
+
+def test_rotated_mask_keeps_axis_and_cross_section_in_original_coordinates() -> None:
+    import cv2
+
+    mask = np.zeros((360, 360), dtype=np.uint8)
+    mask[45:315, 158:202] = 255
+    center = np.array([180.0, 180.0])
+    rotation = cv2.getRotationMatrix2D(tuple(center), 31.0, 1.0)
+    rotated = cv2.warpAffine(mask, rotation, (360, 360), flags=cv2.INTER_NEAREST)
+    new_point = rotation @ np.array([180.0, 70.0, 1.0])
+    expected_angle = arm_axis_angle_degrees(tuple(center), tuple(new_point))
+
+    estimate = estimate_arm_axis_from_mask(rotated, tuple(center))
+    assert estimate["angle_degrees"] is not None
+    assert axis_angle_difference_degrees(float(estimate["angle_degrees"]), expected_angle) < 1.0
+    assert measure_width_perpendicular(rotated, tuple(center), float(estimate["angle_degrees"])) == pytest.approx(
+        44.0, abs=2.0
+    )
+
+
+def test_wrong_marker_axis_is_rejected_when_mask_shows_vertical_arm() -> None:
+    mask = np.zeros((300, 300), dtype=np.uint8)
+    mask[20:280, 110:190] = 255
+    diagnostics: list[dict[str, object]] = []
+    width = measure_width_perpendicular(mask, (150, 150), 11.06, diagnostics=diagnostics)
+
+    assert width == 0.0
+    assert diagnostics[0]["reason"] == "arm_axis_disagrees_with_segmented_mask"
+
+
+def test_invalid_segmentation_has_no_mask_axis_or_measurable_width() -> None:
     mask = np.zeros((100, 100), dtype=np.uint8)
-    mask[40:60, 20:80] = 255
-    mask[40:60, 45:55] = 0
-    assert measure_width_perpendicular(mask, (50, 50), 90) == pytest.approx(25.0)
-    assert measure_width_perpendicular(mask, (50, 50), 90, bridge_internal_gaps=True) == pytest.approx(60.0)
+    estimate = estimate_arm_axis_from_mask(mask, (50, 50))
+    assert estimate["angle_degrees"] is None
+    assert measure_width_perpendicular(mask, (50, 50), 90.0) == 0.0
+
+
+def test_width_sampler_rejects_a_cross_section_clipped_by_crop_boundary() -> None:
+    mask = np.zeros((300, 300), dtype=np.uint8)
+    mask[20:280, 0:80] = 255
+    diagnostics: list[dict[str, object]] = []
+
+    width = measure_width_perpendicular(mask, (40, 150), 90.0, diagnostics=diagnostics)
+
+    assert width == 0.0
+    assert diagnostics[0]["touches_mask_boundary"] is True
+    assert diagnostics[0]["valid"] is False
+
+
+def test_axis_angle_normalization_uses_unoriented_image_axes() -> None:
+    assert normalize_axis_angle_degrees(-90.0) == pytest.approx(90.0)
+    assert axis_angle_difference_degrees(11.0, 191.0) == pytest.approx(0.0)
 
 
 def test_remove_polygon_from_mask_excludes_reference_marker() -> None:

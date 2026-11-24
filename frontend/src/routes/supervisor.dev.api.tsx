@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, ProtectedRoute } from "@/supervisor/components/AppShell";
 import { ApiInspectorPage } from "@/supervisor/pages/ApiInspectorPage";
@@ -7,19 +8,27 @@ const isDev = import.meta.env.DEV;
 
 export const Route = createFileRoute("/supervisor/dev/api")({
   head: () => ({
-    meta: [{ title: "API Inspector — PoshanScan Supervisor Dev" }],
+    meta: [
+      {
+        get title() {
+          return t("API Inspector — PoshanScan Supervisor Dev");
+        },
+      },
+    ],
   }),
   component: () => {
     if (!isDev) {
       return (
         <div className="flex min-h-screen items-center justify-center">
-          <p className="text-sm text-gray-500">Not available in production.</p>
+          <p className="text-sm text-gray-500">
+            <T source="Not available in production." />
+          </p>
         </div>
       );
     }
     return (
       <ProtectedRoute>
-        <AppShell title="API Inspector">
+        <AppShell title={t("API Inspector")}>
           <ApiInspectorPage />
         </AppShell>
       </ProtectedRoute>

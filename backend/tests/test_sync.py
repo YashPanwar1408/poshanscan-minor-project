@@ -60,6 +60,53 @@ def test_offline_sync(client, worker_token):
     assert results[1].get("error") is None
 
 
+def test_offline_sync_invalid_measurement_returns_unacknowledged_item(client, worker_token, monkeypatch):
+    import pytest
+    from app.routers import sync as sync_router
+    from app.services.cv_client import CVInferenceError
+
+    child_response = client.post(
+        "/children",
+        json={"name": "Invalid Offline Measurement", "dob": "2024-02-01", "gender": "F", "village": "Rampur"},
+        headers={"Authorization": f"Bearer {worker_token}"},
+    )
+    assert child_response.status_code == 201
+    child_id = child_response.json()["id"]
+    client_scan_id = "offline-invalid-measurement-regression"
+
+    async def reject_measurement(**_kwargs):
+        raise CVInferenceError(
+            status_code=422,
+            error="invalid_measurement",
+            message="The estimated MUAC is outside the supported range. No risk category was assigned.",
+        )
+
+    monkeypatch.setattr(sync_router, "run_cv_inference", reject_measurement)
+    monkeypatch.setattr(
+        sync_router,
+        "save_upload_file",
+        lambda *_args, **_kwargs: pytest.fail("invalid measurement image must not be persisted"),
+    )
+    response = client.post(
+        "/sync",
+        data={"metadata": json.dumps([{
+            "client_scan_id": client_scan_id,
+            "child_id": child_id,
+            "worker_id": "worker-uuid-001",
+            "age_category": "child_6_59m",
+        }])},
+        files=[("images", (f"{client_scan_id}.jpg", io.BytesIO(b"img"), "image/jpeg"))],
+        headers={"Authorization": f"Bearer {worker_token}"},
+    )
+
+    assert response.status_code == 200
+    item = response.json()[0]
+    assert item["client_scan_id"] == client_scan_id
+    assert item["error"] == "invalid_measurement"
+    assert "No risk category was assigned" in item["message"]
+    assert item.get("scan_id") is None
+
+
 def test_offline_sync_duplicate_rejected(client, worker_token):
     """
     If a child already has an online scan in DB, offline sync for the same person

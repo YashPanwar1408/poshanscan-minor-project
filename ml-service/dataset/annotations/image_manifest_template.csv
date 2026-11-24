@@ -1,0 +1,2 @@
+synthetic_image_id,image_filename,dataset_label,generation_source,generated_at,marker_type,nominal_marker_size_mm,marker_physical_size_verified,notes
+SIM-IMAGE-0001,example.png,synthetic,AI-generated,,aruco,50,false,Example row only; remove or replace before using the manifest

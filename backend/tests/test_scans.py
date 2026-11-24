@@ -1,5 +1,6 @@
 import io
 import concurrent.futures
+import pytest
 from app.models.child import Child
 from app.models.scan import Scan
 
@@ -33,6 +34,60 @@ def test_submit_scan(client, worker_token):
     assert res["muac_estimate_mm"] > 0
     assert res["risk_band"] in ["NORMAL", "MAM", "SAM"]
     assert 0.0 <= res["confidence_score"] <= 1.0
+
+
+def test_invalid_measurement_is_forwarded_as_error_and_never_saved(
+    client, worker_token, monkeypatch, test_db_session
+):
+    from app.routers import scans as scans_router
+    from app.services.cv_client import CVInferenceError
+
+    child_response = client.post(
+        "/children",
+        json={
+            "name": "Invalid Measurement Regression",
+            "dob": "2023-04-01",
+            "gender": "M",
+            "guardian_name": "Test Guardian",
+            "village": "Test Village",
+        },
+        headers={"Authorization": f"Bearer {worker_token}"},
+    )
+    assert child_response.status_code == 201
+    child_id = child_response.json()["id"]
+    client_scan_id = "client-scan-invalid-measurement-regression"
+
+    async def reject_measurement(**_kwargs):
+        raise CVInferenceError(
+            status_code=422,
+            error="invalid_measurement",
+            message="The MUAC is outside the supported range. No risk category was assigned.",
+        )
+
+    monkeypatch.setattr(scans_router, "run_cv_inference", reject_measurement)
+    monkeypatch.setattr(
+        scans_router,
+        "save_upload_file",
+        lambda *_args, **_kwargs: pytest.fail("invalid measurement image must not be persisted"),
+    )
+    response = client.post(
+        "/scans",
+        data={
+            "child_id": child_id,
+            "worker_id": "worker-uuid-001",
+            "client_scan_id": client_scan_id,
+            "age_category": "child_6_59m",
+        },
+        files={"image": ("invalid.jpg", io.BytesIO(b"image bytes"), "image/jpeg")},
+        headers={"Authorization": f"Bearer {worker_token}"},
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": "invalid_measurement",
+        "message": "The MUAC is outside the supported range. No risk category was assigned.",
+    }
+    assert test_db_session.query(Scan).filter(Scan.client_scan_id == client_scan_id).first() is None
 
 
 def test_submit_scan_duplicate_conflict(client, worker_token):

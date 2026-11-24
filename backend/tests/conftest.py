@@ -122,6 +122,15 @@ def client():
 
 
 @pytest.fixture
+def test_db_session():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture
 def worker_token():
     return create_access_token(
         data={"sub": "worker-uuid-001", "role": "worker", "phone": "9876543210"}

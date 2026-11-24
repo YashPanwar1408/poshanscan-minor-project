@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 /**
  * Supervisor Login Page
  * Split layout: left ink panel with animated nodes + right form card.
@@ -163,15 +164,21 @@ function AmbientCanvas() {
 const CAPABILITIES = [
   {
     icon: <Broadcast size={16} weight="duotone" />,
-    text: "Live screening feed from all field workers",
+    get text() {
+      return t("Live screening feed from all field workers");
+    },
   },
   {
     icon: <ChartLineUp size={16} weight="duotone" />,
-    text: "Trend analysis across districts and time",
+    get text() {
+      return t("Trend analysis across districts and time");
+    },
   },
   {
     icon: <MapTrifold size={16} weight="duotone" />,
-    text: "Geographic risk mapping and flagged-case review",
+    get text() {
+      return t("Geographic risk mapping and flagged-case review");
+    },
   },
 ];
 
@@ -271,7 +278,7 @@ export function SupervisorLoginPage() {
           <Link
             to="/"
             className="group inline-flex items-center gap-2.5 transition-opacity hover:opacity-90"
-            title="Return to PoshanScan Home"
+            title={t("Return to PoshanScan Home")}
           >
             <svg
               viewBox="0 0 32 32"
@@ -292,21 +299,20 @@ export function SupervisorLoginPage() {
               className="text-[1.05rem] font-semibold tracking-tight text-white transition-colors group-hover:text-[var(--sv-primary)]"
               style={{ fontFamily: "var(--sv-font-display)" }}
             >
-              PoshanScan
+              <T source="PoshanScan" />{" "}
             </span>
           </Link>
 
           <div className="mt-14">
             <p className="sv-eyebrow" style={{ color: "var(--sv-primary)" }}>
-              Supervisor Portal
+              <T source="Supervisor Portal" />{" "}
             </p>
             <h1
               className="mt-3 text-3xl font-semibold leading-snug text-white"
               style={{ fontFamily: "var(--sv-font-display)" }}
             >
-              Programme oversight,
-              <br />
-              in one place.
+              <T source="Programme oversight," /> <br />
+              <T source="in one place." />{" "}
             </h1>
 
             <ul className="mt-8 space-y-3">
@@ -333,7 +339,7 @@ export function SupervisorLoginPage() {
             color: "var(--sv-ink-muted)",
           }}
         >
-          Screening aid — not a diagnosis. Always confirm with a trained health worker.
+          <T source="Screening aid — not a diagnosis. Always confirm with a trained health worker." />{" "}
         </div>
       </div>
 
@@ -343,7 +349,7 @@ export function SupervisorLoginPage() {
         <Link
           to="/"
           className="group mb-8 flex items-center gap-2 transition-opacity hover:opacity-90 lg:hidden"
-          title="Return to PoshanScan Home"
+          title={t("Return to PoshanScan Home")}
         >
           <svg
             viewBox="0 0 32 32"
@@ -364,7 +370,7 @@ export function SupervisorLoginPage() {
             className="text-lg font-semibold tracking-tight transition-colors group-hover:text-[var(--sv-primary)]"
             style={{ fontFamily: "var(--sv-font-display)" }}
           >
-            PoshanScan
+            <T source="PoshanScan" />{" "}
           </span>
         </Link>
 
@@ -384,19 +390,21 @@ export function SupervisorLoginPage() {
               role="status"
             >
               <Warning size={16} weight="fill" className="mt-0.5 shrink-0" />
-              Your session has expired. Please sign in again.
+              <T source="Your session has expired. Please sign in again." />{" "}
             </div>
           )}
 
-          <p className="sv-eyebrow">Supervisor Portal</p>
+          <p className="sv-eyebrow">
+            <T source="Supervisor Portal" />
+          </p>
           <h2
             className="mt-2 text-2xl font-semibold text-[var(--sv-text)]"
             style={{ fontFamily: "var(--sv-font-display)" }}
           >
-            Sign in
+            <T source="Sign in" />{" "}
           </h2>
           <p className="mt-1 text-sm text-[var(--sv-muted)]">
-            Phone number or admin ID, plus your password.
+            <T source="Phone number or admin ID, plus your password." />{" "}
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-7 space-y-4">
@@ -406,14 +414,14 @@ export function SupervisorLoginPage() {
                 htmlFor="sv-identifier"
                 className="mb-1.5 block text-xs font-semibold text-[var(--sv-text)]"
               >
-                Phone number or admin ID
+                <T source="Phone number or admin ID" />{" "}
               </label>
               <input
                 id="sv-identifier"
                 type="text"
                 autoComplete="username"
                 inputMode="tel"
-                placeholder="e.g. 9000000000 or admin"
+                placeholder={t("e.g. 9000000000 or admin")}
                 {...register("identifier")}
                 aria-invalid={!!errors.identifier}
                 className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:ring-2"
@@ -438,14 +446,14 @@ export function SupervisorLoginPage() {
                 htmlFor="sv-password"
                 className="mb-1.5 block text-xs font-semibold text-[var(--sv-text)]"
               >
-                Password
+                <T source="Password" />{" "}
               </label>
               <div className="relative">
                 <input
                   id="sv-password"
                   type={showPw ? "text" : "password"}
                   autoComplete="current-password"
-                  placeholder="Enter your password"
+                  placeholder={t("Enter your password")}
                   {...register("password")}
                   aria-invalid={!!errors.password}
                   className="w-full rounded-lg border px-3 py-2.5 pr-10 text-sm outline-none transition-colors focus:ring-2"
@@ -459,7 +467,7 @@ export function SupervisorLoginPage() {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--sv-muted)] hover:text-[var(--sv-text)]"
-                  aria-label={showPw ? "Hide password" : "Show password"}
+                  aria-label={t(showPw ? "Hide password" : "Show password")}
                 >
                   {showPw ? <EyeSlash size={16} /> : <Eye size={16} />}
                 </button>
@@ -487,19 +495,19 @@ export function SupervisorLoginPage() {
                   {apiError.message}
                   {apiError.status === 403 && (
                     <>
-                      {" "}
+                      {t(" ")}
                       <Link
                         to="/worker/login"
                         className="font-semibold underline underline-offset-2"
                       >
-                        Worker login
+                        <T source="Worker login" />{" "}
                       </Link>
                     </>
                   )}
                   {apiError.status === 0 && (
                     <div className="mt-2">
                       <button type="submit" className="font-semibold underline underline-offset-2">
-                        Retry Connection
+                        <T source="Retry Connection" />{" "}
                       </button>
                     </div>
                   )}
@@ -522,24 +530,24 @@ export function SupervisorLoginPage() {
               {isSubmitting ? (
                 <>
                   <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Signing in…
+                  <T source="Signing in…" />{" "}
                 </>
               ) : (
                 <>
-                  Sign in
-                  <ArrowRight size={15} weight="bold" />
+                  <T source="Sign in" /> <ArrowRight size={15} weight="bold" />
                 </>
               )}
             </button>
           </form>
 
           <p className="mt-6 text-center text-xs text-[var(--sv-muted)]">
-            Field worker?{" "}
+            <T source="Field worker?" />
+            {t(" ")}
             <Link
               to="/worker/login"
               className="font-medium text-[var(--sv-primary)] hover:underline"
             >
-              Use the Worker login
+              <T source="Use the Worker login" />{" "}
             </Link>
           </p>
         </div>

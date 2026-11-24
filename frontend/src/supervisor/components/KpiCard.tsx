@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowUpRight, ArrowDownRight } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "../api/adapters";
+import { T, t } from "@/lib/i18n";
 
 export interface KpiCardProps {
   label: string;
@@ -149,7 +151,7 @@ export function KpiCard({
 }: KpiCardProps) {
   const isNum = typeof value === "number";
   const counted = useCountUp(isNum ? value : 0, animate && isNum);
-  const display = isNum ? counted.toLocaleString("en-IN") : value;
+  const display = isNum ? formatNumber(counted) : value;
 
   return (
     <div
@@ -160,7 +162,9 @@ export function KpiCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="sv-eyebrow">{label}</span>
+        <span className="sv-eyebrow">
+          <T>{label}</T>
+        </span>
         {gaugePct != null ? (
           <RadialGauge pct={gaugePct} />
         ) : icon ? (
@@ -188,7 +192,11 @@ export function KpiCard({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-1 text-xs">
-        {(subtext ?? sublabel) && <p className="text-[var(--sv-muted)]">{subtext ?? sublabel}</p>}
+        {(subtext ?? sublabel) && (
+          <p className="text-[var(--sv-muted)]">
+            <T>{subtext ?? sublabel}</T>
+          </p>
+        )}
         {delta && (
           <span
             className={cn(
@@ -199,15 +207,19 @@ export function KpiCard({
                   ? "text-[var(--sv-muted)]"
                   : "text-[var(--sv-muted)]",
             )}
-            title={`${delta.diff > 0 ? "+" : ""}${delta.diff.toLocaleString("en-IN")} ${deltaPeriod}`}
+            title={`${delta.diff > 0 ? "+" : ""}${formatNumber(delta.diff)} ${t(deltaPeriod)}`}
           >
             {delta.diff >= 0 ? (
               <ArrowUpRight size={13} weight="bold" />
             ) : (
               <ArrowDownRight size={13} weight="bold" />
             )}
-            {delta.pctChange != null ? `${Math.abs(delta.pctChange)}%` : `${Math.abs(delta.diff)}`}
-            <span className="ml-0.5 text-[10px] opacity-75">{deltaPeriod}</span>
+            {delta.pctChange != null
+              ? `${formatNumber(Math.abs(delta.pctChange), { maximumFractionDigits: 1 })}%`
+              : formatNumber(Math.abs(delta.diff))}
+            <span className="ml-0.5 text-[10px] opacity-75">
+              <T>{deltaPeriod}</T>
+            </span>
           </span>
         )}
       </div>

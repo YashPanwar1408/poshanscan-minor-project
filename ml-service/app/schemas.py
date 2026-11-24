@@ -27,6 +27,28 @@ class InferResponse(BaseModel):
     pipeline_version: str = Field(default=PIPELINE_VERSION)
 
 
+class ArmSegmentationInstance(BaseModel):
+    """One predicted upper-arm instance in original-image pixel coordinates."""
+
+    class_id: int = Field(default=0, ge=0)
+    class_name: str = Field(default="upper_arm")
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    bbox_xyxy: list[float] = Field(..., min_length=4, max_length=4)
+    polygon: list[list[float]] = Field(..., min_length=3)
+
+
+class SegmentationResponse(BaseModel):
+    """Standalone new-image segmentation preview; this is not a MUAC result."""
+
+    detected: bool
+    width: int = Field(..., gt=0)
+    height: int = Field(..., gt=0)
+    instances: list[ArmSegmentationInstance]
+    mask_png_base64: str
+    visualization_png_base64: str
+    model_task: str = "segment"
+
+
 class ErrorResponse(BaseModel):
     """Structured error body for 4xx/5xx responses."""
 

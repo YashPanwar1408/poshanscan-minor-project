@@ -1,3 +1,4 @@
+import { plural, T, t } from "@/lib/i18n";
 /**
  * FlaggedPage — "Review queue"
  * Master-detail triage workflow for SAM and low-confidence scans.
@@ -124,35 +125,19 @@ export function FlaggedPage() {
     if (activeTab === "pending") {
       items = pendingItems.map((i) => ({ ...i, isFlagged: true }));
       if (isAdultCategory) {
-        items = items.filter(
-          (i) =>
-            (i as Record<string, unknown>).age_category === "adult" ||
-            (i as Record<string, unknown>).ageCategory === "adult",
-        );
+        items = items.filter((i) => i.ageCategory === "adult");
       }
     } else if (activeTab === "reviewed") {
       items = reviewedItems;
       if (isAdultCategory) {
-        items = items.filter(
-          (i) =>
-            (i as Record<string, unknown>).age_category === "adult" ||
-            (i as Record<string, unknown>).ageCategory === "adult",
-        );
+        items = items.filter((i) => i.ageCategory === "adult");
       }
     } else {
       if (isAdultCategory) {
         const adultPending = pendingItems
-          .filter(
-            (i) =>
-              (i as Record<string, unknown>).age_category === "adult" ||
-              (i as Record<string, unknown>).ageCategory === "adult",
-          )
+          .filter((i) => i.ageCategory === "adult")
           .map((i) => ({ ...i, isFlagged: true, status: "pending" }));
-        const adultReviewed = reviewedItems.filter(
-          (i) =>
-            (i as Record<string, unknown>).age_category === "adult" ||
-            (i as Record<string, unknown>).ageCategory === "adult",
-        );
+        const adultReviewed = reviewedItems.filter((i) => i.ageCategory === "adult");
         items = [...adultPending, ...adultReviewed];
       } else {
         // "all_children": Combine flagged cases, reviewed cases, and registered children
@@ -168,7 +153,10 @@ export function FlaggedPage() {
 
         // 2. Add reviewed children
         for (const r of reviewedItems) {
-          if (!seenIds.has(r.id) && (!r.childName || !seenIds.has(r.childName.toLowerCase().trim()))) {
+          if (
+            !seenIds.has(r.id) &&
+            (!r.childName || !seenIds.has(r.childName.toLowerCase().trim()))
+          ) {
             seenIds.add(r.id);
             if (r.childName) seenIds.add(r.childName.toLowerCase().trim());
             combined.push({ ...r, status: "reviewed" });
@@ -185,6 +173,7 @@ export function FlaggedPage() {
               id: reg.id,
               referenceCode: reg.child_id || `REG-${reg.id.slice(0, 6).toUpperCase()}`,
               childName: reg.name || "Child Patient",
+              ageCategory: "child_6_59m",
               guardianName: reg.guardian_name || null,
               gender: reg.gender || null,
               dob: reg.dob || null,
@@ -210,7 +199,9 @@ export function FlaggedPage() {
 
     // Filter by reason / band
     if (reasonFilter === "flagged") {
-      items = items.filter((i) => i.isFlagged || i.band.toUpperCase() === "SAM" || i.confidencePct < 60);
+      items = items.filter(
+        (i) => i.isFlagged || i.band.toUpperCase() === "SAM" || i.confidencePct < 60,
+      );
     } else if (reasonFilter === "sam") {
       items = items.filter((i) => i.band.toUpperCase() === "SAM");
     } else if (reasonFilter === "mam") {
@@ -244,7 +235,8 @@ export function FlaggedPage() {
         if (!aFlagged && bFlagged) return 1;
 
         // Then SAM before MAM before Normal
-        const rank = (band: string) => (band.toUpperCase() === "SAM" ? 3 : band.toUpperCase() === "MAM" ? 2 : 1);
+        const rank = (band: string) =>
+          band.toUpperCase() === "SAM" ? 3 : band.toUpperCase() === "MAM" ? 2 : 1;
         const rankDiff = rank(b.band) - rank(a.band);
         if (rankDiff !== 0) return rankDiff;
 
@@ -270,6 +262,7 @@ export function FlaggedPage() {
     pendingQuery.data?.items,
     reviewedQuery.data?.items,
     childrenSearchQuery.data,
+    ageCategory,
     reasonFilter,
     searchQuery,
     sortOrder,
@@ -355,7 +348,7 @@ export function FlaggedPage() {
 
       // Auto-select next item
       selectNextItem();
-      toast.success(`Scan ${scan.referenceCode} marked as reviewed`);
+      toast.success(t("Scan {reference} marked as reviewed", { reference: scan.referenceCode }));
 
       try {
         await reviewMutation.mutateAsync(scan.id);
@@ -370,21 +363,33 @@ export function FlaggedPage() {
 
         const errObj = err as { status?: number; message?: string };
         if (errObj.status && errObj.status >= 400 && errObj.status < 500) {
-          toast.error(`Scan ${scan.referenceCode} was already reviewed or updated`, {
-            action: {
-              label: "Refresh",
-              onClick: () => {
-                void currentQuery.refetch();
+          toast.error(
+            t("Scan {reference} was already reviewed or updated", {
+              reference: scan.referenceCode,
+            }),
+            {
+              action: {
+                get label() {
+                  return t("Refresh");
+                },
+                onClick: () => {
+                  void currentQuery.refetch();
+                },
               },
             },
-          });
+          );
         } else {
-          toast.error(`Failed to review scan: ${errObj.message ?? "Server error"}`, {
-            action: {
-              label: "Retry",
-              onClick: () => void handleMarkAsReviewed(scan),
+          toast.error(
+            t("Failed to review scan: {message}", { message: errObj.message ?? "Server error" }),
+            {
+              action: {
+                get label() {
+                  return t("Retry");
+                },
+                onClick: () => void handleMarkAsReviewed(scan),
+              },
             },
-          });
+          );
         }
       }
     },
@@ -422,11 +427,18 @@ export function FlaggedPage() {
     void queryClient.invalidateQueries({ queryKey: ["sv", "overview"] });
 
     if (failed === 0) {
-      toast.success(`Successfully marked ${succeeded} scans as reviewed.`);
+      toast.success(
+        plural(succeeded, {
+          one: "Successfully marked {count} scan as reviewed.",
+          other: "Successfully marked {count} scans as reviewed.",
+        }),
+      );
     } else {
-      toast.warning(`${succeeded} reviewed, ${failed} failed.`, {
+      toast.warning(t("{succeeded} reviewed, {failed} failed.", { succeeded, failed }), {
         action: {
-          label: "Retry failed",
+          get label() {
+            return t("Retry failed");
+          },
           onClick: () => void handleBulkReview(),
         },
       });
@@ -465,7 +477,7 @@ export function FlaggedPage() {
     ].join("\n");
 
     void navigator.clipboard.writeText(text);
-    toast.success("Referral summary copied to clipboard");
+    toast.success(t("Referral summary copied to clipboard"));
   }
 
   // Keyboard shortcut listener
@@ -513,22 +525,28 @@ export function FlaggedPage() {
     <div className="space-y-4">
       {/* Page Header with Tabs */}
       <PageHeader
-        title="Children & Flagged Scans"
-        description="Clinical triage workbench · Review SAM cases, low-confidence screenings, and child records"
+        title={t("Children & Flagged Scans")}
+        description={t(
+          "Clinical triage workbench · Review SAM cases, low-confidence screenings, and child records",
+        )}
         actions={
           <SegmentedControl
             segments={[
               {
                 value: "pending",
-                label: `Flagged${pendingCount > 0 ? ` (${pendingCount})` : ""}`,
+                label: t("Flagged ({count})", { count: formatNumber(pendingCount) }),
               },
               {
                 value: "all_children",
-                label: "All Children",
+                get label() {
+                  return t("All Children");
+                },
               },
               {
                 value: "reviewed",
-                label: "Reviewed",
+                get label() {
+                  return t("Reviewed");
+                },
               },
             ]}
             value={activeTab}
@@ -554,7 +572,7 @@ export function FlaggedPage() {
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search reference, child, village, worker..."
+                placeholder={t("Search reference, child, village, worker...")}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -576,7 +594,7 @@ export function FlaggedPage() {
                       : "bg-[var(--sv-surface-hover)] text-[var(--sv-muted)] hover:text-[var(--sv-text)]"
                   }`}
                 >
-                  All
+                  <T source="All" />{" "}
                 </button>
                 {activeTab === "all_children" && (
                   <button
@@ -588,7 +606,7 @@ export function FlaggedPage() {
                         : "bg-[var(--sv-surface-hover)] text-[var(--sv-muted)] hover:text-[var(--sv-text)]"
                     }`}
                   >
-                    Flagged Only
+                    <T source="Flagged Only" />{" "}
                   </button>
                 )}
                 <button
@@ -600,18 +618,20 @@ export function FlaggedPage() {
                       : "bg-[var(--sv-surface-hover)] text-[var(--sv-muted)] hover:text-[var(--sv-text)]"
                   }`}
                 >
-                  SAM
+                  <T source="SAM" />{" "}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setReasonFilter(activeTab === "all_children" ? "mam" : "low_confidence")}
+                  onClick={() =>
+                    setReasonFilter(activeTab === "all_children" ? "mam" : "low_confidence")
+                  }
                   className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition ${
                     reasonFilter === (activeTab === "all_children" ? "mam" : "low_confidence")
                       ? "bg-[var(--sv-mam)] text-white"
                       : "bg-[var(--sv-surface-hover)] text-[var(--sv-muted)] hover:text-[var(--sv-text)]"
                   }`}
                 >
-                  {activeTab === "all_children" ? "MAM" : "<60% Conf"}
+                  {activeTab === "all_children" ? t("MAM") : t("<60% Conf")}
                 </button>
                 {activeTab === "all_children" && (
                   <button
@@ -623,7 +643,7 @@ export function FlaggedPage() {
                         : "bg-[var(--sv-surface-hover)] text-[var(--sv-muted)] hover:text-[var(--sv-text)]"
                     }`}
                   >
-                    Normal
+                    <T source="Normal" />{" "}
                   </button>
                 )}
               </div>
@@ -634,11 +654,21 @@ export function FlaggedPage() {
                 onChange={(e) => setSortOrder(e.target.value as SortOrder)}
                 className="rounded border border-[var(--sv-border)] bg-[var(--sv-surface)] px-2 py-0.5 text-[11px] text-[var(--sv-text)] outline-none"
               >
-                <option value="flagged_first">Flagged first</option>
-                <option value="newest">Newest first</option>
-                <option value="lowest_conf">Lowest Confidence</option>
-                <option value="lowest_muac">Lowest MUAC</option>
-                <option value="name_asc">Child Name (A–Z)</option>
+                <option value="flagged_first">
+                  <T source="Flagged first" />
+                </option>
+                <option value="newest">
+                  <T source="Newest first" />
+                </option>
+                <option value="lowest_conf">
+                  <T source="Lowest Confidence" />
+                </option>
+                <option value="lowest_muac">
+                  <T source="Lowest MUAC" />
+                </option>
+                <option value="name_asc">
+                  <T source="Child Name (A–Z)" />
+                </option>
               </select>
             </div>
 
@@ -655,7 +685,9 @@ export function FlaggedPage() {
                   ) : (
                     <Square size={14} />
                   )}
-                  <span>Select Page ({paginatedItems.length})</span>
+                  <span>
+                    {t("Select Page ({count})", { count: formatNumber(paginatedItems.length) })}
+                  </span>
                 </button>
 
                 {selectedBulkIds.size > 0 && (
@@ -668,8 +700,11 @@ export function FlaggedPage() {
                     <CheckCircle size={13} weight="bold" />
                     <span>
                       {bulkInProgress && bulkProgress
-                        ? `Reviewing ${bulkProgress.current}/${bulkProgress.total}...`
-                        : `Mark ${selectedBulkIds.size} Reviewed`}
+                        ? t("Reviewing {current}/{total}...", {
+                            current: formatNumber(bulkProgress.current),
+                            total: formatNumber(bulkProgress.total),
+                          })
+                        : t("Mark {count} Reviewed", { count: formatNumber(selectedBulkIds.size) })}
                     </span>
                   </button>
                 )}
@@ -705,17 +740,17 @@ export function FlaggedPage() {
                 <CheckCircle size={36} className="mx-auto mb-2 text-[var(--sv-normal)]" />
                 <h3 className="text-sm font-semibold text-[var(--sv-text)]">
                   {activeTab === "pending"
-                    ? "Queue clear — nothing needs review"
+                    ? t("Queue clear — nothing needs review")
                     : activeTab === "all_children"
-                      ? "No children records found"
-                      : "No reviewed scans yet"}
+                      ? t("No children records found")
+                      : t("No reviewed scans yet")}
                 </h3>
                 <p className="mt-1 text-xs text-[var(--sv-muted)]">
                   {activeTab === "pending"
-                    ? "All flagged cases have been successfully assessed and addressed."
+                    ? t("All flagged cases have been successfully assessed and addressed.")
                     : activeTab === "all_children"
-                      ? "Try adjusting search query or filters."
-                      : "Reviewed scans will appear here after evaluation."}
+                      ? t("Try adjusting search query or filters.")
+                      : t("Reviewed scans will appear here after evaluation.")}
                 </p>
               </div>
             ) : (
@@ -762,7 +797,7 @@ export function FlaggedPage() {
                           {scan.childName}
                         </span>
                         <span className="text-[10px] text-[var(--sv-muted)] shrink-0 font-mono">
-                          {scan.createdAt ? scan.createdAt.split(",")[0] : ""}
+                          {scan.createdAt ? scan.createdAt.split(",")[0] : t("")}
                         </span>
                       </div>
 
@@ -770,7 +805,7 @@ export function FlaggedPage() {
                         <BandBadge band={scan.band} size="sm" />
                         {scan.muacMm > 0 && (
                           <span className="font-mono text-xs font-bold text-[var(--sv-text)]">
-                            {scan.muacMm} mm
+                            {scan.muacMm} <T source="mm" />{" "}
                           </span>
                         )}
                         {scan.confidencePct > 0 && (
@@ -779,20 +814,23 @@ export function FlaggedPage() {
                               isLowConf ? "text-[var(--sv-mam)]" : "text-[var(--sv-muted)]"
                             }`}
                           >
-                            {scan.confidencePct}% conf
+                            {scan.confidencePct}
+                            <T source="% conf" />{" "}
                           </span>
                         )}
                         <span className="font-mono text-[9px] text-[var(--sv-muted)] opacity-70">
-                          Ref: {scan.referenceCode}
+                          <T source="Ref:" /> {scan.referenceCode}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between text-[11px] text-[var(--sv-muted)] truncate">
                         <span className="flex items-center gap-1 truncate">
                           <MapPin size={11} className="shrink-0 text-[var(--sv-primary)]" />
-                          <span className="truncate">{scan.village || "Unknown site"}</span>
+                          <span className="truncate">{scan.village || t("Unknown site")}</span>
                           {scan.guardianName && (
-                            <span className="opacity-75 text-[10px] truncate">· G: {scan.guardianName}</span>
+                            <span className="opacity-75 text-[10px] truncate">
+                              <T source="· G:" /> {scan.guardianName}
+                            </span>
                           )}
                         </span>
                         <span className="truncate ml-2 text-[10px]">{scan.workerName}</span>
@@ -808,7 +846,8 @@ export function FlaggedPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-[var(--sv-border)] px-3 py-2 text-xs text-[var(--sv-muted)] bg-[var(--sv-surface)]">
               <span>
-                Page {page} of {totalPages} ({filteredItems.length})
+                <T source="Page" /> {formatNumber(page)} <T source="of" />{" "}
+                {formatNumber(totalPages)} ({formatNumber(filteredItems.length)})
               </span>
               <div className="flex items-center gap-1">
                 <button
@@ -816,7 +855,7 @@ export function FlaggedPage() {
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                   className="rounded border border-[var(--sv-border)] p-1 disabled:opacity-40"
-                  aria-label="Previous page"
+                  aria-label={t("Previous page")}
                 >
                   <CaretLeft size={12} />
                 </button>
@@ -825,7 +864,7 @@ export function FlaggedPage() {
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                   className="rounded border border-[var(--sv-border)] p-1 disabled:opacity-40"
-                  aria-label="Next page"
+                  aria-label={t("Next page")}
                 >
                   <CaretRight size={12} />
                 </button>
@@ -840,11 +879,10 @@ export function FlaggedPage() {
             <div className="flex h-full flex-col items-center justify-center text-center p-8">
               <ShieldWarning size={48} className="mb-3 text-[var(--sv-muted)]" weight="duotone" />
               <h3 className="text-base font-semibold text-[var(--sv-text)]">
-                Select a scan to review
+                <T source="Select a scan to review" />{" "}
               </h3>
               <p className="mt-1 max-w-sm text-xs text-[var(--sv-muted)]">
-                Choose a flagged scan from the left queue to inspect the visual MUAC scale, model
-                confidence breakdown, and take clinical referral action.
+                <T source="Choose a flagged scan from the left queue to inspect the visual MUAC scale, model confidence breakdown, and take clinical referral action." />{" "}
               </p>
             </div>
           ) : (
@@ -859,26 +897,28 @@ export function FlaggedPage() {
                     <BandBadge band={selectedItem.band} />
                     {selectedItem.status === "reviewed" ? (
                       <span className="rounded-full bg-[var(--sv-normal)]/15 px-2.5 py-0.5 text-[10px] font-bold text-[var(--sv-normal)]">
-                        Reviewed
+                        <T source="Reviewed" />{" "}
                       </span>
                     ) : selectedItem.isFlagged ? (
                       <span className="rounded-full bg-[var(--sv-sam)]/15 px-2.5 py-0.5 text-[10px] font-bold text-[var(--sv-sam)]">
-                        Needs Attention
+                        <T source="Needs Attention" />{" "}
                       </span>
                     ) : (
                       <span className="rounded-full bg-[var(--sv-border)] px-2.5 py-0.5 text-[10px] font-medium text-[var(--sv-muted)]">
-                        Registered
+                        <T source="Registered" />{" "}
                       </span>
                     )}
                   </div>
 
                   <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-[var(--sv-muted)]">
-                    <span className="font-mono">Reference: {selectedItem.referenceCode}</span>
+                    <span className="font-mono">
+                      <T source="Reference:" /> {selectedItem.referenceCode}
+                    </span>
                     <button
                       type="button"
                       onClick={() => handleCopyReferralSummary(selectedItem)}
                       className="rounded p-1 text-[var(--sv-muted)] hover:bg-[var(--sv-surface-hover)] hover:text-[var(--sv-text)] transition"
-                      title="Copy referral summary"
+                      title={t("Copy referral summary")}
                     >
                       <Copy size={13} />
                     </button>
@@ -890,19 +930,25 @@ export function FlaggedPage() {
                     {selectedItem.guardianName && (
                       <>
                         <span>•</span>
-                        <span>Guardian: {selectedItem.guardianName}</span>
+                        <span>
+                          <T source="Guardian:" /> {selectedItem.guardianName}
+                        </span>
                       </>
                     )}
                     {selectedItem.gender && (
                       <>
                         <span>•</span>
-                        <span>Gender: {selectedItem.gender}</span>
+                        <span>
+                          <T source="Gender:" /> {selectedItem.gender}
+                        </span>
                       </>
                     )}
                     {selectedItem.dob && (
                       <>
                         <span>•</span>
-                        <span>DOB: {selectedItem.dob}</span>
+                        <span>
+                          <T source="DOB:" /> {selectedItem.dob}
+                        </span>
                       </>
                     )}
                   </div>
@@ -916,7 +962,9 @@ export function FlaggedPage() {
                     className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--sv-primary)] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-98"
                   >
                     <CheckCircle size={15} weight="bold" />
-                    <span>Mark as Reviewed</span>
+                    <span>
+                      <T source="Mark as Reviewed" />
+                    </span>
                   </button>
                 )}
               </div>
@@ -926,10 +974,10 @@ export function FlaggedPage() {
                 <div className="rounded-xl border border-[var(--sv-border)] bg-[var(--sv-surface-hover)]/40 p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-semibold text-[var(--sv-text)]">
-                      MUAC Measurement Scale (60–180 mm)
+                      <T source="MUAC Measurement Scale (60–180 mm)" />{" "}
                     </span>
                     <span className="font-mono text-sm font-bold text-[var(--sv-text)]">
-                      Estimate: {selectedItem.muacMm} mm
+                      <T source="Estimate:" /> {selectedItem.muacMm} <T source="mm" />{" "}
                     </span>
                   </div>
 
@@ -945,7 +993,7 @@ export function FlaggedPage() {
                           style={{ left: `${pct}%` }}
                         >
                           <span className="rounded bg-[var(--sv-text)] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[var(--sv-surface)] shadow">
-                            {selectedItem.muacMm} mm
+                            {selectedItem.muacMm} <T source="mm" />{" "}
                           </span>
                           <div className="size-0 border-x-4 border-x-transparent border-t-4 border-t-[var(--sv-text)]" />
                         </div>
@@ -957,48 +1005,61 @@ export function FlaggedPage() {
                       <div
                         style={{ width: `${severeWidth}%` }}
                         className="bg-[var(--sv-sam)] transition-all flex items-center justify-center"
-                        title={`SAM Band: < ${scale.severeBelow} mm`}
+                        title={t("SAM Band: < {value} mm", {
+                          value: formatNumber(scale.severeBelow),
+                        })}
                       >
-                        SAM (&lt;{scale.severeBelow})
+                        <T source="SAM (&lt;" />
+                        {scale.severeBelow})
                       </div>
                       <div
                         style={{ width: `${moderateWidth}%` }}
                         className="bg-[var(--sv-mam)] transition-all flex items-center justify-center text-[9px]"
-                        title={`MAM Band: ${scale.severeBelow} – ${scale.moderateBelow} mm`}
+                        title={t("MAM Band: {low} – {high} mm", {
+                          low: formatNumber(scale.severeBelow),
+                          high: formatNumber(scale.moderateBelow),
+                        })}
                       >
-                        MAM
+                        <T source="MAM" />{" "}
                       </div>
                       <div
                         style={{ width: `${normalWidth}%` }}
                         className="bg-[var(--sv-normal)] transition-all flex items-center justify-center"
-                        title={`Normal Band: ≥ ${scale.moderateBelow} mm`}
+                        title={t("Normal Band: ≥ {value} mm", {
+                          value: formatNumber(scale.moderateBelow),
+                        })}
                       >
-                        Normal (≥{scale.moderateBelow})
+                        <T source="Normal (≥" />
+                        {scale.moderateBelow})
                       </div>
                     </div>
 
                     {/* Ticks & Labels */}
                     <div className="relative mt-1.5 text-[10px] font-mono text-[var(--sv-muted)] h-4">
-                      <span className="absolute left-0">{scale.min} mm</span>
+                      <span className="absolute left-0">
+                        {scale.min} <T source="mm" />
+                      </span>
                       <span
                         className="absolute -translate-x-1/2 font-bold text-[var(--sv-sam)]"
                         style={{ left: `${severeWidth}%` }}
                       >
-                        {scale.severeBelow} mm
+                        {scale.severeBelow} <T source="mm" />{" "}
                       </span>
                       <span
                         className="absolute -translate-x-1/2 font-bold text-[var(--sv-mam)]"
                         style={{ left: `${severeWidth + moderateWidth}%` }}
                       >
-                        {scale.moderateBelow} mm
+                        {scale.moderateBelow} <T source="mm" />{" "}
                       </span>
-                      <span className="absolute right-0">{scale.max} mm</span>
+                      <span className="absolute right-0">
+                        {scale.max} <T source="mm" />
+                      </span>
                     </div>
                   </div>
 
                   {ageCategory === "adult" && (
                     <p className="mt-2 text-[11px] text-[var(--sv-muted)] italic">
-                      Adult thresholds: Normal ≥230 mm, MAM 210–&lt;230 mm, SAM &lt;210 mm.
+                      <T source="Adult thresholds: Normal ≥230 mm, MAM 210–&lt;230 mm, SAM &lt;210 mm." />{" "}
                     </p>
                   )}
                 </div>
@@ -1006,9 +1067,11 @@ export function FlaggedPage() {
                 <div className="rounded-xl border border-[var(--sv-border)] bg-[var(--sv-surface-hover)]/30 p-4 text-xs text-[var(--sv-muted)] flex items-center gap-3">
                   <Info size={22} className="text-[var(--sv-primary)] shrink-0" />
                   <div>
-                    <p className="font-semibold text-[var(--sv-text)]">Registered Child Record</p>
+                    <p className="font-semibold text-[var(--sv-text)]">
+                      <T source="Registered Child Record" />
+                    </p>
                     <p className="mt-0.5 text-[11px]">
-                      Child is registered with normal surveillance status. No arm photo screening has been submitted yet.
+                      <T source="Child is registered with normal surveillance status. No arm photo screening has been submitted yet." />{" "}
                     </p>
                   </div>
                 </div>
@@ -1024,29 +1087,37 @@ export function FlaggedPage() {
                     ) : (
                       <CheckCircle size={15} className="text-[var(--sv-normal)]" />
                     )}
-                    <span>{selectedItem.isFlagged ? "Why This Scan Was Flagged" : "Screening Status"}</span>
+                    <span>
+                      {selectedItem.isFlagged
+                        ? t("Why This Scan Was Flagged")
+                        : t("Screening Status")}
+                    </span>
                   </div>
                   <ul className="space-y-1 text-[var(--sv-muted)] list-disc pl-4 text-[11px]">
                     {selectedItem.band.toUpperCase() === "SAM" && (
                       <li className="text-[var(--sv-sam)] font-medium">
-                        Estimated MUAC of {selectedItem.muacMm} mm falls below the{" "}
-                        {scale.severeBelow} mm SAM threshold.
+                        <T source="Estimated MUAC of" /> {selectedItem.muacMm}{" "}
+                        <T source="mm falls below the" />
+                        {t(" ")}
+                        {scale.severeBelow} <T source="mm SAM threshold." />{" "}
                       </li>
                     )}
                     {selectedItem.confidencePct > 0 && selectedItem.confidencePct < 60 && (
                       <li className="text-[var(--sv-mam)] font-medium">
-                        Model confidence score of {selectedItem.confidencePct}% is below the 60%
-                        reliability threshold.
+                        <T source="Model confidence score of" /> {selectedItem.confidencePct}
+                        <T source="% is below the 60% reliability threshold." />{" "}
                       </li>
                     )}
                     {selectedItem.isFlagged &&
                       selectedItem.band.toUpperCase() !== "SAM" &&
                       selectedItem.confidencePct >= 60 && (
-                        <li>Flagged for supervisor quality verification.</li>
+                        <li>
+                          <T source="Flagged for supervisor quality verification." />
+                        </li>
                       )}
                     {!selectedItem.isFlagged && (
                       <li className="text-[var(--sv-normal)]">
-                        Normal status. No clinical flags requiring urgent triage.
+                        <T source="Normal status. No clinical flags requiring urgent triage." />{" "}
                       </li>
                     )}
                   </ul>
@@ -1056,18 +1127,30 @@ export function FlaggedPage() {
                 <div className="rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)] p-3.5 space-y-2">
                   <div className="flex items-center gap-1.5 font-semibold text-[var(--sv-text)]">
                     <ArrowRight size={15} className="text-[var(--sv-primary)]" />
-                    <span>Recommended Next Step</span>
+                    <span>
+                      <T source="Recommended Next Step" />
+                    </span>
                   </div>
                   <p className="text-[11px] text-[var(--sv-muted)] leading-relaxed">
                     {selectedItem.band.toUpperCase() === "SAM"
                       ? ageCategory === "adult"
-                        ? "Refer the adult promptly for clinical nutrition assessment according to your local protocol. Screening aid only — never a standalone diagnosis."
-                        : "Refer the child immediately to a health facility for clinical assessment according to your local protocol. Screening aid only — never a standalone diagnosis."
+                        ? t(
+                            "Refer the adult promptly for clinical nutrition assessment according to your local protocol. Screening aid only — never a standalone diagnosis.",
+                          )
+                        : t(
+                            "Refer the child immediately to a health facility for clinical assessment according to your local protocol. Screening aid only — never a standalone diagnosis.",
+                          )
                       : selectedItem.confidencePct > 0 && selectedItem.confidencePct < 60
                         ? ageCategory === "adult"
-                          ? "Ask the field worker to repeat the adult measurement with a standard MUAC tape and verify camera angle, arm relaxation, and marker visibility."
-                          : "Ask the field worker to repeat the child measurement with a standard Shakir tape and verify camera angle, arm relaxation, and marker visibility."
-                        : "Continue routine community nutritional surveillance and follow-up screening according to schedule."}
+                          ? t(
+                              "Ask the field worker to repeat the adult measurement with a standard MUAC tape and verify camera angle, arm relaxation, and marker visibility.",
+                            )
+                          : t(
+                              "Ask the field worker to repeat the child measurement with a standard Shakir tape and verify camera angle, arm relaxation, and marker visibility.",
+                            )
+                        : t(
+                            "Continue routine community nutritional surveillance and follow-up screening according to schedule.",
+                          )}
                   </p>
                 </div>
               </div>
@@ -1075,24 +1158,28 @@ export function FlaggedPage() {
               {/* Metadata Grid */}
               <div className="rounded-lg border border-[var(--sv-border)] p-3.5 text-xs bg-[var(--sv-surface)]">
                 <span className="font-semibold text-[var(--sv-text)] block mb-2.5">
-                  Screening Metadata
+                  <T source="Screening Metadata" />{" "}
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <span className="text-[10px] text-[var(--sv-muted)] block">Field Worker</span>
+                    <span className="text-[10px] text-[var(--sv-muted)] block">
+                      <T source="Field Worker" />
+                    </span>
                     <span className="font-medium text-[var(--sv-text)] truncate block">
                       {selectedItem.workerName}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[var(--sv-muted)] block">Village / Site</span>
+                    <span className="text-[10px] text-[var(--sv-muted)] block">
+                      <T source="Village / Site" />
+                    </span>
                     <span className="font-medium text-[var(--sv-text)] truncate block">
                       {selectedItem.village}
                     </span>
                   </div>
                   <div>
                     <span className="text-[10px] text-[var(--sv-muted)] block">
-                      Captured At (IST)
+                      <T source="Captured At (IST)" />{" "}
                     </span>
                     <span className="font-mono text-[11px] text-[var(--sv-text)] truncate block">
                       {selectedItem.createdAt}
@@ -1100,12 +1187,12 @@ export function FlaggedPage() {
                   </div>
                   <div>
                     <span className="text-[10px] text-[var(--sv-muted)] block">
-                      Quality / Sharpness
+                      <T source="Quality / Sharpness" />{" "}
                     </span>
                     <span className="font-mono text-[11px] text-[var(--sv-text)] block">
                       {selectedItem.sharpness != null
                         ? `${selectedItem.sharpness} score`
-                        : "Standard"}
+                        : t("Standard")}
                     </span>
                   </div>
                 </div>
@@ -1114,7 +1201,7 @@ export function FlaggedPage() {
               {/* Image Panel (if image provided, else designed fallback) */}
               <div className="rounded-lg border border-[var(--sv-border)] p-3.5 bg-[var(--sv-surface)]">
                 <span className="font-semibold text-xs text-[var(--sv-text)] block mb-2">
-                  Arm Scan Capture Photo
+                  <T source="Arm Scan Capture Photo" />{" "}
                 </span>
                 {selectedItem.imageUrl ? (
                   <div className="relative group cursor-pointer overflow-hidden rounded-lg border border-[var(--sv-border)] bg-black/5 max-h-48 flex items-center justify-center">
@@ -1129,15 +1216,19 @@ export function FlaggedPage() {
                       className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition text-white font-medium text-xs gap-1"
                     >
                       <Camera size={16} />
-                      <span>Click to zoom photo</span>
+                      <span>
+                        <T source="Click to zoom photo" />
+                      </span>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--sv-border)] bg-[var(--sv-surface-hover)]/50 py-8 text-center text-xs text-[var(--sv-muted)]">
                     <Camera size={28} className="mb-2 text-[var(--sv-muted)]" />
-                    <span>Arm photo media attachment unavailable for this scan.</span>
+                    <span>
+                      <T source="Arm photo media attachment unavailable for this scan." />
+                    </span>
                     <span className="text-[10px] mt-0.5 opacity-75">
-                      (Secured backend storage requires authorized token access)
+                      <T source="(Secured backend storage requires authorized token access)" />{" "}
                     </span>
                   </div>
                 )}
@@ -1161,7 +1252,7 @@ export function FlaggedPage() {
               type="button"
               onClick={() => setShowImageZoom(false)}
               className="absolute right-3 top-3 z-10 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
-              aria-label="Close zoomed image"
+              aria-label={t("Close zoomed image")}
             >
               <X size={18} />
             </button>

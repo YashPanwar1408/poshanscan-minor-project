@@ -1,3 +1,4 @@
+import { formatDate, T, t } from "@/lib/i18n";
 /**
  * TrendsPage — "Time-series workbench"
  * Complete longitudinal screening analytics with presets, custom range,
@@ -25,6 +26,7 @@ import {
   TrendUp,
   Eye,
   EyeSlash,
+  CalendarBlank,
 } from "@phosphor-icons/react";
 import { useTrends } from "../api/hooks";
 import { useSvPrefs } from "../store/prefs";
@@ -40,11 +42,39 @@ import {
 } from "../components/Primitives";
 
 const PRESET_DAYS = [
-  { value: "7", label: "7 days" },
-  { value: "14", label: "14 days" },
-  { value: "30", label: "30 days" },
-  { value: "90", label: "90 days" },
+  {
+    value: "7",
+    get label() {
+      return t("7 days");
+    },
+  },
+  {
+    value: "14",
+    get label() {
+      return t("14 days");
+    },
+  },
+  {
+    value: "30",
+    get label() {
+      return t("30 days");
+    },
+  },
+  {
+    value: "90",
+    get label() {
+      return t("90 days");
+    },
+  },
 ] as const;
+
+function formatDateLabel(value: unknown): string {
+  const text = String(value ?? "");
+  if (!text || text === "—") return text;
+  const parsed = new Date(`${text.slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return text;
+  return formatDate(parsed, { day: "2-digit", month: "short", timeZone: "UTC" });
+}
 
 type MetricMode = "counts" | "share";
 type ChartType = "area" | "line";
@@ -171,27 +201,31 @@ export function TrendsPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
-        title="Trends"
-        description="Time-series workbench · longitudinal screening analytics across child screening cohorts"
+        title={t("Trends")}
+        description={t(
+          "Time-series workbench · longitudinal screening analytics across child screening cohorts",
+        )}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setShowTable((prev) => !prev)}
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)] px-3 py-1.5 text-xs font-medium text-[var(--sv-text)] transition hover:bg-[var(--sv-surface-hover)]"
-              aria-label={showTable ? "View as chart" : "View as table"}
+              aria-label={t(showTable ? "View as chart" : "View as table")}
             >
               {showTable ? <ChartLine size={14} /> : <TableIcon size={14} />}
-              <span>{showTable ? "Chart View" : "Table View"}</span>
+              <span>{showTable ? t("Chart View") : t("Table View")}</span>
             </button>
             <button
               type="button"
               onClick={() => void refetch()}
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)] px-3 py-1.5 text-xs font-medium text-[var(--sv-text)] transition hover:bg-[var(--sv-surface-hover)]"
-              title="Refresh trends"
+              title={t("Refresh trends")}
             >
               <ArrowsClockwise size={14} />
-              <span>Refresh</span>
+              <span>
+                <T source="Refresh" />
+              </span>
             </button>
           </div>
         }
@@ -212,11 +246,23 @@ export function TrendsPage() {
           {/* Metric mode & Chart type toggles */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-[var(--sv-muted)]">Interval:</span>
+              <span className="text-xs text-[var(--sv-muted)]">
+                <T source="Interval:" />
+              </span>
               <SegmentedControl
                 segments={[
-                  { value: "day", label: "Day" },
-                  { value: "week", label: "Week" },
+                  {
+                    value: "day",
+                    get label() {
+                      return t("Day");
+                    },
+                  },
+                  {
+                    value: "week",
+                    get label() {
+                      return t("Week");
+                    },
+                  },
                 ]}
                 value={interval}
                 onChange={(v) => setInterval(v as IntervalOption)}
@@ -225,8 +271,18 @@ export function TrendsPage() {
 
             <SegmentedControl
               segments={[
-                { value: "counts", label: "Counts" },
-                { value: "share", label: "Share %" },
+                {
+                  value: "counts",
+                  get label() {
+                    return t("Counts");
+                  },
+                },
+                {
+                  value: "share",
+                  get label() {
+                    return t("Share %");
+                  },
+                },
               ]}
               value={metricMode}
               onChange={(v) => setMetricMode(v as MetricMode)}
@@ -234,8 +290,18 @@ export function TrendsPage() {
 
             <SegmentedControl
               segments={[
-                { value: "area", label: "Stacked" },
-                { value: "line", label: "Lines" },
+                {
+                  value: "area",
+                  get label() {
+                    return t("Stacked");
+                  },
+                },
+                {
+                  value: "line",
+                  get label() {
+                    return t("Lines");
+                  },
+                },
               ]}
               value={chartType}
               onChange={(v) => setChartType(v as ChartType)}
@@ -247,23 +313,23 @@ export function TrendsPage() {
       {/* Summary KPI Tiles */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          label="Period screenings"
+          label={t("Period screenings")}
           value={formatNumber(summary.total)}
-          sublabel={`${summary.dailyAvg} screenings/day avg`}
+          sublabel={t("{value} screenings/day avg", { value: formatNumber(summary.dailyAvg) })}
         />
         <KpiCard
-          label="Daily average"
+          label={t("Daily average")}
           value={formatNumber(summary.dailyAvg)}
           sublabel="Screenings per calendar day"
         />
         <KpiCard
-          label="Busiest day"
+          label={t("Busiest day")}
           value={formatNumber(summary.busiestDay.total)}
-          sublabel={summary.busiestDay.date || "—"}
+          sublabel={formatDateLabel(summary.busiestDay.date)}
         />
         <KpiCard
-          label="Period SAM share"
-          value={`${summary.samShare}%`}
+          label={t("Period SAM share")}
+          value={`${formatNumber(summary.samShare)}%`}
           sublabel="Severe acute malnutrition"
           sparklineData={chartData.map((d) => d.sam)}
         />
@@ -274,12 +340,12 @@ export function TrendsPage() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--sv-border)] pb-4">
           <div>
             <h2 className="text-sm font-semibold text-[var(--sv-text)]">
-              Screening Volume & Risk Band Distribution
+              <T source="Screening Volume & Risk Band Distribution" />{" "}
             </h2>
             <p className="text-xs text-[var(--sv-muted)]">
               {metricMode === "counts"
-                ? "Total screenings partitioned by WHO screening classification"
-                : "Percentage share of total screening volume over time (100% stacked)"}
+                ? t("Total screenings partitioned by WHO screening classification")
+                : t("Percentage share of total screening volume over time (100% stacked)")}
             </p>
           </div>
 
@@ -295,7 +361,7 @@ export function TrendsPage() {
               }`}
             >
               {seriesVisible.normal ? <Eye size={12} /> : <EyeSlash size={12} />}
-              Normal
+              <T source="Normal" />{" "}
             </button>
             <button
               type="button"
@@ -307,7 +373,7 @@ export function TrendsPage() {
               }`}
             >
               {seriesVisible.mam ? <Eye size={12} /> : <EyeSlash size={12} />}
-              MAM
+              <T source="MAM" />{" "}
             </button>
             <button
               type="button"
@@ -319,7 +385,7 @@ export function TrendsPage() {
               }`}
             >
               {seriesVisible.sam ? <Eye size={12} /> : <EyeSlash size={12} />}
-              SAM
+              <T source="SAM" />{" "}
             </button>
             {metricMode === "counts" && (
               <>
@@ -333,7 +399,7 @@ export function TrendsPage() {
                   }`}
                 >
                   {seriesVisible.total ? <Eye size={12} /> : <EyeSlash size={12} />}
-                  Total
+                  <T source="Total" />{" "}
                 </button>
                 <button
                   type="button"
@@ -345,7 +411,7 @@ export function TrendsPage() {
                   }`}
                 >
                   {seriesVisible.ma ? <TrendUp size={12} /> : <EyeSlash size={12} />}
-                  7d MA
+                  <T source="7d MA" />{" "}
                 </button>
               </>
             )}
@@ -354,9 +420,9 @@ export function TrendsPage() {
               type="button"
               onClick={handleResetZoom}
               className="ml-2 rounded border border-[var(--sv-border)] px-2 py-0.5 text-[11px] font-medium text-[var(--sv-muted)] transition hover:text-[var(--sv-text)]"
-              title="Reset brush zoom window"
+              title={t("Reset brush zoom window")}
             >
-              Reset Zoom
+              <T source="Reset Zoom" />{" "}
             </button>
           </div>
         </div>
@@ -376,9 +442,11 @@ export function TrendsPage() {
         ) : chartData.length === 0 ? (
           <div className="py-16 text-center">
             <CalendarBlank size={40} className="mx-auto mb-3 text-[var(--sv-muted)]" />
-            <h3 className="text-sm font-semibold text-[var(--sv-text)]">No trend data available</h3>
+            <h3 className="text-sm font-semibold text-[var(--sv-text)]">
+              <T source="No trend data available" />
+            </h3>
             <p className="mt-1 text-xs text-[var(--sv-muted)]">
-              No screenings were recorded for the selected date range and age filter.
+              <T source="No screenings were recorded for the selected date range and age filter." />{" "}
             </p>
           </div>
         ) : showTable ? (
@@ -386,33 +454,47 @@ export function TrendsPage() {
           <div className="overflow-x-auto">
             <table
               className="w-full text-left text-xs"
-              aria-label="Time-series screening data table"
+              aria-label={t("Time-series screening data table")}
             >
               <thead>
                 <tr className="border-b border-[var(--sv-border)] text-[var(--sv-muted)]">
-                  <th className="py-2.5 pl-2 font-medium">Date</th>
-                  <th className="py-2.5 text-right font-medium text-[var(--sv-normal)]">Normal</th>
-                  <th className="py-2.5 text-right font-medium text-[var(--sv-mam)]">MAM</th>
-                  <th className="py-2.5 text-right font-medium text-[var(--sv-sam)]">SAM</th>
-                  <th className="py-2.5 text-right font-medium text-[var(--sv-text)]">Total</th>
-                  <th className="py-2.5 pr-2 text-right font-medium">SAM Share</th>
+                  <th className="py-2.5 pl-2 font-medium">
+                    <T source="Date" />
+                  </th>
+                  <th className="py-2.5 text-right font-medium text-[var(--sv-normal)]">
+                    <T source="Normal" />
+                  </th>
+                  <th className="py-2.5 text-right font-medium text-[var(--sv-mam)]">
+                    <T source="MAM" />
+                  </th>
+                  <th className="py-2.5 text-right font-medium text-[var(--sv-sam)]">
+                    <T source="SAM" />
+                  </th>
+                  <th className="py-2.5 text-right font-medium text-[var(--sv-text)]">
+                    <T source="Total" />
+                  </th>
+                  <th className="py-2.5 pr-2 text-right font-medium">
+                    <T source="SAM Share" />
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--sv-border)]/50 font-mono">
                 {chartData.map((pt) => (
                   <tr key={pt.date} className="hover:bg-[var(--sv-surface-hover)]">
-                    <td className="py-2 pl-2 text-[var(--sv-text)]">{pt.date}</td>
+                    <td className="py-2 pl-2 text-[var(--sv-text)]">{formatDateLabel(pt.date)}</td>
                     <td className="py-2 text-right text-[var(--sv-normal)]">
-                      {pt.normal} ({pt.normalPct}%)
+                      {formatNumber(pt.normal)} ({formatNumber(pt.normalPct)}%)
                     </td>
                     <td className="py-2 text-right text-[var(--sv-mam)]">
-                      {pt.mam} ({pt.mamPct}%)
+                      {formatNumber(pt.mam)} ({formatNumber(pt.mamPct)}%)
                     </td>
                     <td className="py-2 text-right text-[var(--sv-sam)]">
-                      {pt.sam} ({pt.samPct}%)
+                      {formatNumber(pt.sam)} ({formatNumber(pt.samPct)}%)
                     </td>
-                    <td className="py-2 text-right font-bold text-[var(--sv-text)]">{pt.total}</td>
-                    <td className="py-2 pr-2 text-right">{pt.samPct}%</td>
+                    <td className="py-2 text-right font-bold text-[var(--sv-text)]">
+                      {formatNumber(pt.total)}
+                    </td>
+                    <td className="py-2 pr-2 text-right">{formatNumber(pt.samPct)}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -420,7 +502,7 @@ export function TrendsPage() {
           </div>
         ) : (
           /* Recharts Interactive Visual Chart */
-          <div className="min-w-0" aria-label="Screening trends over time">
+          <div className="min-w-0" aria-label={t("Screening trends over time")}>
             <ResponsiveContainer width="100%" height={360}>
               {chartType === "area" ? (
                 <AreaChart data={chartData} margin={{ top: 12, right: 16, bottom: 0, left: -10 }}>
@@ -443,6 +525,7 @@ export function TrendsPage() {
 
                   <XAxis
                     dataKey="date"
+                    tickFormatter={formatDateLabel}
                     tick={{
                       fontSize: 10,
                       fill: "var(--sv-muted)",
@@ -462,7 +545,9 @@ export function TrendsPage() {
                     axisLine={false}
                     width={40}
                     domain={metricMode === "share" ? [0, 100] : ["auto", "auto"]}
-                    tickFormatter={(v: number) => (metricMode === "share" ? `${v}%` : String(v))}
+                    tickFormatter={(v: number) =>
+                      metricMode === "share" ? `${formatNumber(v)}%` : formatNumber(v)
+                    }
                   />
 
                   <Tooltip
@@ -472,34 +557,46 @@ export function TrendsPage() {
                       if (!pt) return null;
                       return (
                         <div className="rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)] p-3 text-xs shadow-lg">
-                          <p className="font-semibold text-[var(--sv-text)]">{label}</p>
+                          <p className="font-semibold text-[var(--sv-text)]">
+                            {formatDateLabel(label)}
+                          </p>
                           <div className="mt-2 space-y-1">
                             <div className="flex items-center justify-between gap-4 text-[var(--sv-normal)]">
-                              <span>Normal</span>
+                              <span>
+                                <T source="Normal" />
+                              </span>
                               <span className="font-mono">
-                                {pt.normal} ({pt.normalPct}%)
+                                {formatNumber(pt.normal)} ({formatNumber(pt.normalPct)}%)
                               </span>
                             </div>
                             <div className="flex items-center justify-between gap-4 text-[var(--sv-mam)]">
-                              <span>MAM</span>
+                              <span>
+                                <T source="MAM" />
+                              </span>
                               <span className="font-mono">
-                                {pt.mam} ({pt.mamPct}%)
+                                {formatNumber(pt.mam)} ({formatNumber(pt.mamPct)}%)
                               </span>
                             </div>
                             <div className="flex items-center justify-between gap-4 text-[var(--sv-sam)]">
-                              <span>SAM</span>
+                              <span>
+                                <T source="SAM" />
+                              </span>
                               <span className="font-mono font-bold">
-                                {pt.sam} ({pt.samPct}%)
+                                {formatNumber(pt.sam)} ({formatNumber(pt.samPct)}%)
                               </span>
                             </div>
                             <div className="mt-1 border-t border-[var(--sv-border)] pt-1 flex items-center justify-between gap-4 text-[var(--sv-text)] font-semibold">
-                              <span>Total</span>
-                              <span className="font-mono">{pt.total}</span>
+                              <span>
+                                <T source="Total" />
+                              </span>
+                              <span className="font-mono">{formatNumber(pt.total)}</span>
                             </div>
                             {pt.ma !== null && (
                               <div className="flex items-center justify-between gap-4 text-[var(--sv-primary)] text-[11px]">
-                                <span>7-day MA</span>
-                                <span className="font-mono">{pt.ma}</span>
+                                <span>
+                                  <T source="7-day MA" />
+                                </span>
+                                <span className="font-mono">{formatNumber(pt.ma)}</span>
                               </div>
                             )}
                           </div>
@@ -586,6 +683,7 @@ export function TrendsPage() {
 
                   <XAxis
                     dataKey="date"
+                    tickFormatter={formatDateLabel}
                     tick={{
                       fontSize: 10,
                       fill: "var(--sv-muted)",
@@ -605,7 +703,9 @@ export function TrendsPage() {
                     axisLine={false}
                     width={40}
                     domain={metricMode === "share" ? [0, 100] : ["auto", "auto"]}
-                    tickFormatter={(v: number) => (metricMode === "share" ? `${v}%` : String(v))}
+                    tickFormatter={(v: number) =>
+                      metricMode === "share" ? `${formatNumber(v)}%` : formatNumber(v)
+                    }
                   />
 
                   <Tooltip
@@ -615,34 +715,46 @@ export function TrendsPage() {
                       if (!pt) return null;
                       return (
                         <div className="rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)] p-3 text-xs shadow-lg">
-                          <p className="font-semibold text-[var(--sv-text)]">{label}</p>
+                          <p className="font-semibold text-[var(--sv-text)]">
+                            {formatDateLabel(label)}
+                          </p>
                           <div className="mt-2 space-y-1">
                             <div className="flex items-center justify-between gap-4 text-[var(--sv-normal)]">
-                              <span>Normal</span>
+                              <span>
+                                <T source="Normal" />
+                              </span>
                               <span className="font-mono">
-                                {pt.normal} ({pt.normalPct}%)
+                                {formatNumber(pt.normal)} ({formatNumber(pt.normalPct)}%)
                               </span>
                             </div>
                             <div className="flex items-center justify-between gap-4 text-[var(--sv-mam)]">
-                              <span>MAM</span>
+                              <span>
+                                <T source="MAM" />
+                              </span>
                               <span className="font-mono">
-                                {pt.mam} ({pt.mamPct}%)
+                                {formatNumber(pt.mam)} ({formatNumber(pt.mamPct)}%)
                               </span>
                             </div>
                             <div className="flex items-center justify-between gap-4 text-[var(--sv-sam)]">
-                              <span>SAM</span>
+                              <span>
+                                <T source="SAM" />
+                              </span>
                               <span className="font-mono font-bold">
-                                {pt.sam} ({pt.samPct}%)
+                                {formatNumber(pt.sam)} ({formatNumber(pt.samPct)}%)
                               </span>
                             </div>
                             <div className="mt-1 border-t border-[var(--sv-border)] pt-1 flex items-center justify-between gap-4 text-[var(--sv-text)] font-semibold">
-                              <span>Total</span>
-                              <span className="font-mono">{pt.total}</span>
+                              <span>
+                                <T source="Total" />
+                              </span>
+                              <span className="font-mono">{formatNumber(pt.total)}</span>
                             </div>
                             {pt.ma !== null && (
                               <div className="flex items-center justify-between gap-4 text-[var(--sv-primary)] text-[11px]">
-                                <span>7-day MA</span>
-                                <span className="font-mono">{pt.ma}</span>
+                                <span>
+                                  <T source="7-day MA" />
+                                </span>
+                                <span className="font-mono">{formatNumber(pt.ma)}</span>
                               </div>
                             )}
                           </div>

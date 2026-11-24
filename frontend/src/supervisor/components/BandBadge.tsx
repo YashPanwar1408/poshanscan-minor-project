@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 /**
  * BandBadge — shows NORMAL / MAM / SAM with icon + label.
  * Never relies on colour alone: always has a text label.
@@ -17,9 +18,27 @@ const CONFIG: Record<
   "NORMAL" | "MAM" | "SAM",
   { label: string; cls: string; Icon: typeof CheckCircle }
 > = {
-  NORMAL: { label: "Normal", cls: "band-normal", Icon: CheckCircle },
-  MAM: { label: "MAM", cls: "band-mam", Icon: Warning },
-  SAM: { label: "SAM", cls: "band-sam", Icon: WarningOctagon },
+  NORMAL: {
+    get label() {
+      return t("Normal");
+    },
+    cls: "band-normal",
+    Icon: CheckCircle,
+  },
+  MAM: {
+    get label() {
+      return t("MAM");
+    },
+    cls: "band-mam",
+    Icon: Warning,
+  },
+  SAM: {
+    get label() {
+      return t("SAM");
+    },
+    cls: "band-sam",
+    Icon: WarningOctagon,
+  },
 };
 
 export function BandBadge({ band, size = "md", className }: BandBadgeProps) {
@@ -35,7 +54,7 @@ export function BandBadge({ band, size = "md", className }: BandBadgeProps) {
           className,
         )}
       >
-        {band || "—"}
+        {band || t("—")}
       </span>
     );
   }

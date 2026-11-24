@@ -1,11 +1,37 @@
+import { T, t } from "@/lib/i18n";
 import { MsIcon } from "@/components/MsIcon";
 import { usePortalPrefs, type TextScale } from "@/lib/portal-prefs";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 const scales: { id: TextScale; label: string; title: string }[] = [
-  { id: "sm", label: "A−", title: "Decrease text size" },
-  { id: "md", label: "A", title: "Default text size" },
-  { id: "lg", label: "A+", title: "Increase text size" },
+  {
+    id: "sm",
+    get label() {
+      return t("A−");
+    },
+    get title() {
+      return t("Decrease text size");
+    },
+  },
+  {
+    id: "md",
+    get label() {
+      return t("A");
+    },
+    get title() {
+      return t("Default text size");
+    },
+  },
+  {
+    id: "lg",
+    get label() {
+      return t("A+");
+    },
+    get title() {
+      return t("Increase text size");
+    },
+  },
 ];
 
 export function UtilityBar() {
@@ -14,7 +40,7 @@ export function UtilityBar() {
   return (
     <div className="border-b border-border bg-[#F1EFEA] text-[11px] text-foreground high-contrast:bg-black">
       <div className="mx-auto flex h-8 max-w-7xl items-center justify-end gap-5 px-6 lg:px-10">
-        <div className="flex items-center gap-px" role="group" aria-label="Text size">
+        <div className="flex items-center gap-px" role="group" aria-label={t("Text size")}>
           {scales.map((scale) => (
             <button
               key={scale.id}
@@ -49,13 +75,10 @@ export function UtilityBar() {
           className="inline-flex items-center gap-1.5 hover:underline"
         >
           <MsIcon name="contrast" size={14} />
-          High contrast
+          <T source="High contrast" />{" "}
         </button>
         <ThemeToggle />
-        <span className="inline-flex items-center gap-1.5 text-muted-foreground" title="Language">
-          <MsIcon name="language" size={14} />
-          English
-        </span>
+        <LanguageToggle compact />
       </div>
     </div>
   );

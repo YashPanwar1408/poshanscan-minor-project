@@ -2,6 +2,7 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/lib/utils";
+import { formatNumber, t } from "@/lib/i18n";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -217,12 +218,15 @@ const ChartTooltipContent = React.forwardRef<
                         <div className="grid gap-1.5">
                           {nestLabel ? tooltipLabel : null}
                           <span className="text-muted-foreground">
-                            {itemConfig?.label || item.name}
+                            {typeof itemConfig?.label === "string"
+                              ? t(itemConfig.label)
+                              : itemConfig?.label ||
+                                (typeof item.name === "string" ? t(item.name) : item.name)}
                           </span>
                         </div>
                         {item.value && (
                           <span className="font-mono font-medium tabular-nums text-foreground">
-                            {item.value.toLocaleString()}
+                            {typeof item.value === "number" ? formatNumber(item.value) : item.value}
                           </span>
                         )}
                       </div>

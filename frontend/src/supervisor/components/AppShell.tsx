@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 /**
  * AppShell — standalone wrapper for supervisor dashboard pages.
  * Import pattern: <AppShell title="Overview"><OverviewPage /></AppShell>
@@ -32,35 +33,99 @@ import type { AgeCategory } from "../api/schemas";
 import { CommandPalette } from "./CommandPalette";
 import { Toaster } from "sonner";
 import { usePortalPrefs } from "@/lib/portal-prefs";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 // ── Nav config ────────────────────────────────────────────────────────────────
 
 const NAV_GROUPS = [
   {
-    label: "Monitor",
+    get label() {
+      return t("Monitor");
+    },
     items: [
-      { to: "/supervisor/overview" as const, label: "Overview", Icon: SquaresFour },
-      { to: "/supervisor/trends" as const, label: "Trends", Icon: ChartLineUp },
-      { to: "/supervisor/locations" as const, label: "Locations", Icon: MapTrifold },
+      {
+        to: "/supervisor/overview" as const,
+        get label() {
+          return t("Overview");
+        },
+        Icon: SquaresFour,
+      },
+      {
+        to: "/supervisor/trends" as const,
+        get label() {
+          return t("Trends");
+        },
+        Icon: ChartLineUp,
+      },
+      {
+        to: "/supervisor/locations" as const,
+        get label() {
+          return t("Locations");
+        },
+        Icon: MapTrifold,
+      },
     ],
   },
   {
-    label: "Operate",
+    get label() {
+      return t("Operate");
+    },
     items: [
-      { to: "/supervisor/workers" as const, label: "Workers", Icon: UsersThree },
-      { to: "/supervisor/flagged" as const, label: "Flagged", Icon: FlagBanner, badge: true },
+      {
+        to: "/supervisor/workers" as const,
+        get label() {
+          return t("Workers");
+        },
+        Icon: UsersThree,
+      },
+      {
+        to: "/supervisor/flagged" as const,
+        get label() {
+          return t("Flagged");
+        },
+        Icon: FlagBanner,
+        badge: true,
+      },
     ],
   },
   {
-    label: "Report",
-    items: [{ to: "/supervisor/reports" as const, label: "Reports", Icon: FileCsv }],
+    get label() {
+      return t("Report");
+    },
+    items: [
+      {
+        to: "/supervisor/reports" as const,
+        get label() {
+          return t("Reports");
+        },
+        Icon: FileCsv,
+      },
+    ],
   },
 ] as const;
 
 const AGE_OPTIONS: { value: AgeCategory; label: string; Icon: typeof Baby }[] = [
-  { value: "child_6_59m", label: "Children 6–59m", Icon: Baby },
-  { value: "adult", label: "Adults", Icon: User },
-  { value: "all", label: "All", Icon: UsersFour },
+  {
+    value: "child_6_59m",
+    get label() {
+      return t("Children 6–59m");
+    },
+    Icon: Baby,
+  },
+  {
+    value: "adult",
+    get label() {
+      return t("Adults");
+    },
+    Icon: User,
+  },
+  {
+    value: "all",
+    get label() {
+      return t("All");
+    },
+    Icon: UsersFour,
+  },
 ];
 
 // ── ProtectedRoute ────────────────────────────────────────────────────────────
@@ -151,14 +216,14 @@ function Sidebar({
               className="text-sm font-semibold text-white"
               style={{ fontFamily: "var(--sv-font-display)" }}
             >
-              PoshanScan
+              <T source="PoshanScan" />{" "}
             </span>
           </Link>
         )}
         <button
           type="button"
           onClick={onToggle}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={t(collapsed ? "Expand sidebar" : "Collapse sidebar")}
           className="flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-white/10"
           style={{ color: "var(--sv-ink-muted)" }}
         >
@@ -167,7 +232,7 @@ function Sidebar({
       </div>
 
       {/* Nav groups */}
-      <nav className="flex-1 overflow-y-auto py-3" aria-label="Supervisor navigation">
+      <nav className="flex-1 overflow-y-auto py-3" aria-label={t("Supervisor navigation")}>
         {NAV_GROUPS.map((group) => (
           <div key={group.label} className="mb-1">
             {!collapsed && (
@@ -202,7 +267,7 @@ function Sidebar({
                             color: "var(--sv-ink-text)",
                           }
                     }
-                    title={collapsed ? item.label : undefined}
+                    title={collapsed ? t(item.label) : undefined}
                   >
                     {isActive && (
                       <span
@@ -222,7 +287,7 @@ function Sidebar({
                         className="flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
                         style={{ background: "var(--sv-sam)" }}
                       >
-                        {pendingCount > 99 ? "99+" : pendingCount}
+                        {pendingCount > 99 ? t("99+") : pendingCount}
                       </span>
                     )}
                   </Link>
@@ -291,10 +356,10 @@ function Sidebar({
             color: "var(--sv-ink-muted)",
             justifyContent: collapsed ? "center" : "flex-start",
           }}
-          title={collapsed ? "Sign out" : undefined}
+          title={collapsed ? t("Sign out") : undefined}
         >
           <SignOut size={15} className="shrink-0" />
-          {!collapsed && "Sign out"}
+          {!collapsed && <T source="Sign out" />}
         </button>
       </div>
     </aside>
@@ -357,7 +422,7 @@ function Topbar({
       <div
         className="flex items-center gap-0.5 rounded-lg p-0.5"
         role="group"
-        aria-label="Age category filter"
+        aria-label={t("Age category filter")}
         style={{ background: "var(--sv-border)" }}
       >
         {AGE_OPTIONS.map((opt) => {
@@ -390,13 +455,15 @@ function Topbar({
       {/* Refresh */}
       <div className="hidden items-center gap-2 text-xs text-[var(--sv-muted)] sm:flex">
         {lastUpdated && !isRefreshing && (
-          <span style={{ fontFamily: "var(--sv-font-mono)" }}>Updated {elapsed}</span>
+          <span style={{ fontFamily: "var(--sv-font-mono)" }}>
+            <T source="Updated" /> {elapsed}
+          </span>
         )}
         <button
           type="button"
           id="sv-refresh-btn"
           onClick={onRefresh}
-          aria-label="Refresh data"
+          aria-label={t("Refresh data")}
           className="flex size-7 items-center justify-center rounded-lg transition-colors hover:bg-[var(--sv-border)]"
           style={{ color: "var(--sv-muted)" }}
         >
@@ -405,11 +472,12 @@ function Topbar({
       </div>
 
       {/* Theme toggle */}
+      <LanguageToggle compact />
       <button
         type="button"
         id="sv-theme-toggle"
         onClick={onToggleTheme}
-        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+        aria-label={t(theme === "light" ? "Switch to dark theme" : "Switch to light theme")}
         className="flex size-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--sv-border)]"
         style={{ color: "var(--sv-muted)" }}
       >
@@ -616,9 +684,11 @@ export function AppShell({ title, children }: AppShellProps) {
             style={{ background: "var(--sv-mam)" }}
           />
           <div>
-            <p className="font-semibold text-[var(--sv-mam)]">Session Expiring Soon</p>
+            <p className="font-semibold text-[var(--sv-mam)]">
+              <T source="Session Expiring Soon" />
+            </p>
             <p className="text-[var(--sv-muted)]">
-              Your session will expire in less than 60 seconds.
+              <T source="Your session will expire in less than 60 seconds." />{" "}
             </p>
           </div>
           <button
@@ -627,7 +697,7 @@ export function AppShell({ title, children }: AppShellProps) {
             className="rounded px-2.5 py-1 font-semibold text-white transition-opacity hover:opacity-90"
             style={{ background: "var(--sv-primary)" }}
           >
-            Stay signed in
+            <T source="Stay signed in" />{" "}
           </button>
         </div>
       )}

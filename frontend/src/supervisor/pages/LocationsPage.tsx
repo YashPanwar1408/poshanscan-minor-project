@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 /**
  * LocationsPage — "Risk map"
  * Geographic surveillance map powered by react-leaflet and CartoDB Positron/Dark Matter basemaps.
@@ -295,17 +296,19 @@ export function LocationsPage() {
     <div className="space-y-4">
       {/* Page Header */}
       <PageHeader
-        title="Locations"
-        description="Geographic surveillance · Village risk mapping & field worker coverage"
+        title={t("Locations")}
+        description={t("Geographic surveillance · Village risk mapping & field worker coverage")}
         actions={
           <button
             type="button"
             onClick={() => setResetTrigger((k) => k + 1)}
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)] px-3 py-1.5 text-xs font-medium text-[var(--sv-text)] transition hover:bg-[var(--sv-surface-hover)]"
-            title="Reset map view to encompass all coordinates"
+            title={t("Reset map view to encompass all coordinates")}
           >
             <MapTrifold size={14} />
-            <span>Reset Map View</span>
+            <span>
+              <T source="Reset Map View" />
+            </span>
           </button>
         }
       />
@@ -316,11 +319,23 @@ export function LocationsPage() {
           {/* Map Modes & Metric */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="font-medium text-[var(--sv-muted)]">Mode:</span>
+              <span className="font-medium text-[var(--sv-muted)]">
+                <T source="Mode:" />
+              </span>
               <SegmentedControl
                 segments={[
-                  { value: "bubbles", label: "Bubbles" },
-                  { value: "heat", label: "Heatmap" },
+                  {
+                    value: "bubbles",
+                    get label() {
+                      return t("Bubbles");
+                    },
+                  },
+                  {
+                    value: "heat",
+                    get label() {
+                      return t("Heatmap");
+                    },
+                  },
                 ]}
                 value={viewMode}
                 onChange={(v) => setViewMode(v as ViewMode)}
@@ -328,12 +343,29 @@ export function LocationsPage() {
             </div>
 
             <div className="flex items-center gap-1.5">
-              <span className="font-medium text-[var(--sv-muted)]">Metric:</span>
+              <span className="font-medium text-[var(--sv-muted)]">
+                <T source="Metric:" />
+              </span>
               <SegmentedControl
                 segments={[
-                  { value: "samRate", label: "SAM Rate" },
-                  { value: "gamRate", label: "GAM Rate" },
-                  { value: "volume", label: "Volume" },
+                  {
+                    value: "samRate",
+                    get label() {
+                      return t("SAM Rate");
+                    },
+                  },
+                  {
+                    value: "gamRate",
+                    get label() {
+                      return t("GAM Rate");
+                    },
+                  },
+                  {
+                    value: "volume",
+                    get label() {
+                      return t("Volume");
+                    },
+                  },
                 ]}
                 value={metric}
                 onChange={(v) => setMetric(v as MetricKey)}
@@ -343,12 +375,29 @@ export function LocationsPage() {
 
           {/* Grouping */}
           <div className="flex items-center gap-1.5">
-            <span className="font-medium text-[var(--sv-muted)]">Group by:</span>
+            <span className="font-medium text-[var(--sv-muted)]">
+              <T source="Group by:" />
+            </span>
             <SegmentedControl
               segments={[
-                { value: "village", label: "Village" },
-                { value: "block", label: "Block" },
-                { value: "district", label: "District" },
+                {
+                  value: "village",
+                  get label() {
+                    return t("Village");
+                  },
+                },
+                {
+                  value: "block",
+                  get label() {
+                    return t("Block");
+                  },
+                },
+                {
+                  value: "district",
+                  get label() {
+                    return t("District");
+                  },
+                },
               ]}
               value={groupBy}
               onChange={(v) => {
@@ -369,14 +418,16 @@ export function LocationsPage() {
             <div className="absolute top-2 left-2 right-2 z-[1000] flex items-center justify-between rounded-lg border border-[var(--sv-mam)]/30 bg-[var(--sv-surface)]/95 px-3 py-1.5 text-xs text-[var(--sv-mam)] shadow-md backdrop-blur">
               <div className="flex items-center gap-2">
                 <Warning size={14} />
-                <span>Basemap tiles unavailable offline — location markers still active</span>
+                <span>
+                  <T source="Basemap tiles unavailable offline — location markers still active" />
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setTileError(false)}
                 className="text-[11px] font-semibold underline"
               >
-                Dismiss
+                <T source="Dismiss" />{" "}
               </button>
             </div>
           )}
@@ -384,8 +435,10 @@ export function LocationsPage() {
           {/* Missing coordinates notice */}
           {withoutCoordsCount > 0 && (
             <div className="absolute bottom-3 left-3 z-[1000] rounded-md border border-[var(--sv-border)] bg-[var(--sv-surface)]/90 px-2.5 py-1 text-[11px] text-[var(--sv-muted)] shadow backdrop-blur">
-              {withoutCoordsCount} {withoutCoordsCount === 1 ? "location lacks" : "locations lack"}{" "}
-              GPS coordinates
+              {formatNumber(withoutCoordsCount)}{" "}
+              {withoutCoordsCount === 1 ? t("location lacks") : t("locations lack")}
+              {t(" ")}
+              <T source="GPS coordinates" />{" "}
             </div>
           )}
 
@@ -393,48 +446,64 @@ export function LocationsPage() {
           <div className="absolute top-3 right-3 z-[1000] rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)]/90 p-2 text-[11px] shadow-md backdrop-blur">
             <p className="font-semibold text-[var(--sv-text)] mb-1">
               {metric === "samRate"
-                ? "SAM Prevalence"
+                ? t("SAM Prevalence")
                 : metric === "gamRate"
-                  ? "GAM Prevalence"
-                  : "Volume Scale"}
+                  ? t("GAM Prevalence")
+                  : t("Volume Scale")}
             </p>
             {metric === "samRate" ? (
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5 text-[var(--sv-normal)]">
                   <span className="size-2.5 rounded-full bg-[var(--sv-normal)]" />
-                  <span>&lt; 5% (Low risk)</span>
+                  <span>
+                    <T source="&lt; 5% (Low risk)" />
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[var(--sv-mam)]">
                   <span className="size-2.5 rounded-full bg-[var(--sv-mam)]" />
-                  <span>5% – 10% (Alert)</span>
+                  <span>
+                    <T source="5% – 10% (Alert)" />
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[var(--sv-sam)]">
                   <span className="size-2.5 rounded-full bg-[var(--sv-sam)]" />
-                  <span>&ge; 10% (Critical)</span>
+                  <span>
+                    <T source="&ge; 10% (Critical)" />
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[var(--sv-muted)] pt-0.5 border-t border-[var(--sv-border)]">
                   <span className="size-2.5 rounded-full border border-dashed border-[var(--sv-muted)]" />
-                  <span>Hollow: Low sample (n &lt; 5)</span>
+                  <span>
+                    <T source="Hollow: Low sample (n &lt; 5)" />
+                  </span>
                 </div>
               </div>
             ) : metric === "gamRate" ? (
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5 text-[var(--sv-normal)]">
                   <span className="size-2.5 rounded-full bg-[var(--sv-normal)]" />
-                  <span>&lt; 10% (Acceptable)</span>
+                  <span>
+                    <T source="&lt; 10% (Acceptable)" />
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[var(--sv-mam)]">
                   <span className="size-2.5 rounded-full bg-[var(--sv-mam)]" />
-                  <span>10% – 15% (Poor)</span>
+                  <span>
+                    <T source="10% – 15% (Poor)" />
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[var(--sv-sam)]">
                   <span className="size-2.5 rounded-full bg-[var(--sv-sam)]" />
-                  <span>&ge; 15% (Critical)</span>
+                  <span>
+                    <T source="&ge; 15% (Critical)" />
+                  </span>
                 </div>
               </div>
             ) : (
               <div className="text-[var(--sv-muted)] space-y-0.5">
-                <p>Circle radius scales with screening volume</p>
+                <p>
+                  <T source="Circle radius scales with screening volume" />
+                </p>
               </div>
             )}
           </div>
@@ -514,15 +583,22 @@ export function LocationsPage() {
                           )}
                           <div className="mt-1 space-y-0.5 border-t border-[var(--sv-border)] pt-1">
                             <p>
-                              Total Scans:{" "}
-                              <span className="font-mono font-semibold">{loc.totalScans}</span>
+                              <T source="Total Scans:" />
+                              {t(" ")}
+                              <span className="font-mono font-semibold">
+                                {formatNumber(loc.totalScans)}
+                              </span>
                             </p>
                             <p className="text-[var(--sv-sam)]">
-                              SAM Rate: <span className="font-mono font-bold">{loc.samRate}%</span>{" "}
-                              ({loc.samCount})
+                              <T source="SAM Rate:" />{" "}
+                              <span className="font-mono font-bold">
+                                {formatNumber(loc.samRate)}%
+                              </span>
+                              {t(" ")}({formatNumber(loc.samCount)})
                             </p>
                             <p className="text-[var(--sv-mam)]">
-                              GAM Rate: <span className="font-mono">{loc.gamRate}%</span>
+                              <T source="GAM Rate:" />{" "}
+                              <span className="font-mono">{formatNumber(loc.gamRate)}%</span>
                             </p>
                           </div>
                         </div>
@@ -551,7 +627,7 @@ export function LocationsPage() {
                   <p className="text-xs text-[var(--sv-muted)]">
                     {[selectedLocation.block, selectedLocation.district]
                       .filter(Boolean)
-                      .join(" · ") || "Field Screening Site"}
+                      .join(" · ") || t("Field Screening Site")}
                   </p>
                 </div>
                 <button
@@ -559,26 +635,32 @@ export function LocationsPage() {
                   onClick={() => setSelectedLocation(null)}
                   className="rounded px-1.5 py-0.5 text-[11px] text-[var(--sv-muted)] hover:bg-[var(--sv-surface-hover)]"
                 >
-                  Close
+                  <T source="Close" />{" "}
                 </button>
               </div>
 
               {/* Counts & Rates */}
               <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-lg bg-[var(--sv-surface-hover)] p-2">
-                  <p className="text-[10px] text-[var(--sv-muted)]">Total Scans</p>
+                  <p className="text-[10px] text-[var(--sv-muted)]">
+                    <T source="Total Scans" />
+                  </p>
                   <p className="font-mono text-base font-bold text-[var(--sv-text)]">
                     {formatNumber(selectedLocation.totalScans)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-[var(--sv-mam)]/10 p-2">
-                  <p className="text-[10px] text-[var(--sv-mam)]">GAM Rate</p>
+                  <p className="text-[10px] text-[var(--sv-mam)]">
+                    <T source="GAM Rate" />
+                  </p>
                   <p className="font-mono text-base font-bold text-[var(--sv-mam)]">
                     {selectedLocation.gamRate}%
                   </p>
                 </div>
                 <div className="rounded-lg bg-[var(--sv-sam)]/10 p-2">
-                  <p className="text-[10px] text-[var(--sv-sam)]">SAM Rate</p>
+                  <p className="text-[10px] text-[var(--sv-sam)]">
+                    <T source="SAM Rate" />
+                  </p>
                   <p className="font-mono text-base font-bold text-[var(--sv-sam)]">
                     {selectedLocation.samRate}%
                   </p>
@@ -588,9 +670,11 @@ export function LocationsPage() {
               {/* Stacked Band Breakdown Bar */}
               <div className="mt-3">
                 <div className="flex items-center justify-between text-[11px] text-[var(--sv-muted)] mb-1">
-                  <span>Band Breakdown</span>
+                  <span>
+                    <T source="Band Breakdown" />
+                  </span>
                   <span className="font-mono">
-                    {selectedLocation.normalCount} / {selectedLocation.mamCount} /{" "}
+                    {selectedLocation.normalCount} / {selectedLocation.mamCount} /{t(" ")}
                     {selectedLocation.samCount}
                   </span>
                 </div>
@@ -598,17 +682,26 @@ export function LocationsPage() {
                   <div
                     style={{ width: `${selectedLocation.shares.normalPct}%` }}
                     className="bg-[var(--sv-normal)] transition-all"
-                    title={`Normal: ${selectedLocation.normalCount} (${selectedLocation.shares.normalPct}%)`}
+                    title={t("Normal: {count} ({pct}%)", {
+                      count: formatNumber(selectedLocation.normalCount),
+                      pct: formatNumber(selectedLocation.shares.normalPct),
+                    })}
                   />
                   <div
                     style={{ width: `${selectedLocation.shares.mamPct}%` }}
                     className="bg-[var(--sv-mam)] transition-all"
-                    title={`MAM: ${selectedLocation.mamCount} (${selectedLocation.shares.mamPct}%)`}
+                    title={t("MAM: {count} ({pct}%)", {
+                      count: formatNumber(selectedLocation.mamCount),
+                      pct: formatNumber(selectedLocation.shares.mamPct),
+                    })}
                   />
                   <div
                     style={{ width: `${selectedLocation.shares.samPct}%` }}
                     className="bg-[var(--sv-sam)] transition-all"
-                    title={`SAM: ${selectedLocation.samCount} (${selectedLocation.shares.samPct}%)`}
+                    title={t("SAM: {count} ({pct}%)", {
+                      count: formatNumber(selectedLocation.samCount),
+                      pct: formatNumber(selectedLocation.shares.samPct),
+                    })}
                   />
                 </div>
               </div>
@@ -617,11 +710,12 @@ export function LocationsPage() {
               <div className="mt-3 border-t border-[var(--sv-border)] pt-2.5">
                 <p className="text-xs font-medium text-[var(--sv-text)] mb-1.5 flex items-center gap-1.5">
                   <Users size={14} className="text-[var(--sv-primary)]" />
-                  Workers covering this village ({coveringWorkers.length})
+                  <T source="Workers covering this village (" />
+                  {formatNumber(coveringWorkers.length)})
                 </p>
                 {coveringWorkers.length === 0 ? (
                   <p className="text-[11px] text-[var(--sv-muted)] italic">
-                    No field workers assigned specifically to this location.
+                    <T source="No field workers assigned specifically to this location." />{" "}
                   </p>
                 ) : (
                   <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
@@ -658,7 +752,9 @@ export function LocationsPage() {
                 />
                 <input
                   type="text"
-                  placeholder={`Search ${groupBy}s...`}
+                  placeholder={t(
+                    groupBy === "village" ? "Search villages..." : "Search workers...",
+                  )}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface-hover)] py-1.5 pl-8 pr-3 text-xs text-[var(--sv-text)] outline-none transition focus:border-[var(--sv-primary)]"
@@ -666,17 +762,28 @@ export function LocationsPage() {
               </div>
 
               <div className="flex items-center justify-between text-[11px] text-[var(--sv-muted)]">
-                <span>Showing {filteredList.length} locations</span>
+                <span>
+                  <T source="Showing" /> {formatNumber(filteredList.length)}{" "}
+                  <T source="locations" />
+                </span>
                 <div className="flex items-center gap-1">
-                  <span>Sort:</span>
+                  <span>
+                    <T source="Sort:" />
+                  </span>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
                     className="rounded border border-[var(--sv-border)] bg-[var(--sv-surface)] px-1.5 py-0.5 text-[11px] text-[var(--sv-text)] outline-none"
                   >
-                    <option value="risk_desc">Highest Risk</option>
-                    <option value="volume_desc">Highest Volume</option>
-                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="risk_desc">
+                      <T source="Highest Risk" />
+                    </option>
+                    <option value="volume_desc">
+                      <T source="Highest Volume" />
+                    </option>
+                    <option value="name_asc">
+                      <T source="Name (A-Z)" />
+                    </option>
                   </select>
                 </div>
               </div>
@@ -686,7 +793,7 @@ export function LocationsPage() {
             <div className="flex-1 overflow-y-auto divide-y divide-[var(--sv-border)]/50 pr-1">
               {filteredList.length === 0 ? (
                 <div className="py-8 text-center text-xs text-[var(--sv-muted)]">
-                  No locations match your search.
+                  <T source="No locations match your search." />{" "}
                 </div>
               ) : (
                 filteredList.map((loc) => {
@@ -717,7 +824,7 @@ export function LocationsPage() {
                         </p>
                         <p className="truncate text-[10px] text-[var(--sv-muted)]">
                           {[loc.block, loc.district].filter(Boolean).join(" · ") ||
-                            `${loc.totalScans} screenings`}
+                            t("{count} screenings", { count: formatNumber(loc.totalScans) })}
                         </p>
                       </div>
 
@@ -732,29 +839,29 @@ export function LocationsPage() {
                                   : "text-[var(--sv-normal)]"
                             }`}
                           >
-                            {loc.samRate}%
+                            {formatNumber(loc.samRate)}%
                           </p>
                           <p className="font-mono text-[10px] text-[var(--sv-muted)]">
-                            {loc.totalScans} scans
+                            {formatNumber(loc.totalScans)} <T source="scans" />{" "}
                           </p>
                         </div>
 
                         {/* Status chip */}
                         {isLow ? (
                           <span className="rounded bg-[var(--sv-surface-hover)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--sv-muted)] border border-[var(--sv-border)]">
-                            Low n
+                            <T source="Low n" />{" "}
                           </span>
                         ) : loc.samRate >= 10 ? (
                           <span className="rounded bg-[var(--sv-sam)]/15 px-1.5 py-0.5 text-[9px] font-bold text-[var(--sv-sam)]">
-                            SAM
+                            <T source="SAM" />{" "}
                           </span>
                         ) : loc.samRate >= 5 ? (
                           <span className="rounded bg-[var(--sv-mam)]/15 px-1.5 py-0.5 text-[9px] font-bold text-[var(--sv-mam)]">
-                            MAM
+                            <T source="MAM" />{" "}
                           </span>
                         ) : (
                           <span className="rounded bg-[var(--sv-normal)]/15 px-1.5 py-0.5 text-[9px] font-bold text-[var(--sv-normal)]">
-                            Normal
+                            <T source="Normal" />{" "}
                           </span>
                         )}
                       </div>

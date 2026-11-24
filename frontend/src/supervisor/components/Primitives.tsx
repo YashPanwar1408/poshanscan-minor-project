@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 /** Shared layout primitives for the supervisor portal */
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
@@ -29,9 +30,13 @@ export function PageHeader({ title, description, actions }: PageHeaderProps) {
           className="text-2xl font-semibold tracking-tight text-[var(--sv-text)]"
           style={{ fontFamily: "var(--sv-font-display)" }}
         >
-          {title}
+          <T>{title}</T>
         </h1>
-        {description && <p className="mt-1 text-sm text-[var(--sv-muted)]">{description}</p>}
+        {description && (
+          <p className="mt-1 text-sm text-[var(--sv-muted)]">
+            <T>{description}</T>
+          </p>
+        )}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
@@ -52,8 +57,14 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
     <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
       {icon && <span className="text-[var(--sv-muted)] opacity-60">{icon}</span>}
       <div className="space-y-1">
-        <p className="text-sm font-semibold text-[var(--sv-text)]">{title}</p>
-        {description && <p className="text-xs text-[var(--sv-muted)]">{description}</p>}
+        <p className="text-sm font-semibold text-[var(--sv-text)]">
+          <T>{title}</T>
+        </p>
+        {description && (
+          <p className="text-xs text-[var(--sv-muted)]">
+            <T>{description}</T>
+          </p>
+        )}
       </div>
       {action}
     </div>
@@ -87,9 +98,13 @@ export function ErrorState({ message, onRetry, detail }: ErrorStateProps) {
       </div>
       <div className="space-y-1 max-w-xs">
         <p className="text-sm font-semibold text-[var(--sv-text)]">
-          {message ?? "Something went wrong"}
+          <T>{message ?? t("Something went wrong")}</T>
         </p>
-        {detail && <p className="text-xs text-[var(--sv-muted)]">{detail}</p>}
+        {detail && (
+          <p className="text-xs text-[var(--sv-muted)]">
+            <T>{detail}</T>
+          </p>
+        )}
       </div>
       {onRetry && (
         <button
@@ -101,7 +116,7 @@ export function ErrorState({ message, onRetry, detail }: ErrorStateProps) {
             color: "var(--sv-primary)",
           }}
         >
-          Try again
+          <T source="Try again" />{" "}
         </button>
       )}
     </div>
@@ -159,7 +174,7 @@ export function StatusDot({ status, latencyMs }: StatusDotProps) {
         className="sv-mono"
         style={{ color: "var(--sv-ink-muted)", fontFamily: "var(--sv-font-mono)" }}
       >
-        {labels[status]}
+        <T>{labels[status]}</T>
         {latencyMs != null && status !== "offline" && ` · ${latencyMs}ms`}
       </span>
     </span>
@@ -216,7 +231,7 @@ export function SegmentedControl<T extends string>({
             aria-pressed={active}
           >
             {seg.icon}
-            {seg.label}
+            <T>{seg.label}</T>
           </button>
         );
       })}

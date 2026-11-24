@@ -132,9 +132,27 @@ class CalibrationCorrector:
 
     @classmethod
     def load(cls, path: PathLike) -> "CalibrationCorrector":
-        """Load a corrector previously written by :meth:`save`."""
+        """Load and validate a fitted one-feature Ridge calibration artifact."""
         payload = joblib.load(path)
-        instance = cls(alpha=float(payload.get("alpha", 1.0)))
-        instance.model = payload.get("model")
-        instance.is_fitted = bool(payload.get("is_fitted", instance.model is not None))
+        if not isinstance(payload, dict):
+            raise ValueError("Calibration artifact must contain a dictionary payload.")
+
+        alpha = float(payload.get("alpha", 1.0))
+        if not math.isfinite(alpha) or alpha < 0:
+            raise ValueError("Calibration artifact has an invalid Ridge alpha.")
+
+        model = payload.get("model")
+        if not isinstance(model, Ridge) or not bool(payload.get("is_fitted", model is not None)):
+            raise ValueError("Calibration artifact does not contain a fitted Ridge model.")
+        if getattr(model, "n_features_in_", None) != 1:
+            raise ValueError("Calibration model must accept exactly one baseline MUAC feature.")
+
+        coefficients = np.asarray(getattr(model, "coef_", []), dtype=np.float64).reshape(-1)
+        intercept = np.asarray(getattr(model, "intercept_", np.nan), dtype=np.float64)
+        if coefficients.size != 1 or not np.isfinite(coefficients).all() or not np.isfinite(intercept).all():
+            raise ValueError("Calibration model contains invalid fitted parameters.")
+
+        instance = cls(alpha=alpha)
+        instance.model = model
+        instance.is_fitted = True
         return instance

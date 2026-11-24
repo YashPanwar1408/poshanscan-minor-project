@@ -112,6 +112,81 @@ def arm_axis_angle_degrees(
     return float(np.degrees(np.arctan2(dy, dx)))
 
 
+def normalize_axis_angle_degrees(angle_degrees: float) -> float:
+    """Normalize an unoriented image axis to [0, 180) degrees."""
+    return float(float(angle_degrees) % 180.0)
+
+
+def axis_angle_difference_degrees(first: float, second: float) -> float:
+    """Smallest angle between unoriented axes (range 0 through 90 degrees)."""
+    difference = abs(normalize_axis_angle_degrees(first) - normalize_axis_angle_degrees(second))
+    return float(min(difference, 180.0 - difference))
+
+
+def estimate_arm_axis_from_mask(
+    mask: np.ndarray,
+    center_px: Optional[tuple[float, float]] = None,
+    min_foreground_px: int = 80,
+    min_eigenvalue_ratio: float = 1.2,
+) -> dict[str, Any]:
+    """Estimate the local arm axis from nearby segmented foreground pixels.
+
+    Connected components far from the measurement center are excluded. This
+    permits the two visible arm pieces around an ArUco occlusion to contribute
+    together while reducing the influence of unrelated crop contents.
+    """
+    if mask is None or not isinstance(mask, np.ndarray) or mask.ndim != 2 or mask.size == 0:
+        return {"angle_degrees": None, "eigenvalue_ratio": 0.0, "foreground_px": 0}
+    binary = (mask > 0).astype(np.uint8)
+    count, labels, stats, _centroids = cv2.connectedComponentsWithStats(binary, connectivity=8)
+    if count <= 1:
+        return {"angle_degrees": None, "eigenvalue_ratio": 0.0, "foreground_px": 0}
+
+    height, width = binary.shape
+    if center_px is None:
+        cx, cy = (width - 1) / 2.0, (height - 1) / 2.0
+    else:
+        cx, cy = (float(center_px[0]), float(center_px[1]))
+        if not np.isfinite(cx) or not np.isfinite(cy):
+            return {"angle_degrees": None, "eigenvalue_ratio": 0.0, "foreground_px": 0}
+
+    components: list[tuple[int, float, int]] = []
+    for label in range(1, count):
+        x, y, component_width, component_height, area = (int(v) for v in stats[label])
+        if area < max(20, min_foreground_px // 8):
+            continue
+        dx = max(float(x) - cx, 0.0, cx - float(x + component_width - 1))
+        dy = max(float(y) - cy, 0.0, cy - float(y + component_height - 1))
+        components.append((label, float(np.hypot(dx, dy)), area))
+    if not components:
+        return {"angle_degrees": None, "eigenvalue_ratio": 0.0, "foreground_px": 0}
+
+    nearest_distance = min(item[1] for item in components)
+    proximity = max(12.0, min(height, width) * 0.12)
+    largest_area = max(item[2] for item in components)
+    selected_labels = {
+        label
+        for label, distance, area in components
+        if distance <= nearest_distance + proximity and area >= max(20, largest_area * 0.05)
+    }
+    ys, xs = np.where(np.isin(labels, list(selected_labels)))
+    if xs.size < min_foreground_px:
+        return {"angle_degrees": None, "eigenvalue_ratio": 0.0, "foreground_px": int(xs.size)}
+
+    points = np.column_stack((xs.astype(np.float64), ys.astype(np.float64)))
+    covariance = np.cov(points, rowvar=False)
+    eigenvalues, eigenvectors = np.linalg.eigh(covariance)
+    order = np.argsort(eigenvalues)
+    minor = max(float(eigenvalues[order[0]]), 1e-9)
+    major = float(eigenvalues[order[-1]])
+    ratio = major / minor
+    if not np.isfinite(ratio) or ratio < float(min_eigenvalue_ratio):
+        return {"angle_degrees": None, "eigenvalue_ratio": float(ratio), "foreground_px": int(xs.size)}
+    vector = eigenvectors[:, order[-1]]
+    angle = normalize_axis_angle_degrees(float(np.degrees(np.arctan2(vector[1], vector[0]))))
+    return {"angle_degrees": angle, "eigenvalue_ratio": float(ratio), "foreground_px": int(xs.size)}
+
+
 def locate_arm_midpoint(
     image: np.ndarray,
     side: str = "left",
@@ -202,8 +277,12 @@ def _skin_axis_angle_degrees(
     image: np.ndarray,
     center_px: tuple[float, float],
     window_px: int = 400,
-) -> float:
-    """Estimate the arm's long-axis angle from skin pixels around a point."""
+) -> Optional[float]:
+    """Estimate a local axis from the nearest connected skin component.
+
+    This is retained as a fallback diagnostic only. The measurement pipeline
+    requires a usable segmentation axis when pose landmarks are absent.
+    """
     bgr = _to_bgr(np.asarray(image))
     height, width = bgr.shape[:2]
     cx, cy = int(round(center_px[0])), int(round(center_px[1]))
@@ -212,19 +291,47 @@ def _skin_axis_angle_degrees(
     x1, y1 = min(width, cx + half), min(height, cy + half)
     crop = bgr[y0:y1, x0:x1]
     if crop.size == 0:
-        return 90.0
+        return None
 
     hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
     skin = cv2.inRange(hsv, np.array([0, 20, 40], dtype=np.uint8), np.array([25, 255, 255], dtype=np.uint8))
     skin2 = cv2.inRange(hsv, np.array([160, 20, 40], dtype=np.uint8), np.array([179, 255, 255], dtype=np.uint8))
     skin = cv2.bitwise_or(skin, skin2)
-    ys, xs = np.where(skin > 0)
+    count, labels, stats, _centroids = cv2.connectedComponentsWithStats(
+        (skin > 0).astype(np.uint8), connectivity=8
+    )
+    local_center = (float(cx - x0), float(cy - y0))
+    candidates: list[tuple[int, float, int]] = []
+    for label in range(1, count):
+        x, y, component_width, component_height, area = (int(v) for v in stats[label])
+        if area < 40:
+            continue
+        dx = max(float(x) - local_center[0], 0.0, local_center[0] - float(x + component_width - 1))
+        dy = max(float(y) - local_center[1], 0.0, local_center[1] - float(y + component_height - 1))
+        candidates.append((label, float(np.hypot(dx, dy)), area))
+    if not candidates:
+        return None
+
+    nearest = min(candidate[1] for candidate in candidates)
+    keep_distance = nearest + max(8.0, window_px * 0.08)
+    largest = max(candidate[2] for candidate in candidates)
+    chosen = {
+        label
+        for label, distance, area in candidates
+        if distance <= keep_distance and area >= max(40, largest * 0.05)
+    }
+    ys, xs = np.where(np.isin(labels, list(chosen)))
     if xs.size < 80:
-        return 90.0
-    pts = np.column_stack((xs.astype(np.float32), ys.astype(np.float32)))
-    line = cv2.fitLine(pts, cv2.DIST_L2, 0, 0.01, 0.01).flatten()
-    vx, vy = float(line[0]), float(line[1])
-    return float(np.degrees(np.arctan2(vy, vx)))
+        return None
+    points = np.column_stack((xs.astype(np.float64), ys.astype(np.float64)))
+    eigenvalues, eigenvectors = np.linalg.eigh(np.cov(points, rowvar=False))
+    order = np.argsort(eigenvalues)
+    minor = max(float(eigenvalues[order[0]]), 1e-9)
+    ratio = float(eigenvalues[order[-1]]) / minor
+    if not np.isfinite(ratio) or ratio < 1.2:
+        return None
+    vector = eigenvectors[:, order[-1]]
+    return normalize_axis_angle_degrees(float(np.degrees(np.arctan2(vector[1], vector[0]))))
 
 
 def locate_from_marker(
@@ -263,5 +370,6 @@ def locate_from_marker(
         "shoulder_px": None,
         "elbow_px": None,
         "arm_angle_degrees": angle,
+        "arm_axis_source": "marker_skin_component" if angle is not None else "marker_center_only",
         "confidence": 0.40,
     }

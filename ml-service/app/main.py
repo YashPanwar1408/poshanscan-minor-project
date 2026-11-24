@@ -3,22 +3,34 @@
 from __future__ import annotations
 
 import logging
+import os
+import base64
+from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, File, Form, UploadFile
+from fastapi import FastAPI, File, Form, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
+from starlette.concurrency import run_in_threadpool
 
-from app.pipeline.run import run_muac_pipeline
+from app.pipeline.estimate import CalibrationCorrector
+from app.pipeline.run import run_muac_pipeline, set_calibrator
 from app.pipeline.classify import AgeCategory
+from app.pipeline.segment import (
+    configure_segmentation_model,
+    predict_yolo_image,
+    segmentation_mode,
+)
 from app.schemas import (
     PIPELINE_VERSION,
     ErrorResponse,
     HealthResponse,
     InferResponse,
     QualityFlags,
+    SegmentationResponse,
 )
 
 logging.basicConfig(
@@ -26,6 +38,25 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
 )
 logger = logging.getLogger("poshanscan-cv")
+MAX_SEGMENT_UPLOAD_BYTES = 15 * 1024 * 1024
+MAX_SEGMENT_IMAGE_PIXELS = 20_000_000
+
+
+@asynccontextmanager
+async def _lifespan(_: FastAPI):
+    enabled = _env_enabled(os.getenv("POSHANSCAN_ENABLE_SYNTHETIC_CALIBRATION"))
+    model_path = os.getenv("POSHANSCAN_SYNTHETIC_CALIBRATION_MODEL")
+    configure_synthetic_calibration(enabled, model_path)
+    configure_segmentation_model(
+        os.getenv("POSHANSCAN_SEGMENTATION_MODEL", "yolo"),
+        os.getenv("POSHANSCAN_SEGMENTATION_WEIGHTS"),
+    )
+    try:
+        yield
+    finally:
+        set_calibrator(None)
+        configure_segmentation_model("legacy")
+
 
 app = FastAPI(
     title="PoshanScan CV Service",
@@ -34,7 +65,46 @@ app = FastAPI(
         "upper arm taken next to a reference marker, for malnutrition screening."
     ),
     version=PIPELINE_VERSION,
+    lifespan=_lifespan,
 )
+
+
+def _env_enabled(value: Optional[str]) -> bool:
+    return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def configure_synthetic_calibration(
+    enabled: bool,
+    model_path: Optional[str | Path] = None,
+) -> bool:
+    """Load the synthetic demo corrector only when explicitly enabled.
+
+    Missing, incompatible, or unreadable artifacts leave inference on the
+    geometric pass-through corrector instead of preventing service startup.
+    """
+    set_calibrator(None)
+    if not enabled:
+        logger.info("Synthetic calibration is disabled; using geometric baseline.")
+        return False
+
+    path = (
+        Path(model_path)
+        if model_path
+        else Path(__file__).resolve().parent / "models" / "calibration_synthetic.joblib"
+    )
+    try:
+        corrector = CalibrationCorrector.load(path)
+        set_calibrator(corrector)
+    except Exception as exc:
+        logger.warning("Synthetic calibration unavailable; using geometric baseline: %s", exc)
+        return False
+
+    logger.warning(
+        "Synthetic calibration demo enabled from %s. Do not use this synthetic model for real screening.",
+        path,
+    )
+    return True
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -159,3 +229,59 @@ async def infer(
             "internal_error",
             "An unexpected error occurred while processing the image.",
         )
+
+
+@app.post(
+    "/segment",
+    response_model=SegmentationResponse,
+    responses={
+        422: {"model": ErrorResponse},
+        503: {"model": ErrorResponse},
+    },
+    summary="Preview upper-arm segmentation on a new image",
+)
+async def segment_image(
+    image: UploadFile = File(..., description="A new image to segment."),
+    confidence: float = Query(0.25, ge=0.0, le=1.0),
+    imgsz: int = Query(640, ge=64, le=2048),
+) -> SegmentationResponse | JSONResponse:
+    """Return a predicted polygon, mask and overlay without estimating MUAC."""
+    payload = await image.read(MAX_SEGMENT_UPLOAD_BYTES + 1)
+    if len(payload) > MAX_SEGMENT_UPLOAD_BYTES:
+        return _error(422, "image_too_large", "Image uploads must be 15 MB or smaller.")
+    bgr = _decode_image(payload)
+    if bgr is None:
+        return _error(422, "invalid_image", "Could not decode the uploaded file as an image.")
+    if bgr.shape[0] * bgr.shape[1] > MAX_SEGMENT_IMAGE_PIXELS:
+        return _error(422, "image_dimensions_too_large", "Decoded images must contain 20 megapixels or fewer.")
+    if segmentation_mode() != "yolo":
+        return _error(
+            503,
+            "segmentation_model_unavailable",
+            "The trained YOLO segmentation checkpoint is not loaded. Configure a trained model before using /segment.",
+        )
+
+    try:
+        prediction = await run_in_threadpool(
+            predict_yolo_image,
+            bgr,
+            imgsz=imgsz,
+            confidence_threshold=confidence,
+        )
+        ok_mask, mask_png = cv2.imencode(".png", prediction["mask"])
+        ok_preview, preview_png = cv2.imencode(".png", prediction["visualization"])
+        if not ok_mask or not ok_preview:
+            return _error(500, "preview_encoding_failed", "Could not encode the segmentation preview.")
+        return SegmentationResponse(
+            detected=bool(prediction["detected"]),
+            width=int(prediction["width"]),
+            height=int(prediction["height"]),
+            instances=prediction["instances"],
+            mask_png_base64=base64.b64encode(mask_png.tobytes()).decode("ascii"),
+            visualization_png_base64=base64.b64encode(preview_png.tobytes()).decode("ascii"),
+        )
+    except ValueError as exc:
+        return _error(422, "invalid_prediction_request", str(exc))
+    except Exception:
+        logger.exception("Unexpected error during /segment")
+        return _error(500, "segmentation_failed", "The segmentation model could not process this image.")

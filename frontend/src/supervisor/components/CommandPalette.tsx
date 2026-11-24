@@ -1,3 +1,4 @@
+import { formatNumber, T, t } from "@/lib/i18n";
 /**
  * CommandPalette — "cmdk Quick Action Palette" (Ctrl/Cmd+K)
  * Groups:
@@ -78,7 +79,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     <CommandPrimitive.Dialog
       open={open}
       onOpenChange={onOpenChange}
-      label="Command Menu"
+      label={t("Command Menu")}
       className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/50 backdrop-blur-xs p-4"
     >
       <div
@@ -91,23 +92,23 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           <CommandPrimitive.Input
             value={search}
             onValueChange={setSearch}
-            placeholder="Type a command, page name, village, or worker..."
+            placeholder={t("Type a command, page name, village, or worker...")}
             className="w-full bg-transparent text-sm text-[var(--sv-text)] outline-none placeholder:text-[var(--sv-muted)]"
           />
           <kbd className="hidden sm:inline-block rounded bg-[var(--sv-surface-hover)] px-2 py-0.5 text-[10px] font-mono text-[var(--sv-muted)] border border-[var(--sv-border)]">
-            ESC
+            <T source="ESC" />{" "}
           </kbd>
         </div>
 
         {/* Command Items List */}
         <CommandPrimitive.List className="max-h-80 overflow-y-auto p-2 text-xs">
           <CommandPrimitive.Empty className="py-6 text-center text-xs text-[var(--sv-muted)]">
-            No matching actions, pages, or entities found.
+            <T source="No matching actions, pages, or entities found." />{" "}
           </CommandPrimitive.Empty>
 
           {/* Navigate Group */}
           <CommandPrimitive.Group
-            heading="Navigation"
+            heading={t("Navigation")}
             className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--sv-muted)]"
           >
             <CommandPrimitive.Item
@@ -116,9 +117,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <SquaresFour size={16} className="text-[var(--sv-primary)]" />
-                <span>Overview Dashboard</span>
+                <span>
+                  <T source="Overview Dashboard" />
+                </span>
               </div>
-              <span className="font-mono text-[10px] text-[var(--sv-muted)]">g o</span>
+              <span className="font-mono text-[10px] text-[var(--sv-muted)]">
+                <T source="g o" />
+              </span>
             </CommandPrimitive.Item>
 
             <CommandPrimitive.Item
@@ -127,9 +132,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <ChartLineUp size={16} className="text-[var(--sv-primary)]" />
-                <span>Longitudinal Trends</span>
+                <span>
+                  <T source="Longitudinal Trends" />
+                </span>
               </div>
-              <span className="font-mono text-[10px] text-[var(--sv-muted)]">g t</span>
+              <span className="font-mono text-[10px] text-[var(--sv-muted)]">
+                <T source="g t" />
+              </span>
             </CommandPrimitive.Item>
 
             <CommandPrimitive.Item
@@ -138,9 +147,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <MapTrifold size={16} className="text-[var(--sv-primary)]" />
-                <span>Location Risk Map</span>
+                <span>
+                  <T source="Location Risk Map" />
+                </span>
               </div>
-              <span className="font-mono text-[10px] text-[var(--sv-muted)]">g l</span>
+              <span className="font-mono text-[10px] text-[var(--sv-muted)]">
+                <T source="g l" />
+              </span>
             </CommandPrimitive.Item>
 
             <CommandPrimitive.Item
@@ -149,9 +162,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <UsersThree size={16} className="text-[var(--sv-primary)]" />
-                <span>Field Team Directory</span>
+                <span>
+                  <T source="Field Team Directory" />
+                </span>
               </div>
-              <span className="font-mono text-[10px] text-[var(--sv-muted)]">g w</span>
+              <span className="font-mono text-[10px] text-[var(--sv-muted)]">
+                <T source="g w" />
+              </span>
             </CommandPrimitive.Item>
 
             <CommandPrimitive.Item
@@ -160,9 +177,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <FlagBanner size={16} className="text-[var(--sv-sam)]" />
-                <span>Flagged Review Queue</span>
+                <span>
+                  <T source="Flagged Review Queue" />
+                </span>
               </div>
-              <span className="font-mono text-[10px] text-[var(--sv-muted)]">g f</span>
+              <span className="font-mono text-[10px] text-[var(--sv-muted)]">
+                <T source="g f" />
+              </span>
             </CommandPrimitive.Item>
 
             <CommandPrimitive.Item
@@ -171,9 +192,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <FileCsv size={16} className="text-[var(--sv-accent)]" />
-                <span>Reports & Exports</span>
+                <span>
+                  <T source="Reports & Exports" />
+                </span>
               </div>
-              <span className="font-mono text-[10px] text-[var(--sv-muted)]">g r</span>
+              <span className="font-mono text-[10px] text-[var(--sv-muted)]">
+                <T source="g r" />
+              </span>
             </CommandPrimitive.Item>
 
             <CommandPrimitive.Item
@@ -182,14 +207,16 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <Code size={16} className="text-[var(--sv-muted)]" />
-                <span>API Inspector (Dev)</span>
+                <span>
+                  <T source="API Inspector (Dev)" />
+                </span>
               </div>
             </CommandPrimitive.Item>
           </CommandPrimitive.Group>
 
           {/* Filters Group */}
           <CommandPrimitive.Group
-            heading="Cohort & Filters"
+            heading={t("Cohort & Filters")}
             className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--sv-muted)] mt-2"
           >
             <CommandPrimitive.Item
@@ -198,10 +225,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <Baby size={16} className="text-[var(--sv-primary)]" />
-                <span>Filter: Children 6–59 months (Default)</span>
+                <span>
+                  <T source="Filter: Children 6–59 months (Default)" />
+                </span>
               </div>
               {ageCategory === "child_6_59m" && (
-                <span className="text-[10px] font-bold text-[var(--sv-primary)]">Active</span>
+                <span className="text-[10px] font-bold text-[var(--sv-primary)]">
+                  <T source="Active" />
+                </span>
               )}
             </CommandPrimitive.Item>
 
@@ -211,10 +242,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <User size={16} className="text-[var(--sv-muted)]" />
-                <span>Filter: Adults</span>
+                <span>
+                  <T source="Filter: Adults" />
+                </span>
               </div>
               {ageCategory === "adult" && (
-                <span className="text-[10px] font-bold text-[var(--sv-primary)]">Active</span>
+                <span className="text-[10px] font-bold text-[var(--sv-primary)]">
+                  <T source="Active" />
+                </span>
               )}
             </CommandPrimitive.Item>
 
@@ -224,17 +259,21 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <UsersFour size={16} className="text-[var(--sv-muted)]" />
-                <span>Filter: All records (No age filter)</span>
+                <span>
+                  <T source="Filter: All records (No age filter)" />
+                </span>
               </div>
               {ageCategory === "all" && (
-                <span className="text-[10px] font-bold text-[var(--sv-primary)]">Active</span>
+                <span className="text-[10px] font-bold text-[var(--sv-primary)]">
+                  <T source="Active" />
+                </span>
               )}
             </CommandPrimitive.Item>
           </CommandPrimitive.Group>
 
           {/* Actions Group */}
           <CommandPrimitive.Group
-            heading="Quick Actions"
+            heading={t("Quick Actions")}
             className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--sv-muted)] mt-2"
           >
             <CommandPrimitive.Item
@@ -243,7 +282,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <DownloadSimple size={16} className="text-[var(--sv-primary)]" />
-                <span>Download District CSV Report</span>
+                <span>
+                  <T source="Download District CSV Report" />
+                </span>
               </div>
             </CommandPrimitive.Item>
 
@@ -257,7 +298,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <ArrowsClockwise size={16} className="text-[var(--sv-primary)]" />
-                <span>Refresh All Queries & Cache</span>
+                <span>
+                  <T source="Refresh All Queries & Cache" />
+                </span>
               </div>
             </CommandPrimitive.Item>
 
@@ -271,7 +314,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 ) : (
                   <Moon size={16} className="text-[var(--sv-accent)]" />
                 )}
-                <span>Toggle Theme ({theme === "dark" ? "Light Mode" : "Dark Mode"})</span>
+                <span>
+                  <T source="Toggle Theme (" />
+                  {theme === "dark" ? t("Light Mode") : t("Dark Mode")})
+                </span>
               </div>
             </CommandPrimitive.Item>
 
@@ -281,7 +327,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             >
               <div className="flex items-center gap-2.5">
                 <SignOut size={16} />
-                <span>Sign Out of Portal</span>
+                <span>
+                  <T source="Sign Out of Portal" />
+                </span>
               </div>
             </CommandPrimitive.Item>
           </CommandPrimitive.Group>
@@ -289,7 +337,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           {/* Jump To Group */}
           {(cachedLocations.length > 0 || cachedWorkers.length > 0 || cachedFlagged.length > 0) && (
             <CommandPrimitive.Group
-              heading="Jump to Entity"
+              heading={t("Jump to Entity")}
               className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--sv-muted)] mt-2"
             >
               {cachedFlagged.slice(0, 5).map((flag) => (
@@ -308,7 +356,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   <div className="flex items-center gap-2.5 truncate">
                     <ShieldWarning size={15} className="text-[var(--sv-sam)] shrink-0" />
                     <span className="truncate">
-                      Scan {flag.referenceCode} · {flag.village} ({flag.muacMm} mm)
+                      <T source="Scan" /> {flag.referenceCode} · {flag.village} (
+                      {formatNumber(flag.muacMm)} <T source="mm)" />{" "}
                     </span>
                   </div>
                   <span className="text-[10px] text-[var(--sv-sam)] font-bold shrink-0">
@@ -329,10 +378,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 >
                   <div className="flex items-center gap-2.5 truncate">
                     <MapPin size={15} className="text-[var(--sv-primary)] shrink-0" />
-                    <span className="truncate">{loc.name} Village</span>
+                    <span className="truncate">
+                      {loc.name} <T source="Village" />
+                    </span>
                   </div>
                   <span className="text-[10px] text-[var(--sv-muted)] font-mono shrink-0">
-                    {loc.totalScans} scans
+                    {formatNumber(loc.totalScans)} <T source="scans" />{" "}
                   </span>
                 </CommandPrimitive.Item>
               ))}
@@ -349,10 +400,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 >
                   <div className="flex items-center gap-2.5 truncate">
                     <User size={15} className="text-[var(--sv-primary)] shrink-0" />
-                    <span className="truncate">{w.name} (Field Worker)</span>
+                    <span className="truncate">
+                      {w.name} <T source="(Field Worker)" />
+                    </span>
                   </div>
                   <span className="text-[10px] text-[var(--sv-muted)] font-mono shrink-0">
-                    {w.totalScans} scans
+                    {formatNumber(w.totalScans)} <T source="scans" />{" "}
                   </span>
                 </CommandPrimitive.Item>
               ))}
@@ -364,14 +417,17 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         <div className="flex items-center justify-between border-t border-[var(--sv-border)] px-4 py-2 text-[10px] text-[var(--sv-muted)] bg-[var(--sv-surface-hover)]/30">
           <div className="flex items-center gap-3">
             <span>
-              <kbd className="font-mono font-bold text-[var(--sv-text)]">↑↓</kbd> to navigate
+              <kbd className="font-mono font-bold text-[var(--sv-text)]">↑↓</kbd>{" "}
+              <T source="to navigate" />{" "}
             </span>
             <span>
-              <kbd className="font-mono font-bold text-[var(--sv-text)]">↵</kbd> to select
+              <kbd className="font-mono font-bold text-[var(--sv-text)]">↵</kbd>{" "}
+              <T source="to select" />{" "}
             </span>
           </div>
           <span>
-            <kbd className="font-mono font-bold text-[var(--sv-text)]">?</kbd> for shortcut sheet
+            <kbd className="font-mono font-bold text-[var(--sv-text)]">?</kbd>{" "}
+            <T source="for shortcut sheet" />{" "}
           </span>
         </div>
       </div>

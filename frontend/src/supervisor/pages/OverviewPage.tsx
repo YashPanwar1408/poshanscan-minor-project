@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 /**
  * Overview dashboard page — "Situation room"
  * Comprehensive overview: Live pill, auto-insight strip, 5 KPIs with 14-day sparklines and deltas,
@@ -137,7 +138,7 @@ export function OverviewPage() {
   if (overviewLoading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Overview" description="Loading programme oversight data…" />
+        <PageHeader title={t("Overview")} description={t("Loading programme oversight data…")} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {Array.from({ length: 5 }).map((_, i) => (
             <KpiCardSkeleton key={i} />
@@ -156,13 +157,13 @@ export function OverviewPage() {
   if (overviewError) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Overview" />
+        <PageHeader title={t("Overview")} />
         <ErrorState
-          message={
+          message={t(
             overviewErr?.message === "Response format unexpected"
               ? "Response format unexpected from supervisor overview endpoint."
-              : "Unable to retrieve programme overview metrics."
-          }
+              : "Unable to retrieve programme overview metrics.",
+          )}
           detail={overviewErr?.message}
           onRetry={() => void refetchOverview()}
         />
@@ -174,14 +175,17 @@ export function OverviewPage() {
   const bands = ageCategory === "all" ? null : getMuacBands(ageCategory);
   const bandLabels = bands
     ? {
-        normal: `Normal (≥${bands.moderateBelow} mm)`,
-        mam: `MAM (${bands.severeBelow}–<${bands.moderateBelow} mm)`,
-        sam: `SAM (<${bands.severeBelow} mm)`,
+        normal: t("Normal (≥{value} mm)", { value: formatNumber(bands.moderateBelow) }),
+        mam: t("MAM ({low}–<{high} mm)", {
+          low: formatNumber(bands.severeBelow),
+          high: formatNumber(bands.moderateBelow),
+        }),
+        sam: t("SAM (<{value} mm)", { value: formatNumber(bands.severeBelow) }),
       }
     : {
-        normal: "Normal",
-        mam: "MAM",
-        sam: "SAM",
+        normal: t("Normal"),
+        mam: t("MAM"),
+        sam: t("SAM"),
       };
 
   const isAdultCategory = ageCategory === "adult";
@@ -208,32 +212,29 @@ export function OverviewPage() {
 
   // Row 3 rankings
   const topPending = isAdultCategory
-    ? (flagged?.items ?? [])
-        .filter(
-          (i) =>
-            (i as Record<string, unknown>).age_category === "adult" ||
-            (i as Record<string, unknown>).ageCategory === "adult",
-        )
-        .slice(0, 5)
+    ? (flagged?.items ?? []).filter((i) => i.ageCategory === "adult").slice(0, 5)
     : (flagged?.items.slice(0, 5) ?? []);
 
-  const topRiskVillages = isAdultCategory && effectiveTotal === 0
-    ? []
-    : (locations ?? [])
-        .filter((loc) => loc.totalScans >= 5)
-        .sort((a, b) => b.gamRate - a.gamRate || b.samRate - a.samRate)
-        .slice(0, 5);
+  const topRiskVillages =
+    isAdultCategory && effectiveTotal === 0
+      ? []
+      : (locations ?? [])
+          .filter((loc) => loc.totalScans >= 5)
+          .sort((a, b) => b.gamRate - a.gamRate || b.samRate - a.samRate)
+          .slice(0, 5);
 
-  const topWorkers = isAdultCategory && effectiveTotal === 0
-    ? []
-    : [...(workers ?? [])].sort((a, b) => b.totalScans - a.totalScans).slice(0, 5);
+  const topWorkers =
+    isAdultCategory && effectiveTotal === 0
+      ? []
+      : [...(workers ?? [])].sort((a, b) => b.totalScans - a.totalScans).slice(0, 5);
 
-  const scopeText =
+  const scopeText = t(
     ageCategory === "child_6_59m"
       ? "Children 6–59 months · All villages"
       : ageCategory === "adult"
         ? "Adults · All villages"
-        : "All age records · All villages";
+        : "All age records · All villages",
+  );
 
   return (
     <div className="space-y-6">
@@ -244,7 +245,7 @@ export function OverviewPage() {
             className="text-2xl font-bold tracking-tight text-[var(--sv-text)]"
             style={{ fontFamily: "var(--sv-font-display)" }}
           >
-            Programme Overview
+            <T source="Programme Overview" />{" "}
           </h1>
           <p className="mt-1 text-xs text-[var(--sv-muted)]">{scopeText}</p>
         </div>
@@ -253,7 +254,7 @@ export function OverviewPage() {
       {/* Row 1: KPI row (5 cards) */}
       <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
         <KpiCard
-          label="Total Screenings"
+          label={t("Total Screenings")}
           value={effectiveTotal}
           subtext="Total scans"
           sparklineData={trendMetrics?.sparklines.total}
@@ -261,31 +262,46 @@ export function OverviewPage() {
           sparklineColor="var(--sv-primary)"
         />
         <KpiCard
-          label="Normal Band"
+          label={t("Normal Band")}
           value={effectiveNormal}
-          subtext={`${normalPct.toFixed(1)}% of total`}
+          subtext={t("{percentage}% of total", {
+            percentage: formatNumber(normalPct, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }),
+          })}
           sparklineData={trendMetrics?.sparklines.normal}
           delta={trendMetrics?.deltas.normal}
           sparklineColor="var(--sv-normal)"
         />
         <KpiCard
-          label="MAM Band"
+          label={t("MAM Band")}
           value={effectiveMam}
-          subtext={`${mamPct.toFixed(1)}% of total`}
+          subtext={t("{percentage}% of total", {
+            percentage: formatNumber(mamPct, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }),
+          })}
           sparklineData={trendMetrics?.sparklines.mam}
           delta={trendMetrics?.deltas.mam}
           sparklineColor="var(--sv-mam)"
         />
         <KpiCard
-          label="SAM Band"
+          label={t("SAM Band")}
           value={effectiveSam}
-          subtext={`${samPct.toFixed(1)}% of total`}
+          subtext={t("{percentage}% of total", {
+            percentage: formatNumber(samPct, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }),
+          })}
           sparklineData={trendMetrics?.sparklines.sam}
           delta={trendMetrics?.deltas.sam}
           sparklineColor="var(--sv-sam)"
         />
         <KpiCard
-          label="Avg Confidence"
+          label={t("Avg Confidence")}
           value={`${Math.round(effectiveConfidence)}%`}
           subtext="Model prediction score"
           gaugePct={effectiveConfidence}
@@ -298,17 +314,20 @@ export function OverviewPage() {
         <Panel className="min-w-0 p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="sv-eyebrow">Risk Classification Distribution</p>
+              <p className="sv-eyebrow">
+                <T source="Risk Classification Distribution" />
+              </p>
               <h2 className="text-sm font-semibold text-[var(--sv-text)]">
                 {ageCategory === "adult"
-                  ? "Adult MUAC Screening Bands"
+                  ? t("Adult MUAC Screening Bands")
                   : ageCategory === "child_6_59m"
-                    ? "Screening bands (6–59 months)"
-                    : "Screening bands (all categories)"}
+                    ? t("Screening bands (6–59 months)")
+                    : t("Screening bands (all categories)")}
               </h2>
             </div>
             <span className="font-mono text-xs text-[var(--sv-muted)]">
-              n={formatNumber(d.totalScans)}
+              <T source="n=" />
+              {formatNumber(d.totalScans)}
             </span>
           </div>
 
@@ -332,7 +351,7 @@ export function OverviewPage() {
                   </Pie>
                   <Tooltip
                     formatter={(v: number) => [
-                      `${formatNumber(v)} (${((v / (effectiveTotal || 1)) * 100).toFixed(1)}%)`,
+                      `${formatNumber(v)} (${formatNumber((v / (effectiveTotal || 1)) * 100, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)`,
                       "Screenings",
                     ]}
                     contentStyle={{
@@ -360,7 +379,9 @@ export function OverviewPage() {
                 >
                   {formatNumber(effectiveTotal)}
                 </span>
-                <span className="sv-eyebrow text-[10px]">Total Scans</span>
+                <span className="sv-eyebrow text-[10px]">
+                  <T source="Total Scans" />
+                </span>
               </div>
             </div>
 
@@ -396,9 +417,11 @@ export function OverviewPage() {
                       {label}
                     </span>
                     <span className="font-mono font-semibold" style={{ color: "var(--sv-text)" }}>
-                      {formatNumber(count)}{" "}
+                      {formatNumber(count)}
+                      {t(" ")}
                       <span className="text-[var(--sv-muted)] font-normal">
-                        ({pct.toFixed(1)}%)
+                        ({formatNumber(pct, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                        %)
                       </span>
                     </span>
                   </div>
@@ -419,13 +442,15 @@ export function OverviewPage() {
           {/* GAM Rate Card */}
           <Panel className="flex flex-1 flex-col justify-between p-5">
             <div className="flex items-center justify-between">
-              <span className="sv-eyebrow">GAM Prevalence</span>
+              <span className="sv-eyebrow">
+                <T source="GAM Prevalence" />
+              </span>
               <button
                 type="button"
                 onClick={() => setWhoInfoOpen((prev) => !prev)}
                 className="flex size-6 items-center justify-center rounded text-[var(--sv-muted)] transition-colors hover:bg-[var(--sv-canvas)] hover:text-[var(--sv-text)]"
-                title="WHO screening criteria info"
-                aria-label="WHO screening criteria info"
+                title={t("WHO screening criteria info")}
+                aria-label={t("WHO screening criteria info")}
               >
                 <Info size={16} />
               </button>
@@ -435,10 +460,10 @@ export function OverviewPage() {
                 className="font-mono text-3xl font-bold tracking-tight text-[var(--sv-text)]"
                 style={{ fontFamily: "var(--sv-font-mono)" }}
               >
-                {gamRate.toFixed(1)}%
+                {formatNumber(gamRate, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
               </p>
               <p className="mt-1 text-xs text-[var(--sv-muted)]">
-                Global Acute Malnutrition (MAM + SAM cases: {formatNumber(gamCount)})
+                <T source="Global Acute Malnutrition (MAM + SAM cases:" /> {formatNumber(gamCount)})
               </p>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-[var(--sv-muted)]">
@@ -455,10 +480,10 @@ export function OverviewPage() {
               />
               <span>
                 {gamRate > 15
-                  ? "WHO Emergency Threshold (>15%)"
+                  ? t("WHO Emergency Threshold (>15%)")
                   : gamRate > 10
-                    ? "WHO Alert Threshold (10–14.9%)"
-                    : "Within expected limits (<10%)"}
+                    ? t("WHO Alert Threshold (10–14.9%)")
+                    : t("Within expected limits (<10%)")}
               </span>
             </div>
           </Panel>
@@ -466,7 +491,9 @@ export function OverviewPage() {
           {/* SAM Rate Card */}
           <Panel className="flex flex-1 flex-col justify-between p-5">
             <div className="flex items-center justify-between">
-              <span className="sv-eyebrow">SAM Prevalence</span>
+              <span className="sv-eyebrow">
+                <T source="SAM Prevalence" />
+              </span>
               <BandBadge band="SAM" size="sm" />
             </div>
             <div>
@@ -474,15 +501,17 @@ export function OverviewPage() {
                 className="font-mono text-3xl font-bold tracking-tight text-[var(--sv-sam)]"
                 style={{ fontFamily: "var(--sv-font-mono)" }}
               >
-                {samRate.toFixed(1)}%
+                {formatNumber(samRate, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
               </p>
               <p className="mt-1 text-xs text-[var(--sv-muted)]">
-                Severe Acute Malnutrition ({formatNumber(effectiveSam)} of{" "}
-                {formatNumber(effectiveTotal)} children)
+                <T source="Severe Acute Malnutrition (" />
+                {formatNumber(effectiveSam)} <T source="of" />
+                {t(" ")}
+                {formatNumber(effectiveTotal)} <T source="children)" />{" "}
               </p>
             </div>
             <p className="text-[11px] text-[var(--sv-muted)]">
-              Screening aid — immediate facility follow-up required.
+              <T source="Screening aid — immediate facility follow-up required." />{" "}
             </p>
           </Panel>
         </div>
@@ -492,15 +521,15 @@ export function OverviewPage() {
       {whoInfoOpen && (
         <div
           role="dialog"
-          aria-label="WHO Screening Bands Explanation"
+          aria-label={t("WHO Screening Bands Explanation")}
           className="rounded-lg border border-[var(--sv-border)] bg-[var(--sv-surface)] p-4 text-xs shadow-md space-y-3"
         >
           <div className="flex items-center justify-between border-b border-[var(--sv-border)] pb-2">
             <div className="flex items-center gap-2 font-semibold text-[var(--sv-text)]">
               <Info size={16} weight="duotone" className="text-[var(--sv-primary)]" />
               {ageCategory === "adult"
-                ? "Adult MUAC Screening Bands"
-                : "WHO Child Malnutrition Screening Bands (6–59 months)"}
+                ? t("Adult MUAC Screening Bands")
+                : t("WHO Child Malnutrition Screening Bands (6–59 months)")}
             </div>
             <button
               type="button"
@@ -513,41 +542,41 @@ export function OverviewPage() {
           <div className="grid gap-2 sm:grid-cols-3">
             <div className="rounded border border-[var(--sv-border)] p-2.5 space-y-1">
               <div className="flex items-center gap-1.5 font-semibold text-[var(--sv-normal)]">
-                <CheckCircle size={14} weight="fill" /> Normal
+                <CheckCircle size={14} weight="fill" /> <T source="Normal" />{" "}
               </div>
               <p className="font-mono text-[11px] text-[var(--sv-text)]">
-                MUAC ≥ {bands?.moderateBelow ?? 125} mm
+                <T source="MUAC ≥" /> {bands?.moderateBelow ?? 125} <T source="mm" />{" "}
               </p>
               <p className="text-[11px] text-[var(--sv-muted)]">
-                Adequate nutrition status; routine growth monitoring.
+                <T source="Adequate nutrition status; routine growth monitoring." />{" "}
               </p>
             </div>
             <div className="rounded border border-[var(--sv-border)] p-2.5 space-y-1">
               <div className="flex items-center gap-1.5 font-semibold text-[var(--sv-mam)]">
-                <Warning size={14} weight="fill" /> MAM
+                <Warning size={14} weight="fill" /> <T source="MAM" />{" "}
               </div>
               <p className="font-mono text-[11px] text-[var(--sv-text)]">
-                {bands?.severeBelow ?? 115} mm ≤ MUAC &lt; {bands?.moderateBelow ?? 125} mm
+                {bands?.severeBelow ?? 115} <T source="mm ≤ MUAC &lt;" />{" "}
+                {bands?.moderateBelow ?? 125} <T source="mm" />{" "}
               </p>
               <p className="text-[11px] text-[var(--sv-muted)]">
-                Moderate Acute Malnutrition; supplementary feeding support.
+                <T source="Moderate Acute Malnutrition; supplementary feeding support." />{" "}
               </p>
             </div>
             <div className="rounded border border-[var(--sv-border)] p-2.5 space-y-1">
               <div className="flex items-center gap-1.5 font-semibold text-[var(--sv-sam)]">
-                <WarningOctagon size={14} weight="fill" /> SAM
+                <WarningOctagon size={14} weight="fill" /> <T source="SAM" />{" "}
               </div>
               <p className="font-mono text-[11px] text-[var(--sv-text)]">
-                MUAC &lt; {bands?.severeBelow ?? 115} mm
+                <T source="MUAC &lt;" /> {bands?.severeBelow ?? 115} <T source="mm" />{" "}
               </p>
               <p className="text-[11px] text-[var(--sv-muted)]">
-                Severe Acute Malnutrition; urgent clinical referral.
+                <T source="Severe Acute Malnutrition; urgent clinical referral." />{" "}
               </p>
             </div>
           </div>
           <p className="text-[11px] text-[var(--sv-muted)] italic">
-            PoshanScan is a digital screening aid, never a medical diagnosis. Always confirm results
-            with a trained frontline healthcare provider.
+            <T source="PoshanScan is a digital screening aid, never a medical diagnosis. Always confirm results with a trained frontline healthcare provider." />{" "}
           </p>
         </div>
       )}
@@ -560,22 +589,24 @@ export function OverviewPage() {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FlagBanner size={16} weight="duotone" className="text-[var(--sv-sam)]" />
-                <h3 className="text-sm font-semibold text-[var(--sv-text)]">Needs Attention</h3>
+                <h3 className="text-sm font-semibold text-[var(--sv-text)]">
+                  <T source="Needs Attention" />
+                </h3>
               </div>
               <Link
                 to="/supervisor/flagged"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--sv-primary)] hover:underline"
               >
-                View all <ArrowRight size={12} />
+                <T source="View all" /> <ArrowRight size={12} />
               </Link>
             </div>
             <p className="mb-3 text-xs text-[var(--sv-muted)]">
-              Scans flagged for SAM classification or model confidence &lt; 60%
+              <T source="Scans flagged for SAM classification or model confidence &lt; 60%" />{" "}
             </p>
 
             {topPending.length === 0 ? (
               <p className="py-6 text-center text-xs text-[var(--sv-muted)]">
-                No pending scans requiring review.
+                <T source="No pending scans requiring review." />{" "}
               </p>
             ) : (
               <div className="divide-y divide-[var(--sv-border)]">
@@ -594,13 +625,13 @@ export function OverviewPage() {
                     <div>
                       <p className="text-xs font-medium text-[var(--sv-text)]">{item.childName}</p>
                       <p className="text-[11px] text-[var(--sv-muted)]">
-                        {item.village} · {item.muacMm} mm
+                        {item.village} · {formatNumber(item.muacMm)} <T source="mm" />{" "}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <BandBadge band={item.band} size="sm" />
                       <span className="font-mono text-[10px] text-[var(--sv-muted)]">
-                        {item.confidencePct.toFixed(0)}%
+                        {formatNumber(item.confidencePct, { maximumFractionDigits: 0 })}%
                       </span>
                     </div>
                   </button>
@@ -617,23 +648,23 @@ export function OverviewPage() {
               <div className="flex items-center gap-2">
                 <MapPin size={16} weight="duotone" className="text-[var(--sv-mam)]" />
                 <h3 className="text-sm font-semibold text-[var(--sv-text)]">
-                  Highest-Risk Villages
+                  <T source="Highest-Risk Villages" />{" "}
                 </h3>
               </div>
               <Link
                 to="/supervisor/locations"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--sv-primary)] hover:underline"
               >
-                View all <ArrowRight size={12} />
+                <T source="View all" /> <ArrowRight size={12} />
               </Link>
             </div>
             <p className="mb-3 text-xs text-[var(--sv-muted)]">
-              Villages ranked by combined MAM+SAM share (min. volume n≥5)
+              <T source="Villages ranked by combined MAM+SAM share (min. volume n≥5)" />{" "}
             </p>
 
             {topRiskVillages.length === 0 ? (
               <p className="py-6 text-center text-xs text-[var(--sv-muted)]">
-                No village data meeting the volume threshold.
+                <T source="No village data meeting the volume threshold." />{" "}
               </p>
             ) : (
               <div className="divide-y divide-[var(--sv-border)]">
@@ -642,15 +673,18 @@ export function OverviewPage() {
                     <div>
                       <p className="font-medium text-[var(--sv-text)]">{loc.name}</p>
                       <p className="text-[11px] text-[var(--sv-muted)]">
-                        {loc.block ? `${loc.block} · ` : ""}n={loc.totalScans}
+                        {loc.block ? `${loc.block} · ` : t("")}
+                        <T source="n=" />
+                        {formatNumber(loc.totalScans)}
                       </p>
                     </div>
                     <div className="text-right">
                       <span className="font-mono font-semibold text-[var(--sv-sam)]">
-                        {loc.gamRate}% GAM
+                        {formatNumber(loc.gamRate)}
+                        <T source="% GAM" />{" "}
                       </span>
                       <p className="text-[10px] text-[var(--sv-muted)] font-mono">
-                        {loc.samCount} SAM
+                        {formatNumber(loc.samCount)} <T source="SAM" />{" "}
                       </p>
                     </div>
                   </div>
@@ -666,22 +700,24 @@ export function OverviewPage() {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <UsersThree size={16} weight="duotone" className="text-[var(--sv-primary)]" />
-                <h3 className="text-sm font-semibold text-[var(--sv-text)]">Most Active Workers</h3>
+                <h3 className="text-sm font-semibold text-[var(--sv-text)]">
+                  <T source="Most Active Workers" />
+                </h3>
               </div>
               <Link
                 to="/supervisor/workers"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--sv-primary)] hover:underline"
               >
-                View all <ArrowRight size={12} />
+                <T source="View all" /> <ArrowRight size={12} />
               </Link>
             </div>
             <p className="mb-3 text-xs text-[var(--sv-muted)]">
-              Top frontline team members by total screening count
+              <T source="Top frontline team members by total screening count" />{" "}
             </p>
 
             {topWorkers.length === 0 ? (
               <p className="py-6 text-center text-xs text-[var(--sv-muted)]">
-                No active workers reported.
+                <T source="No active workers reported." />{" "}
               </p>
             ) : (
               <div className="divide-y divide-[var(--sv-border)]">
@@ -705,7 +741,9 @@ export function OverviewPage() {
                       <span className="font-semibold text-[var(--sv-text)]">
                         {formatNumber(w.totalScans)}
                       </span>
-                      <p className="text-[10px] text-[var(--sv-muted)]">scans</p>
+                      <p className="text-[10px] text-[var(--sv-muted)]">
+                        <T source="scans" />
+                      </p>
                     </div>
                   </div>
                 ))}

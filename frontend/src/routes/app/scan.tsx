@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Camera, Search } from "lucide-react";
@@ -5,12 +6,12 @@ import { RequireRole, WorkerShell } from "@/components/Screen";
 export const Route = createFileRoute("/app/scan")({
   head: () => ({
     meta: [
-      { title: "New screening — PoshanScan" },
-      { name: "description", content: "Start a guided child nutrition screening." },
-      { property: "og:title", content: "New screening — PoshanScan" },
-      { property: "og:description", content: "Start a guided child nutrition screening." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { get title() { return t("New screening — PoshanScan"); } },
+      { name: "description", get content() { return t("Start a guided child nutrition screening."); } },
+      { property: "og:title", get content() { return t("New screening — PoshanScan"); } },
+      { property: "og:description", get content() { return t("Start a guided child nutrition screening."); } },
+      { property: "og:type", get content() { return t("website"); } },
+      { name: "twitter:card", get content() { return t("summary"); } },
     ],
   }),
   component: () => (
@@ -23,13 +24,13 @@ function ScanStart() {
   const [category, setCategory] = useState<"child_6_59m" | "adult" | "">("");
   const isAdult = category === "adult";
   return (
-    <WorkerShell title="New screening">
+    <WorkerShell title={t("New screening")}>
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-lg font-medium">Who is being screened?</p>
+        <p className="text-lg font-medium"><T source="Who is being screened?" /></p>
         <div
           className="mx-auto mt-4 grid max-w-2xl gap-3 sm:grid-cols-2"
           role="group"
-          aria-label="Screening category"
+          aria-label={t("Screening category")}
         >
           {(
             [
@@ -52,13 +53,12 @@ function ScanStart() {
           ))}
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
-          Choose a category to continue. No category is selected by default.
-        </p>
+          <T source="Choose a category to continue. No category is selected by default." />{" "}</p>
         <div className={category ? "" : "opacity-50"} aria-disabled={!category}>
           <p className="text-lg text-muted-foreground">
             {isAdult
-              ? "Find an existing adult or register a new adult before taking a photo."
-              : "Find an existing child or register a new one before taking a photo."}
+              ? t("Find an existing adult or register a new adult before taking a photo.")
+              : t("Find an existing child or register a new one before taking a photo.")}
           </p>
           <div className="mx-auto mt-8 grid max-w-2xl gap-4 sm:grid-cols-2">
             <Link
@@ -73,12 +73,12 @@ function ScanStart() {
             >
               <Search className="text-primary" size={28} />
               <h2 className="mt-8 text-xl font-semibold">
-                {isAdult ? "Find an adult" : "Find a child"}
+                {isAdult ? t("Find an adult") : t("Find a child")}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {isAdult
-                  ? "Search records and begin an adult screening."
-                  : "Search records and begin screening."}
+                  ? t("Search records and begin an adult screening.")
+                  : t("Search records and begin screening.")}
               </p>
               <ArrowRight className="mt-8 text-primary" />
             </Link>
@@ -94,12 +94,12 @@ function ScanStart() {
             >
               <Camera className="text-primary" size={28} />
               <h2 className="mt-8 text-xl font-semibold">
-                {isAdult ? "Register an adult" : "Register a child"}
+                {isAdult ? t("Register an adult") : t("Register a child")}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {isAdult
-                  ? "Add an adult before capturing a screening."
-                  : "Add a child before capturing a screening."}
+                  ? t("Add an adult before capturing a screening.")
+                  : t("Add a child before capturing a screening.")}
               </p>
               <ArrowRight className="mt-8 text-primary" />
             </Link>

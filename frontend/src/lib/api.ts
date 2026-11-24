@@ -1,4 +1,5 @@
 import axios from "axios";
+import { translateApiMessage } from "@/lib/i18n";
 import { z } from "zod";
 
 export const API_BASE = import.meta.env["VITE_API_BASE_URL"] || "http://localhost:8000";
@@ -102,35 +103,55 @@ export type ScanResult = {
 export function errorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (error.response?.status === 401)
-      return "Your session has expired or the credentials are incorrect. Please log in again.";
+      return translateApiMessage(
+        "Your session has expired or the credentials are incorrect. Please log in again.",
+      );
     const responseData = error.response?.data;
+    const responseCode =
+      typeof responseData === "object" && responseData !== null && "error" in responseData
+        ? String((responseData as { error: unknown }).error)
+        : undefined;
     const responseMessage =
-      typeof responseData === "object" &&
-      responseData !== null &&
-      "message" in responseData
+      typeof responseData === "object" && responseData !== null && "message" in responseData
         ? String((responseData as { message: unknown }).message)
         : "";
     if (
       (typeof responseData === "string" && /<html|<!doctype/i.test(responseData)) ||
       /<html|<!doctype/i.test(responseMessage)
     ) {
-      return "The server is temporarily unavailable. Please wait a moment and try again.";
+      return translateApiMessage(
+        "The server is temporarily unavailable. Please wait a moment and try again.",
+        responseCode,
+      );
     }
     if (Array.isArray(responseData?.detail)) {
       return responseData.detail
         .map((item: unknown) =>
-          typeof item === "object" && item !== null && "msg" in item
-            ? String((item as { msg: unknown }).msg)
-            : String(item),
+          translateApiMessage(
+            typeof item === "object" && item !== null && "msg" in item
+              ? String((item as { msg: unknown }).msg)
+              : String(item),
+            responseCode,
+          ),
         )
         .join("; ");
     }
-    if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
-      return "The backend is temporarily unavailable. Please wait a moment and try again.";
+    if (
+      error.response?.status === 502 ||
+      error.response?.status === 503 ||
+      error.response?.status === 504
+    ) {
+      return translateApiMessage(
+        "The backend is temporarily unavailable. Please wait a moment and try again.",
+        responseCode,
+      );
     }
-    return (
-      responseMessage || error.message || "Something went wrong. Please try again."
+    return translateApiMessage(
+      responseMessage || error.message || "Something went wrong. Please try again.",
+      responseCode,
     );
   }
-  return error instanceof Error ? error.message : "Something went wrong. Please try again.";
+  return translateApiMessage(
+    error instanceof Error ? error.message : "Something went wrong. Please try again.",
+  );
 }

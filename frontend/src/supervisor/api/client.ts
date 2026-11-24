@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 import { useNavigate } from "@tanstack/react-router";
+import { translateApiMessage } from "@/lib/i18n";
 
 export const API_BASE =
   (import.meta.env["VITE_API_BASE_URL"] as string | undefined) ||
@@ -16,14 +17,14 @@ function parseApiError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status ?? 0;
     const data = error.response?.data as
-      { detail?: string | unknown[]; message?: string } | undefined;
+      { detail?: string | unknown[]; message?: string; error?: string } | undefined;
     const detail = data?.detail ?? error.message;
     const message =
       typeof detail === "string" ? detail : (data?.message ?? error.message ?? "Unknown error");
-    return { status, message, detail };
+    return { status, message: translateApiMessage(message, data?.error), detail };
   }
   const msg = error instanceof Error ? error.message : "An unexpected error occurred";
-  return { status: 0, message: msg, detail: msg };
+  return { status: 0, message: translateApiMessage(msg), detail: msg };
 }
 
 export { parseApiError };
@@ -121,8 +122,7 @@ export function createSupervisorClient(): AxiosInstance {
         const url = config?.url ?? "";
         const isAuthRequest = url.includes("/supervisor/login") || url.includes("/login");
         const isLoginPage =
-          typeof window !== "undefined" &&
-          window.location.pathname.startsWith("/supervisor/login");
+          typeof window !== "undefined" && window.location.pathname.startsWith("/supervisor/login");
 
         // Never force a hard page reload if this is the login call or user is already on the login page
         if (!isAuthRequest && !isLoginPage && typeof window !== "undefined") {

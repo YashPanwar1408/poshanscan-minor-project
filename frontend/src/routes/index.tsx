@@ -1,3 +1,4 @@
+import { formatNumber, T, t } from "@/lib/i18n";
 import { useState, useEffect, useId } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
@@ -20,6 +21,7 @@ import {
 
 import { TEAM_MEMBERS } from "@/data/team";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 import childPoseGuide from "@/assets/child_muac_screening.jpg";
 import logo from "@/assets/poshanscan_logo.png";
@@ -30,19 +32,39 @@ const MARKER_URL =
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PoshanScan — Digital Screening for Child Malnutrition" },
+      {
+        get title() {
+          return t("PoshanScan — Digital Screening for Child Malnutrition");
+        },
+      },
       {
         name: "description",
-        content:
-          "AI-assisted Mid-Upper Arm Circumference (MUAC) screening for frontline health workers and public health supervisors. Fast, consistent, digitally connected triage.",
+        get content() {
+          return t(
+            "AI-assisted Mid-Upper Arm Circumference (MUAC) screening for frontline health workers and public health supervisors. Fast, consistent, digitally connected triage.",
+          );
+        },
       },
-      { property: "og:title", content: "PoshanScan — Digital Screening for Child Malnutrition" },
+      {
+        property: "og:title",
+        get content() {
+          return t("PoshanScan — Digital Screening for Child Malnutrition");
+        },
+      },
       {
         property: "og:description",
-        content:
-          "Smartphone-based MUAC screening and supervisor analytics platform for community child health.",
+        get content() {
+          return t(
+            "Smartphone-based MUAC screening and supervisor analytics platform for community child health.",
+          );
+        },
       },
-      { property: "og:type", content: "website" },
+      {
+        property: "og:type",
+        get content() {
+          return t("website");
+        },
+      },
     ],
     links: [{ rel: "icon", type: "image/png", href: "/poshanscan_logo.png" }],
   }),
@@ -54,26 +76,38 @@ const SIMULATED_SCANS = [
   {
     muac: 118,
     band: "MAM",
-    bandLabel: "Moderate Acute Malnutrition",
+    get bandLabel() {
+      return t("Moderate Acute Malnutrition");
+    },
     color: "#d97706",
     bgSoft: "#fef3c7",
-    action: "Supplementary feeding counselling & close monitoring (re-screen in 2–4 wks)",
+    get action() {
+      return t("Supplementary feeding counselling & close monitoring (re-screen in 2–4 wks)");
+    },
   },
   {
     muac: 132,
     band: "Normal",
-    bandLabel: "Adequate Nutrition (Normal)",
+    get bandLabel() {
+      return t("Adequate Nutrition (Normal)");
+    },
     color: "#0f766e",
     bgSoft: "#ccfbf1",
-    action: "Continue routine community monitoring & nutritional guidance",
+    get action() {
+      return t("Continue routine community monitoring & nutritional guidance");
+    },
   },
   {
     muac: 108,
     band: "SAM",
-    bandLabel: "Severe Acute Malnutrition",
+    get bandLabel() {
+      return t("Severe Acute Malnutrition");
+    },
     color: "#e11d48",
     bgSoft: "#ffe4e6",
-    action: "Urgent referral to Nutrition Rehabilitation Centre (NRC) for clinical assessment",
+    get action() {
+      return t("Urgent referral to Nutrition Rehabilitation Centre (NRC) for clinical assessment");
+    },
   },
 ];
 
@@ -82,91 +116,180 @@ const PIPELINE_STAGES = [
   {
     step: "01",
     id: "capture",
-    name: "Standardized Capture",
-    short: "Marker & arm alignment",
+    get name() {
+      return t("Standardized Capture");
+    },
+    get short() {
+      return t("Marker & arm alignment");
+    },
     formula: "d ≈ 30–40 cm, 90° angle",
-    summary:
-      "Frontline worker aligns camera perpendicular to the upper arm midpoint with printed reference marker affixed flat.",
-    details:
-      "Guidance overlays check for camera distance, tilt, and stability before triggering capture.",
+    get summary() {
+      return t(
+        "Frontline worker aligns camera perpendicular to the upper arm midpoint with printed reference marker affixed flat.",
+      );
+    },
+    get details() {
+      return t(
+        "Guidance overlays check for camera distance, tilt, and stability before triggering capture.",
+      );
+    },
   },
   {
     step: "02",
     id: "detection",
-    name: "Marker Detection",
-    short: "Sub-pixel corner detection",
+    get name() {
+      return t("Marker Detection");
+    },
+    get short() {
+      return t("Sub-pixel corner detection");
+    },
     formula: "Scale = 50.0 mm / w_px",
-    summary:
-      "ArUco algorithm locates the 4 marker corners to compute the exact optical scale in millimeters per pixel.",
-    details:
-      "Compensates for perspective distortion and establishes a metric reference independent of smartphone sensor size.",
+    get summary() {
+      return t(
+        "ArUco algorithm locates the 4 marker corners to compute the exact optical scale in millimeters per pixel.",
+      );
+    },
+    get details() {
+      return t(
+        "Compensates for perspective distortion and establishes a metric reference independent of smartphone sensor size.",
+      );
+    },
   },
   {
     step: "03",
     id: "localization",
-    name: "Arm Localization",
-    short: "Anatomical landmarking",
+    get name() {
+      return t("Arm Localization");
+    },
+    get short() {
+      return t("Anatomical landmarking");
+    },
     formula: "Midpoint(Acromion, Olecranon)",
-    summary:
-      "Computer vision isolates the upper arm anatomy between the shoulder joint and elbow bend.",
-    details: "Identifies the standard WHO MUAC measurement level (halfway point) automatically.",
+    get summary() {
+      return t(
+        "Computer vision isolates the upper arm anatomy between the shoulder joint and elbow bend.",
+      );
+    },
+    get details() {
+      return t("Identifies the standard WHO MUAC measurement level (halfway point) automatically.");
+    },
   },
   {
     step: "04",
     id: "segmentation",
-    name: "Contour Segmentation",
-    short: "Sub-pixel edge boundary",
+    get name() {
+      return t("Contour Segmentation");
+    },
+    get short() {
+      return t("Sub-pixel edge boundary");
+    },
     formula: "Gradient-weighted limb mask",
-    summary:
-      "Deep semantic segmentation separates arm skin boundary from background clothing, shadows, and environment.",
-    details:
-      "Robust edge localization extracts the true cross-sectional silhouette width at the midpoint level.",
+    get summary() {
+      return t(
+        "Deep semantic segmentation separates arm skin boundary from background clothing, shadows, and environment.",
+      );
+    },
+    get details() {
+      return t(
+        "Robust edge localization extracts the true cross-sectional silhouette width at the midpoint level.",
+      );
+    },
   },
   {
     step: "05",
     id: "geometry",
-    name: "Geometric Estimation",
-    short: "Calibrated ellipse model",
+    get name() {
+      return t("Geometric Estimation");
+    },
+    get short() {
+      return t("Calibrated ellipse model");
+    },
     formula: "MUAC ≈ π · k · w_arm (k ≈ 1.22–1.35)",
-    summary:
-      "Physical diameter is scaled (px × mm/px) and converted into circumference via empirically calibrated cross-section factor k.",
-    details:
-      "The scaling factor k (1.22–1.35) accounts for upper arm cross-sectional ellipticity evaluated rigorously against Shakir tape.",
+    get summary() {
+      return t(
+        "Physical diameter is scaled (px × mm/px) and converted into circumference via empirically calibrated cross-section factor k.",
+      );
+    },
+    get details() {
+      return t(
+        "The scaling factor k (1.22–1.35) accounts for upper arm cross-sectional ellipticity evaluated rigorously against Shakir tape.",
+      );
+    },
   },
   {
     step: "06",
     id: "band",
-    name: "WHO Band Triage",
-    short: "Clinical triage classification",
+    get name() {
+      return t("WHO Band Triage");
+    },
+    get short() {
+      return t("Clinical triage classification");
+    },
     formula: "SAM < 115 ≤ MAM < 125 ≤ Normal",
-    summary:
-      "Instant assignment into WHO child screening bands: Normal (≥125 mm), MAM (115–<125 mm), and SAM (<115 mm).",
-    details:
-      "Provides unambiguous frontline guidance while securely streaming flagged readings to the supervisor portal.",
+    get summary() {
+      return t(
+        "Instant assignment into WHO child screening bands: Normal (≥125 mm), MAM (115–<125 mm), and SAM (<115 mm).",
+      );
+    },
+    get details() {
+      return t(
+        "Provides unambiguous frontline guidance while securely streaming flagged readings to the supervisor portal.",
+      );
+    },
   },
 ];
 
 /* ── FAQ items ── */
 const FAQ_ITEMS = [
   {
-    q: "What is Mid-Upper Arm Circumference (MUAC) and why is it used?",
-    a: "MUAC is a quick, reliable indicator of muscle and fat wasting in children aged 6–59 months. It is strongly correlated with child mortality risk and is the global standard for community-level acute malnutrition screening.",
+    get q() {
+      return t("What is Mid-Upper Arm Circumference (MUAC) and why is it used?");
+    },
+    get a() {
+      return t(
+        "MUAC is a quick, reliable indicator of muscle and fat wasting in children aged 6–59 months. It is strongly correlated with child mortality risk and is the global standard for community-level acute malnutrition screening.",
+      );
+    },
   },
   {
-    q: "How does PoshanScan calculate MUAC without a physical tape measure?",
-    a: "The user places a calibrated 50 mm ArUco marker on the arm. The computer vision pipeline detects the marker corners to obtain an exact scale factor (mm per pixel), segments the arm silhouette, and computes circumference using a validated geometric ellipse formula (MUAC ≈ π · k · width, where k is an empirically calibrated factor between 1.22 and 1.35).",
+    get q() {
+      return t("How does PoshanScan calculate MUAC without a physical tape measure?");
+    },
+    get a() {
+      return t(
+        "The user places a calibrated 50 mm ArUco marker on the arm. The computer vision pipeline detects the marker corners to obtain an exact scale factor (mm per pixel), segments the arm silhouette, and computes circumference using a validated geometric ellipse formula (MUAC ≈ π · k · width, where k is an empirically calibrated factor between 1.22 and 1.35).",
+      );
+    },
   },
   {
-    q: "Does PoshanScan provide a medical diagnosis?",
-    a: "No. PoshanScan is strictly a community triage and screening aid designed to assist frontline workers. Any child flagged as MAM or SAM must be clinically evaluated and confirmed with standard Shakir tape measurements by trained healthcare staff before medical interventions.",
+    get q() {
+      return t("Does PoshanScan provide a medical diagnosis?");
+    },
+    get a() {
+      return t(
+        "No. PoshanScan is strictly a community triage and screening aid designed to assist frontline workers. Any child flagged as MAM or SAM must be clinically evaluated and confirmed with standard Shakir tape measurements by trained healthcare staff before medical interventions.",
+      );
+    },
   },
   {
-    q: "Can frontline workers use PoshanScan in low-connectivity areas?",
-    a: "Yes. The frontline worker interface is built with an offline-first architecture. Scans and initial assessments are captured locally on the device and automatically synchronized to the supervisor dashboard once connectivity is restored.",
+    get q() {
+      return t("Can frontline workers use PoshanScan in low-connectivity areas?");
+    },
+    get a() {
+      return t(
+        "Yes. The frontline worker interface is built with an offline-first architecture. Scans and initial assessments are captured locally on the device and automatically synchronized to the supervisor dashboard once connectivity is restored.",
+      );
+    },
   },
   {
-    q: "How is child privacy protected?",
-    a: "The platform adheres to strict data minimization. Child names are masked by default across all dashboards with a controlled reveal toggle. Only authorized supervisors have access to district triage logs, and no biometric identities are stored or sold.",
+    get q() {
+      return t("How is child privacy protected?");
+    },
+    get a() {
+      return t(
+        "The platform adheres to strict data minimization. Child names are masked by default across all dashboards with a controlled reveal toggle. Only authorized supervisors have access to district triage logs, and no biometric identities are stored or sold.",
+      );
+    },
   },
 ];
 
@@ -194,7 +317,9 @@ export function Landing() {
     if (val < 115) {
       return {
         band: "SAM",
-        title: "Severe Acute Malnutrition",
+        get title() {
+          return t("Severe Acute Malnutrition");
+        },
         tag: "High Priority · Immediate Action",
         colorText: "text-rose-600 dark:text-rose-400",
         colorBg: "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800",
@@ -207,7 +332,9 @@ export function Landing() {
     if (val < 125) {
       return {
         band: "MAM",
-        title: "Moderate Acute Malnutrition",
+        get title() {
+          return t("Moderate Acute Malnutrition");
+        },
         tag: "Moderate Risk · Structured Monitoring",
         colorText: "text-amber-600 dark:text-amber-400",
         colorBg: "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800",
@@ -219,7 +346,9 @@ export function Landing() {
     }
     return {
       band: "Normal",
-      title: "Adequate Nutrition (Normal Range)",
+      get title() {
+        return t("Adequate Nutrition (Normal Range)");
+      },
       tag: "Standard Growth Track",
       colorText: "text-teal-700 dark:text-teal-400",
       colorBg: "bg-teal-50 dark:bg-teal-950/40 border-teal-300 dark:border-teal-800",
@@ -247,7 +376,7 @@ export function Landing() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-teal-800 focus:px-4 focus:py-2.5 focus:text-white focus:shadow-xl focus:ring-2 focus:ring-white"
       >
-        Skip to main content
+        <T source="Skip to main content" />{" "}
       </a>
 
       {/* ── Main Site Header ── */}
@@ -257,56 +386,57 @@ export function Landing() {
             <Link to="/" className="flex items-center gap-3.5 group">
               <img
                 src={logo}
-                alt="PoshanScan"
+                alt={t("PoshanScan")}
                 className="h-12 w-12 object-contain transition-transform group-hover:scale-105"
                 width="48"
                 height="48"
               />
               <div className="hidden sm:block">
                 <span className="block font-display text-xl font-bold tracking-tight text-teal-900 dark:text-teal-100">
-                  PoshanScan
+                  <T source="PoshanScan" />{" "}
                 </span>
                 <span className="block text-[10px] uppercase tracking-widest text-[var(--sv-muted,#5C5A56)] font-semibold">
-                  Child Nutrition Screening
+                  <T source="Child Nutrition Screening" />{" "}
                 </span>
               </div>
             </Link>
 
             <nav
               className="hidden md:flex items-center gap-6 text-sm font-medium text-[var(--sv-muted,#5C5A56)]"
-              aria-label="Main Navigation"
+              aria-label={t("Main Navigation")}
             >
               <a href="#how-it-works" className="hover:text-teal-700 transition-colors">
-                How It Works
+                <T source="How It Works" />{" "}
               </a>
               <a href="#band-explorer" className="hover:text-teal-700 transition-colors">
-                Band Explorer
+                <T source="Band Explorer" />{" "}
               </a>
               <a href="#workflows" className="hover:text-teal-700 transition-colors">
-                Workflows
+                <T source="Workflows" />{" "}
               </a>
               <a href="#privacy" className="hover:text-teal-700 transition-colors">
-                Responsible Use
+                <T source="Responsible Use" />{" "}
               </a>
               <a href="#faq" className="hover:text-teal-700 transition-colors">
-                FAQ
+                <T source="FAQ" />{" "}
               </a>
             </nav>
           </div>
 
           <div className="flex items-center gap-2.5">
+            <LanguageToggle compact />
             <ThemeToggle />
             <Link
               to="/worker/login"
               className="portal-btn portal-btn-outline text-xs px-3.5 py-2 font-medium"
             >
-              Login as Worker
+              <T source="Login as Worker" />{" "}
             </Link>
             <Link
               to="/supervisor/login"
               className="portal-btn portal-btn-solid text-xs px-4 py-2 font-medium bg-teal-800 hover:bg-teal-900 text-white"
             >
-              Login as Supervisor
+              <T source="Login as Supervisor" />{" "}
             </Link>
           </div>
         </div>
@@ -321,21 +451,18 @@ export function Landing() {
               <div className="lg:col-span-7 space-y-6">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-teal-100/80 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
                   <Sparkle size={14} className="text-teal-600" weight="fill" />
-                  National Child Nutrition Screening Initiative
+                  <T source="National Child Nutrition Screening Initiative" />{" "}
                 </div>
 
                 <h1
                   id={headingId}
                   className="font-display text-4xl sm:text-5xl lg:text-[3.25rem] font-bold tracking-tight text-[var(--sv-text,#1C1B19)] leading-[1.12]"
                 >
-                  Digital Screening for Frontline Child Nutrition
+                  <T source="Digital Screening for Frontline Child Nutrition" />{" "}
                 </h1>
 
                 <p className="text-base sm:text-lg text-[var(--sv-muted,#5C5A56)] leading-relaxed max-w-2xl">
-                  PoshanScan estimates Mid-Upper Arm Circumference (MUAC) from a guided smartphone
-                  photograph next to a standard reference marker. Designed to empower community
-                  health workers with consistent, objective screening while automatically
-                  synchronizing flagged cases to public health supervisors.
+                  <T source="PoshanScan estimates Mid-Upper Arm Circumference (MUAC) from a guided smartphone photograph next to a standard reference marker. Designed to empower community health workers with consistent, objective screening while automatically synchronizing flagged cases to public health supervisors." />{" "}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3.5 pt-2">
@@ -344,29 +471,29 @@ export function Landing() {
                     className="portal-btn portal-btn-solid text-sm font-semibold px-5 py-3 bg-teal-800 hover:bg-teal-900 text-white rounded shadow-sm inline-flex items-center gap-2"
                   >
                     <DeviceMobileCamera size={18} weight="bold" />
-                    Login as Worker
+                    <T source="Login as Worker" />{" "}
                   </Link>
                   <Link
                     to="/supervisor/login"
                     className="portal-btn portal-btn-outline text-sm font-semibold px-5 py-3 border-[var(--sv-border,#D4D0C8)] text-[var(--sv-text,#1C1B19)] hover:bg-[var(--sv-surface,#FFFFFF)] rounded inline-flex items-center gap-2"
                   >
                     <ChartLineUp size={18} weight="bold" />
-                    Login as Supervisor
+                    <T source="Login as Supervisor" />{" "}
                   </Link>
                 </div>
 
                 <div className="pt-2 flex flex-wrap items-center gap-6 text-xs text-[var(--sv-muted,#5C5A56)]">
                   <span className="inline-flex items-center gap-1.5 font-medium">
                     <ShieldCheck size={16} className="text-teal-700" weight="fill" />
-                    Screening aid, not a diagnosis
+                    <T source="Screening aid, not a diagnosis" />{" "}
                   </span>
                   <span className="inline-flex items-center gap-1.5 font-medium">
                     <CheckCircle size={16} className="text-teal-700" weight="fill" />
-                    Evaluated against Shakir tape
+                    <T source="Evaluated against Shakir tape" />{" "}
                   </span>
                   <span className="inline-flex items-center gap-1.5 font-medium">
                     <LockKey size={16} className="text-teal-700" weight="fill" />
-                    Privacy-first child triage
+                    <T source="Privacy-first child triage" />{" "}
                   </span>
                 </div>
               </div>
@@ -378,7 +505,9 @@ export function Landing() {
                   <div className="relative overflow-hidden rounded-lg bg-zinc-900 aspect-[4/5] select-none">
                     <img
                       src={childPoseGuide}
-                      alt="PoshanScan frontline child malnutrition screening (6–59 months) with reference marker"
+                      alt={t(
+                        "PoshanScan frontline child malnutrition screening (6–59 months) with reference marker",
+                      )}
                       className="h-full w-full object-cover object-center opacity-95"
                       width="400"
                       height="500"
@@ -408,7 +537,7 @@ export function Landing() {
                           [+]
                         </span>
                         <span className="absolute -bottom-4 left-0 whitespace-nowrap bg-black/80 px-1 py-0.5 text-[8px] font-mono text-teal-300">
-                          ArUco 50mm locked
+                          <T source="ArUco 50mm locked" />{" "}
                         </span>
                       </div>
                     </div>
@@ -435,7 +564,12 @@ export function Landing() {
                       <div className="relative border-b-2 border-dashed border-teal-300 flex items-center justify-between">
                         <div className="w-1.5 h-3 bg-teal-400 -translate-y-1/2" />
                         <div className="bg-black/80 px-2 py-0.5 rounded text-[10px] font-mono text-teal-300 -translate-y-3 font-semibold shadow">
-                          w ≈ {(activeSim.muac / 3.14159 / 1.28).toFixed(1)} mm
+                          <T source="w ≈" />{" "}
+                          {formatNumber(activeSim.muac / 3.14159 / 1.28, {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1,
+                          })}{" "}
+                          <T source="mm" />{" "}
                         </div>
                         <div className="w-1.5 h-3 bg-teal-400 -translate-y-1/2" />
                       </div>
@@ -446,18 +580,21 @@ export function Landing() {
                       <div className="flex items-center justify-between text-[11px] mb-1.5">
                         <span className="flex items-center gap-1.5 text-zinc-400 font-mono">
                           <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping inline-block" />
-                          LIVE SCREENING
+                          <T source="LIVE SCREENING" />{" "}
                         </span>
                         <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-medium">
-                          Illustrative example
+                          <T source="Illustrative example" />{" "}
                         </span>
                       </div>
 
                       <div className="flex items-baseline justify-between">
                         <div>
                           <div className="text-2xl font-bold font-mono tracking-tight text-white">
-                            {activeSim.muac}{" "}
-                            <span className="text-xs font-normal text-zinc-400">mm MUAC</span>
+                            {formatNumber(activeSim.muac)}
+                            {t(" ")}
+                            <span className="text-xs font-normal text-zinc-400">
+                              <T source="mm MUAC" />
+                            </span>
                           </div>
                           <div
                             className="text-[11px] font-medium"
@@ -474,7 +611,7 @@ export function Landing() {
                             color: activeSim.color,
                           }}
                         >
-                          {activeSim.band}
+                          {t(activeSim.band)}
                         </div>
                       </div>
 
@@ -486,8 +623,12 @@ export function Landing() {
 
                   {/* Caption underneath phone simulation */}
                   <div className="mt-3 flex items-center justify-between text-xs text-[var(--sv-muted,#5C5A56)] px-1">
-                    <span className="font-mono text-[11px]">Optical scale: 0.18 mm/px</span>
-                    <span className="font-medium">Pose: Marker facing camera</span>
+                    <span className="font-mono text-[11px]">
+                      <T source="Optical scale: 0.18 mm/px" />
+                    </span>
+                    <span className="font-medium">
+                      <T source="Pose: Marker facing camera" />
+                    </span>
                   </div>
                 </div>
               </div>
@@ -503,15 +644,13 @@ export function Landing() {
           <div className="mx-auto max-w-7xl px-6 lg:px-10">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
-                Scientific Pipeline
+                <T source="Scientific Pipeline" />{" "}
               </p>
               <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold tracking-tight text-[var(--sv-text,#1C1B19)]">
-                From Raw Smartphone Photo to Clinical Triage
+                <T source="From Raw Smartphone Photo to Clinical Triage" />{" "}
               </h2>
               <p className="mt-4 text-base text-[var(--sv-muted,#5C5A56)] leading-relaxed">
-                PoshanScan turns a frontline smartphone camera into a calibrated screening
-                instrument through an automated six-stage computer vision and geometric estimation
-                pipeline.
+                <T source="PoshanScan turns a frontline smartphone camera into a calibrated screening instrument through an automated six-stage computer vision and geometric estimation pipeline." />{" "}
               </p>
             </div>
 
@@ -531,7 +670,7 @@ export function Landing() {
                     }`}
                   >
                     <span className="block font-mono text-xs font-bold text-teal-800 dark:text-teal-400">
-                      STAGE {st.step}
+                      <T source="STAGE" /> {st.step}
                     </span>
                     <span className="block mt-1 font-semibold text-sm text-[var(--sv-text,#1C1B19)]">
                       {st.name}
@@ -552,7 +691,7 @@ export function Landing() {
                   <div className="grid gap-8 lg:grid-cols-12 items-center">
                     <div className="lg:col-span-7 space-y-4">
                       <div className="inline-flex items-center gap-2 font-mono text-xs font-semibold px-2.5 py-1 rounded bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
-                        STAGE {current.step} OF 06 · {current.name}
+                        <T source="STAGE" /> {current.step} <T source="OF 06 ·" /> {current.name}
                       </div>
                       <h3 className="font-display text-2xl font-bold text-[var(--sv-text,#1C1B19)]">
                         {current.name}: {current.short}
@@ -577,30 +716,33 @@ export function Landing() {
                         {activeStage === 0 && (
                           <div className="space-y-3 py-4">
                             <Camera size={48} className="mx-auto text-teal-700" />
-                            <div className="text-xs font-mono font-bold">Standard Camera Pose</div>
+                            <div className="text-xs font-mono font-bold">
+                              <T source="Standard Camera Pose" />
+                            </div>
                             <p className="text-xs text-[var(--sv-muted,#5C5A56)]">
-                              Perpendicular angle (90°), mid-arm marker level, natural indirect
-                              illumination.
+                              <T source="Perpendicular angle (90°), mid-arm marker level, natural indirect illumination." />{" "}
                             </p>
                           </div>
                         )}
                         {activeStage === 1 && (
                           <div className="space-y-3 py-4">
                             <QrCode size={48} className="mx-auto text-teal-700" />
-                            <div className="text-xs font-mono font-bold">ArUco 50 mm Reference</div>
+                            <div className="text-xs font-mono font-bold">
+                              <T source="ArUco 50 mm Reference" />
+                            </div>
                             <p className="text-xs text-[var(--sv-muted,#5C5A56)]">
-                              Detects 4 outer corners with sub-pixel refinement to establish scale
-                              mm/px.
+                              <T source="Detects 4 outer corners with sub-pixel refinement to establish scale mm/px." />{" "}
                             </p>
                           </div>
                         )}
                         {activeStage === 2 && (
                           <div className="space-y-3 py-4">
                             <Compass size={48} className="mx-auto text-teal-700" />
-                            <div className="text-xs font-mono font-bold">Midpoint Localization</div>
+                            <div className="text-xs font-mono font-bold">
+                              <T source="Midpoint Localization" />
+                            </div>
                             <p className="text-xs text-[var(--sv-muted,#5C5A56)]">
-                              Automated joint keypoints isolate the midpoint between acromion and
-                              olecranon.
+                              <T source="Automated joint keypoints isolate the midpoint between acromion and olecranon." />{" "}
                             </p>
                           </div>
                         )}
@@ -608,11 +750,10 @@ export function Landing() {
                           <div className="space-y-3 py-4">
                             <Scan size={48} className="mx-auto text-teal-700" />
                             <div className="text-xs font-mono font-bold">
-                              Limb Mask Segmentation
+                              <T source="Limb Mask Segmentation" />{" "}
                             </div>
                             <p className="text-xs text-[var(--sv-muted,#5C5A56)]">
-                              Removes background clothing, clutter, and shadows to isolate clean
-                              limb borders.
+                              <T source="Removes background clothing, clutter, and shadows to isolate clean limb borders." />{" "}
                             </p>
                           </div>
                         )}
@@ -620,11 +761,10 @@ export function Landing() {
                           <div className="space-y-3 py-4">
                             <Ruler size={48} className="mx-auto text-teal-700" />
                             <div className="text-xs font-mono font-bold">
-                              Geometric Ellipse Model
+                              <T source="Geometric Ellipse Model" />{" "}
                             </div>
                             <p className="text-xs text-[var(--sv-muted,#5C5A56)]">
-                              MUAC ≈ π · k · width. Evaluated against Shakir tape measurements (k ≈
-                              1.22–1.35).
+                              <T source="MUAC ≈ π · k · width. Evaluated against Shakir tape measurements (k ≈ 1.22–1.35)." />{" "}
                             </p>
                           </div>
                         )}
@@ -632,11 +772,10 @@ export function Landing() {
                           <div className="space-y-3 py-4">
                             <ShieldCheck size={48} className="mx-auto text-teal-700" />
                             <div className="text-xs font-mono font-bold">
-                              WHO Triage Classification
+                              <T source="WHO Triage Classification" />{" "}
                             </div>
                             <p className="text-xs text-[var(--sv-muted,#5C5A56)]">
-                              Instant categorization: Normal (≥125 mm), MAM (115–&lt;125 mm), SAM
-                              (&lt;115 mm).
+                              <T source="Instant categorization: Normal (≥125 mm), MAM (115–&lt;125 mm), SAM (&lt;115 mm)." />{" "}
                             </p>
                           </div>
                         )}
@@ -657,15 +796,13 @@ export function Landing() {
           <div className="mx-auto max-w-7xl px-6 lg:px-10">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
-                Interactive Reference
+                <T source="Interactive Reference" />{" "}
               </p>
               <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold tracking-tight text-[var(--sv-text,#1C1B19)]">
-                WHO MUAC Band Explorer
+                <T source="WHO MUAC Band Explorer" />{" "}
               </h2>
               <p className="mt-4 text-base text-[var(--sv-muted,#5C5A56)] leading-relaxed">
-                Drag the slider to test any mid-upper arm circumference from 80 mm to 180 mm.
-                Observe how the clinical risk band and frontline referral guidance adapt in real
-                time.
+                <T source="Drag the slider to test any mid-upper arm circumference from 80 mm to 180 mm. Observe how the clinical risk band and frontline referral guidance adapt in real time." />{" "}
               </p>
             </div>
 
@@ -677,14 +814,14 @@ export function Landing() {
                     htmlFor="muac-slider"
                     className="text-sm font-semibold text-[var(--sv-text,#1C1B19)]"
                   >
-                    Adjust Circumference (MUAC)
+                    <T source="Adjust Circumference (MUAC)" />{" "}
                   </label>
                   <div className="text-right">
                     <span className="text-3xl font-bold font-mono text-teal-900 dark:text-teal-100">
-                      {explorerMuac}
+                      {formatNumber(explorerMuac)}
                     </span>
                     <span className="text-xs font-mono text-[var(--sv-muted,#5C5A56)] ml-1">
-                      mm
+                      <T source="mm" />{" "}
                     </span>
                   </div>
                 </div>
@@ -707,23 +844,23 @@ export function Landing() {
                     <div
                       style={{ width: "35%" }}
                       className="bg-rose-600 flex items-center justify-center"
-                      title="SAM: < 115 mm"
+                      title={t("SAM: < 115 mm")}
                     >
-                      SAM (&lt;115)
+                      <T source="SAM (&lt;115)" />{" "}
                     </div>
                     <div
                       style={{ width: "10%" }}
                       className="bg-amber-500 flex items-center justify-center text-zinc-900 font-extrabold"
-                      title="MAM: 115 to < 125 mm"
+                      title={t("MAM: 115 to < 125 mm")}
                     >
-                      MAM
+                      <T source="MAM" />{" "}
                     </div>
                     <div
                       style={{ width: "55%" }}
                       className="bg-teal-700 flex items-center justify-center"
-                      title="Normal: ≥ 125 mm"
+                      title={t("Normal: ≥ 125 mm")}
                     >
-                      Normal (≥125 mm)
+                      <T source="Normal (≥125 mm)" />{" "}
                     </div>
                   </div>
 
@@ -737,18 +874,26 @@ export function Landing() {
                 </div>
 
                 <div className="mt-4 flex justify-between text-xs font-mono text-[var(--sv-muted,#5C5A56)]">
-                  <span>80 mm</span>
-                  <span className="font-semibold text-rose-600">115 mm (SAM cutoff)</span>
-                  <span className="font-semibold text-amber-600">125 mm (MAM cutoff)</span>
-                  <span>180 mm</span>
+                  <span>
+                    <T source="80 mm" />
+                  </span>
+                  <span className="font-semibold text-rose-600">
+                    <T source="115 mm (SAM cutoff)" />
+                  </span>
+                  <span className="font-semibold text-amber-600">
+                    <T source="125 mm (MAM cutoff)" />
+                  </span>
+                  <span>
+                    <T source="180 mm" />
+                  </span>
                 </div>
 
                 <div className="mt-6 border-t border-[var(--sv-border,#D4D0C8)] pt-4 text-xs text-[var(--sv-muted,#5C5A56)] leading-relaxed">
                   <span className="font-semibold text-[var(--sv-text,#1C1B19)]">
-                    WHO Guideline:{" "}
+                    <T source="WHO Guideline:" />
+                    {t(" ")}
                   </span>
-                  Applies to children aged 6 to 59 months. MUAC provides a rapid assessment of
-                  wasting without requiring height measurement in the field.
+                  <T source="Applies to children aged 6 to 59 months. MUAC provides a rapid assessment of wasting without requiring height measurement in the field." />{" "}
                 </div>
               </div>
 
@@ -759,7 +904,7 @@ export function Landing() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-[var(--sv-muted,#5C5A56)]">
-                      WHO Screening Band
+                      <T source="WHO Screening Band" />{" "}
                     </span>
                     <span
                       className={`px-3 py-1 rounded text-xs font-bold font-mono ${currentExplorer.badgeBg}`}
@@ -779,7 +924,7 @@ export function Landing() {
                   <div className="mt-6 space-y-4 text-sm">
                     <div>
                       <span className="block font-semibold text-xs uppercase tracking-wide text-[var(--sv-text,#1C1B19)] mb-1">
-                        Recommended Action:
+                        <T source="Recommended Action:" />{" "}
                       </span>
                       <p className="leading-relaxed text-[var(--sv-text,#1C1B19)]">
                         {currentExplorer.protocol}
@@ -788,7 +933,7 @@ export function Landing() {
 
                     <div className="border-t border-black/10 dark:border-white/10 pt-3">
                       <span className="block font-semibold text-xs uppercase tracking-wide text-[var(--sv-text,#1C1B19)] mb-1">
-                        Monitoring Protocol:
+                        <T source="Monitoring Protocol:" />{" "}
                       </span>
                       <p className="text-xs text-[var(--sv-muted,#5C5A56)]">
                         {currentExplorer.frequency}
@@ -797,9 +942,10 @@ export function Landing() {
                   </div>
 
                   <div className="mt-6 rounded bg-white/70 dark:bg-black/30 p-3 text-[11px] text-[var(--sv-muted,#5C5A56)] border border-black/5 dark:border-white/5">
-                    <strong>Note:</strong> PoshanScan is a digital screening aid. Any child flagged
-                    as SAM or MAM must be clinically verified with standard Shakir tape and assessed
-                    for oedema.
+                    <strong>
+                      <T source="Note:" />
+                    </strong>{" "}
+                    <T source="PoshanScan is a digital screening aid. Any child flagged as SAM or MAM must be clinically verified with standard Shakir tape and assessed for oedema." />{" "}
                   </div>
                 </div>
               </div>
@@ -815,15 +961,13 @@ export function Landing() {
           <div className="mx-auto max-w-7xl px-6 lg:px-10">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
-                Connected Operations
+                <T source="Connected Operations" />{" "}
               </p>
               <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold tracking-tight text-[var(--sv-text,#1C1B19)]">
-                Two Roles, One Connected Workflow
+                <T source="Two Roles, One Connected Workflow" />{" "}
               </h2>
               <p className="mt-4 text-base text-[var(--sv-muted,#5C5A56)] leading-relaxed">
-                Frontline workers capture objective screenings on mobile devices in seconds.
-                Supervisors review aggregated trends, verify flagged scans, and direct clinical
-                follow-ups.
+                <T source="Frontline workers capture objective screenings on mobile devices in seconds. Supervisors review aggregated trends, verify flagged scans, and direct clinical follow-ups." />{" "}
               </p>
             </div>
 
@@ -838,7 +982,7 @@ export function Landing() {
                     : "border-transparent text-[var(--sv-muted,#5C5A56)] hover:text-[var(--sv-text,#1C1B19)]"
                 }`}
               >
-                Frontline Health Worker Workflow
+                <T source="Frontline Health Worker Workflow" />{" "}
               </button>
               <button
                 type="button"
@@ -849,7 +993,7 @@ export function Landing() {
                     : "border-transparent text-[var(--sv-muted,#5C5A56)] hover:text-[var(--sv-text,#1C1B19)]"
                 }`}
               >
-                Public Health Supervisor Workflow
+                <T source="Public Health Supervisor Workflow" />{" "}
               </button>
             </div>
 
@@ -860,28 +1004,58 @@ export function Landing() {
                   {[
                     {
                       step: "01",
-                      title: "Open & Align",
-                      desc: "Open PoshanScan on mobile; review camera angle guidelines with zero setup friction.",
+                      get title() {
+                        return t("Open & Align");
+                      },
+                      get desc() {
+                        return t(
+                          "Open PoshanScan on mobile; review camera angle guidelines with zero setup friction.",
+                        );
+                      },
                     },
                     {
                       step: "02",
-                      title: "Affix Marker",
-                      desc: "Place the 50 mm reference ArUco marker at child's mid-upper arm point.",
+                      get title() {
+                        return t("Affix Marker");
+                      },
+                      get desc() {
+                        return t(
+                          "Place the 50 mm reference ArUco marker at child's mid-upper arm point.",
+                        );
+                      },
                     },
                     {
                       step: "03",
-                      title: "Guided Photo",
-                      desc: "Viewfinder confirms marker corners and distance before triggering rapid capture.",
+                      get title() {
+                        return t("Guided Photo");
+                      },
+                      get desc() {
+                        return t(
+                          "Viewfinder confirms marker corners and distance before triggering rapid capture.",
+                        );
+                      },
                     },
                     {
                       step: "04",
-                      title: "Instant Band",
-                      desc: "Device estimates MUAC and indicates WHO band (Normal, MAM, or SAM).",
+                      get title() {
+                        return t("Instant Band");
+                      },
+                      get desc() {
+                        return t(
+                          "Device estimates MUAC and indicates WHO band (Normal, MAM, or SAM).",
+                        );
+                      },
                     },
                     {
                       step: "05",
-                      title: "Auto-Sync",
-                      desc: "Screening record streams securely to the supervisor portal (offline queue supported).",
+                      get title() {
+                        return t("Auto-Sync");
+                      },
+                      get desc() {
+                        return t(
+                          "Screening record streams securely to the supervisor portal (offline queue supported).",
+                        );
+                      },
                     },
                   ].map((s) => (
                     <div
@@ -889,7 +1063,7 @@ export function Landing() {
                       className="rounded-lg border border-[var(--sv-border,#D4D0C8)] bg-[var(--sv-bg,#FAF9F6)] p-5"
                     >
                       <span className="font-mono text-xs font-bold text-teal-800 dark:text-teal-400">
-                        STEP {s.step}
+                        <T source="STEP" /> {s.step}
                       </span>
                       <h4 className="mt-2 font-semibold text-base text-[var(--sv-text,#1C1B19)]">
                         {s.title}
@@ -907,28 +1081,58 @@ export function Landing() {
                     {[
                       {
                         step: "01",
-                        title: "District Situation",
-                        desc: "Monitor live KPI cards: SAM prevalence, active workers, and volume across blocks.",
+                        get title() {
+                          return t("District Situation");
+                        },
+                        get desc() {
+                          return t(
+                            "Monitor live KPI cards: SAM prevalence, active workers, and volume across blocks.",
+                          );
+                        },
                       },
                       {
                         step: "02",
-                        title: "Risk Mapping",
-                        desc: "Geospatial cluster map pinpointing villages with highest severe wasting rates.",
+                        get title() {
+                          return t("Risk Mapping");
+                        },
+                        get desc() {
+                          return t(
+                            "Geospatial cluster map pinpointing villages with highest severe wasting rates.",
+                          );
+                        },
                       },
                       {
                         step: "03",
-                        title: "Flagged Queue",
-                        desc: "Master-detail review queue isolating SAM and low-confidence scans for validation.",
+                        get title() {
+                          return t("Flagged Queue");
+                        },
+                        get desc() {
+                          return t(
+                            "Master-detail review queue isolating SAM and low-confidence scans for validation.",
+                          );
+                        },
                       },
                       {
                         step: "04",
-                        title: "Copy Referrals",
-                        desc: "Generate clinical referral summaries directly into clipboard for local health posts.",
+                        get title() {
+                          return t("Copy Referrals");
+                        },
+                        get desc() {
+                          return t(
+                            "Generate clinical referral summaries directly into clipboard for local health posts.",
+                          );
+                        },
                       },
                       {
                         step: "05",
-                        title: "Reports & Export",
-                        desc: "One-click district CSV downloads with Bearer token authentication and print-ready A4 reports.",
+                        get title() {
+                          return t("Reports & Export");
+                        },
+                        get desc() {
+                          return t(
+                            "One-click district CSV downloads with Bearer token authentication and print-ready A4 reports.",
+                          );
+                        },
                       },
                     ].map((s) => (
                       <div
@@ -936,7 +1140,7 @@ export function Landing() {
                         className="rounded-lg border border-[var(--sv-border,#D4D0C8)] bg-[var(--sv-bg,#FAF9F6)] p-5"
                       >
                         <span className="font-mono text-xs font-bold text-teal-800 dark:text-teal-400">
-                          STAGE {s.step}
+                          <T source="STAGE" /> {s.step}
                         </span>
                         <h4 className="mt-2 font-semibold text-base text-[var(--sv-text,#1C1B19)]">
                           {s.title}
@@ -951,24 +1155,28 @@ export function Landing() {
                   {/* Lightweight SVG/CSS Previews of Supervisor Modules (NO Recharts/Leaflet in Landing bundle) */}
                   <div className="mt-8 rounded-xl border border-[var(--sv-border,#D4D0C8)] bg-[var(--sv-bg,#FAF9F6)] p-6">
                     <p className="text-xs font-bold uppercase tracking-wider text-[var(--sv-muted,#5C5A56)] mb-4">
-                      Supervisor Portal Interface Previews
+                      <T source="Supervisor Portal Interface Previews" />{" "}
                     </p>
                     <div className="grid gap-4 md:grid-cols-3">
                       {/* SVG Mockup 1: Overview */}
                       <div className="rounded-lg border border-[var(--sv-border,#D4D0C8)] bg-[var(--sv-surface,#FFFFFF)] p-4 shadow-sm">
                         <div className="flex items-center justify-between border-b border-[var(--sv-border,#D4D0C8)] pb-2 mb-3">
-                          <span className="text-xs font-bold">Situation Room (Overview)</span>
+                          <span className="text-xs font-bold">
+                            <T source="Situation Room (Overview)" />
+                          </span>
                           <span className="w-2 h-2 rounded-full bg-teal-600" />
                         </div>
                         <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
                           <div className="p-2 bg-zinc-50 dark:bg-zinc-900 rounded">
                             <span className="text-[9px] text-[var(--sv-muted,#5C5A56)] block">
-                              TOTAL SCANS
+                              <T source="TOTAL SCANS" />{" "}
                             </span>
                             <span className="font-bold text-sm">1,482</span>
                           </div>
                           <div className="p-2 bg-rose-50 dark:bg-rose-950/40 rounded">
-                            <span className="text-[9px] text-rose-600 block">SAM CASES</span>
+                            <span className="text-[9px] text-rose-600 block">
+                              <T source="SAM CASES" />
+                            </span>
                             <span className="font-bold text-sm text-rose-600">42 (2.8%)</span>
                           </div>
                         </div>
@@ -1005,9 +1213,11 @@ export function Landing() {
                       {/* SVG Mockup 2: Risk Map */}
                       <div className="rounded-lg border border-[var(--sv-border,#D4D0C8)] bg-[var(--sv-surface,#FFFFFF)] p-4 shadow-sm">
                         <div className="flex items-center justify-between border-b border-[var(--sv-border,#D4D0C8)] pb-2 mb-3">
-                          <span className="text-xs font-bold">Geospatial Risk Map</span>
+                          <span className="text-xs font-bold">
+                            <T source="Geospatial Risk Map" />
+                          </span>
                           <span className="text-[10px] text-[var(--sv-muted,#5C5A56)] font-mono">
-                            14 Villages
+                            <T source="14 Villages" />{" "}
                           </span>
                         </div>
                         {/* Simulated map circles */}
@@ -1022,7 +1232,7 @@ export function Landing() {
                             1%
                           </div>
                           <span className="text-[10px] text-zinc-400 font-mono">
-                            CartoDB Positron Layer
+                            <T source="CartoDB Positron Layer" />{" "}
                           </span>
                         </div>
                       </div>
@@ -1030,23 +1240,33 @@ export function Landing() {
                       {/* SVG Mockup 3: Flagged Review */}
                       <div className="rounded-lg border border-[var(--sv-border,#D4D0C8)] bg-[var(--sv-surface,#FFFFFF)] p-4 shadow-sm">
                         <div className="flex items-center justify-between border-b border-[var(--sv-border,#D4D0C8)] pb-2 mb-3">
-                          <span className="text-xs font-bold">Flagged Review Queue</span>
+                          <span className="text-xs font-bold">
+                            <T source="Flagged Review Queue" />
+                          </span>
                           <span className="text-[10px] bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-bold font-mono">
-                            7 Pending
+                            <T source="7 Pending" />{" "}
                           </span>
                         </div>
                         <div className="space-y-1.5 font-mono text-[10px]">
                           <div className="p-1.5 rounded bg-zinc-50 dark:bg-zinc-900 flex justify-between items-center border-l-2 border-rose-600">
-                            <span>#PS-9021 · 108 mm</span>
-                            <span className="text-rose-600 font-bold">SAM</span>
+                            <span>
+                              <T source="#PS-9021 · 108 mm" />
+                            </span>
+                            <span className="text-rose-600 font-bold">
+                              <T source="SAM" />
+                            </span>
                           </div>
                           <div className="p-1.5 rounded bg-zinc-50 dark:bg-zinc-900 flex justify-between items-center border-l-2 border-amber-500">
-                            <span>#PS-8842 · 121 mm</span>
-                            <span className="text-amber-600 font-bold">Low Conf</span>
+                            <span>
+                              <T source="#PS-8842 · 121 mm" />
+                            </span>
+                            <span className="text-amber-600 font-bold">
+                              <T source="Low Conf" />
+                            </span>
                           </div>
                         </div>
                         <div className="mt-2 text-[10px] text-teal-800 dark:text-teal-400 font-medium">
-                          Keyboard J/K review shortcuts enabled
+                          <T source="Keyboard J/K review shortcuts enabled" />{" "}
                         </div>
                       </div>
                     </div>
@@ -1062,15 +1282,13 @@ export function Landing() {
           <div className="mx-auto max-w-7xl px-6 lg:px-10">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
-                Ethical Safeguards
+                <T source="Ethical Safeguards" />{" "}
               </p>
               <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold tracking-tight text-[var(--sv-text,#1C1B19)]">
-                Privacy, Governance &amp; Responsible Deployment
+                <T source="Privacy, Governance &amp; Responsible Deployment" />{" "}
               </h2>
               <p className="mt-4 text-base text-[var(--sv-muted,#5C5A56)] leading-relaxed">
-                Health technologies must earn trust at the community level. PoshanScan is engineered
-                around strict data minimization, client-side masking, and human-in-the-loop clinical
-                protocols.
+                <T source="Health technologies must earn trust at the community level. PoshanScan is engineered around strict data minimization, client-side masking, and human-in-the-loop clinical protocols." />{" "}
               </p>
             </div>
 
@@ -1078,22 +1296,30 @@ export function Landing() {
               {[
                 {
                   icon: <UserCheck size={28} className="text-teal-700" />,
-                  title: "Informed Caregiver Consent",
+                  get title() {
+                    return t("Informed Caregiver Consent");
+                  },
                   desc: "Clear visual consent guidelines prior to image capture. No facial biometric or identifiable portraiture stored.",
                 },
                 {
                   icon: <LockKey size={28} className="text-teal-700" />,
-                  title: "Data Minimization & Masking",
+                  get title() {
+                    return t("Data Minimization & Masking");
+                  },
                   desc: "Child names are masked by default across all supervisor triage lists with client-side reveal controls.",
                 },
                 {
                   icon: <ShieldCheck size={28} className="text-teal-700" />,
-                  title: "Role-Based Access Control",
+                  get title() {
+                    return t("Role-Based Access Control");
+                  },
                   desc: "Field workers submit records in a sandboxed flow; only authorized supervisors access district analytics.",
                 },
                 {
                   icon: <WarningOctagon size={28} className="text-teal-700" />,
-                  title: "Strict Screening-Aid Guardrails",
+                  get title() {
+                    return t("Strict Screening-Aid Guardrails");
+                  },
                   desc: "PoshanScan provides clinical triage recommendations, never automated final diagnoses. Medical staff make all admission decisions.",
                 },
               ].map((p, idx) => (
@@ -1115,26 +1341,26 @@ export function Landing() {
             {/* "Built With" Strip */}
             <div className="mt-12 pt-8 border-t border-[var(--sv-border,#D4D0C8)]">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--sv-muted,#5C5A56)] mb-4 text-center">
-                Built With Open Standard Technologies
+                <T source="Built With Open Standard Technologies" />{" "}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs font-semibold text-[var(--sv-muted,#5C5A56)]">
                 <span className="px-3 py-1.5 rounded-md bg-[var(--sv-surface,#FFFFFF)] border border-[var(--sv-border,#D4D0C8)]">
-                  OpenCV ArUco
+                  <T source="OpenCV ArUco" />{" "}
                 </span>
                 <span className="px-3 py-1.5 rounded-md bg-[var(--sv-surface,#FFFFFF)] border border-[var(--sv-border,#D4D0C8)]">
-                  MediaPipe Pose
+                  <T source="MediaPipe Pose" />{" "}
                 </span>
                 <span className="px-3 py-1.5 rounded-md bg-[var(--sv-surface,#FFFFFF)] border border-[var(--sv-border,#D4D0C8)]">
-                  YOLOv8 Segmentation
+                  <T source="YOLOv8 Segmentation" />{" "}
                 </span>
                 <span className="px-3 py-1.5 rounded-md bg-[var(--sv-surface,#FFFFFF)] border border-[var(--sv-border,#D4D0C8)]">
-                  FastAPI &amp; PostgreSQL
+                  <T source="FastAPI &amp; PostgreSQL" />{" "}
                 </span>
                 <span className="px-3 py-1.5 rounded-md bg-[var(--sv-surface,#FFFFFF)] border border-[var(--sv-border,#D4D0C8)]">
-                  React 19 &amp; TanStack Query
+                  <T source="React 19 &amp; TanStack Query" />{" "}
                 </span>
                 <span className="px-3 py-1.5 rounded-md bg-[var(--sv-surface,#FFFFFF)] border border-[var(--sv-border,#D4D0C8)]">
-                  WHO 2006 Child Growth Standards
+                  <T source="WHO 2006 Child Growth Standards" />{" "}
                 </span>
               </div>
             </div>
@@ -1149,13 +1375,13 @@ export function Landing() {
           <div className="mx-auto max-w-4xl px-6 lg:px-10">
             <div className="text-center max-w-2xl mx-auto">
               <p className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-400">
-                Common Questions
+                <T source="Common Questions" />{" "}
               </p>
               <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold tracking-tight text-[var(--sv-text,#1C1B19)]">
-                Frequently Asked Questions
+                <T source="Frequently Asked Questions" />{" "}
               </h2>
               <p className="mt-3 text-sm text-[var(--sv-muted,#5C5A56)]">
-                Technical, clinical, and operational answers about PoshanScan.
+                <T source="Technical, clinical, and operational answers about PoshanScan." />{" "}
               </p>
             </div>
 
@@ -1197,24 +1423,23 @@ export function Landing() {
         <section className="bg-teal-900 py-16 text-white">
           <div className="mx-auto max-w-5xl px-6 text-center lg:px-10 space-y-6">
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
-              Ready to Make Every Child Screening Count?
+              <T source="Ready to Make Every Child Screening Count?" />{" "}
             </h2>
             <p className="text-teal-100 max-w-2xl mx-auto text-base leading-relaxed">
-              Sign in to start field screenings or review your district’s aggregated nutrition
-              outcomes on the supervisor portal.
+              <T source="Sign in to start field screenings or review your district’s aggregated nutrition outcomes on the supervisor portal." />{" "}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
               <Link
                 to="/worker/login"
                 className="portal-btn portal-btn-outline px-6 py-3 text-sm font-semibold border-teal-200 text-white hover:bg-teal-800"
               >
-                Login as Frontline Worker
+                <T source="Login as Frontline Worker" />{" "}
               </Link>
               <Link
                 to="/supervisor/login"
                 className="portal-btn portal-btn-solid px-6 py-3 text-sm font-semibold bg-white text-teal-950 hover:bg-teal-50"
               >
-                Login as Supervisor
+                <T source="Login as Supervisor" />{" "}
               </Link>
             </div>
           </div>
@@ -1229,27 +1454,24 @@ export function Landing() {
               <div className="flex items-center gap-3">
                 <img
                   src={logo}
-                  alt="PoshanScan"
+                  alt={t("PoshanScan")}
                   className="h-10 w-10 object-contain"
                   width="40"
                   height="40"
                 />
                 <span className="font-display text-lg font-bold text-[var(--sv-text,#1C1B19)]">
-                  PoshanScan Platform
+                  <T source="PoshanScan Platform" />{" "}
                 </span>
               </div>
               <p className="text-xs text-[var(--sv-muted,#5C5A56)] leading-relaxed max-w-md">
-                PoshanScan is a digital child-nutrition screening aid developed to assist frontline
-                health workers in measuring Mid-Upper Arm Circumference (MUAC). It connects field
-                assessments with public health supervision to detect wasting earlier and more
-                consistently.
+                <T source="PoshanScan is a digital child-nutrition screening aid developed to assist frontline health workers in measuring Mid-Upper Arm Circumference (MUAC). It connects field assessments with public health supervision to detect wasting earlier and more consistently." />{" "}
               </p>
             </div>
 
             {/* Team Block driven by team.ts */}
             <div className="lg:col-span-7">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--sv-muted,#5C5A56)] mb-3">
-                Project &amp; Research Team
+                <T source="Project &amp; Research Team" />{" "}
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 {TEAM_MEMBERS.map((member, i) => (
@@ -1257,13 +1479,15 @@ export function Landing() {
                     key={i}
                     className="p-3 rounded-lg border border-[var(--sv-border,#D4D0C8)] bg-[var(--sv-bg,#FAF9F6)] text-xs"
                   >
-                    <div className="font-semibold text-[var(--sv-text,#1C1B19)]">{member.name}</div>
+                    <div className="font-semibold text-[var(--sv-text,#1C1B19)]">
+                      {t(member.name)}
+                    </div>
                     <div className="text-teal-800 dark:text-teal-400 font-medium">
-                      {member.role}
+                      {t(member.role)}
                     </div>
                     {member.affiliation && (
                       <div className="text-[11px] text-[var(--sv-muted,#5C5A56)]">
-                        {member.affiliation}
+                        {t(member.affiliation)}
                       </div>
                     )}
                   </div>
@@ -1275,23 +1499,21 @@ export function Landing() {
           {/* Mandatory Clinical Disclaimer */}
           <div className="border-t border-[var(--sv-border,#D4D0C8)] pt-6 text-xs text-[var(--sv-muted,#5C5A56)] leading-relaxed">
             <p className="font-semibold text-[var(--sv-text,#1C1B19)] mb-1">
-              Clinical &amp; Regulatory Notice:
+              <T source="Clinical &amp; Regulatory Notice:" />{" "}
             </p>
             <p>
-              PoshanScan is strictly a screening and triage support tool. It does not provide
-              medical diagnoses, prescribe medical treatments, or replace physical examinations by
-              qualified pediatric or health care personnel. All children identified with Mid-Upper
-              Arm Circumference values in the MAM or SAM ranges must be clinically confirmed with
-              standard Shakir tape measurement and assessed for bilateral pitting oedema before
-              therapeutic nutrition admission.
+              <T source="PoshanScan is strictly a screening and triage support tool. It does not provide medical diagnoses, prescribe medical treatments, or replace physical examinations by qualified pediatric or health care personnel. All children identified with Mid-Upper Arm Circumference values in the MAM or SAM ranges must be clinically confirmed with standard Shakir tape measurement and assessed for bilateral pitting oedema before therapeutic nutrition admission." />{" "}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center justify-between text-xs text-[var(--sv-muted,#5C5A56)] border-t border-[var(--sv-border,#D4D0C8)] pt-6">
-            <span>© {new Date().getFullYear()} PoshanScan Initiative. All rights reserved.</span>
+            <span>
+              © {new Date().getFullYear()}{" "}
+              <T source="PoshanScan Initiative. All rights reserved." />
+            </span>
             <div className="flex gap-4">
               <a href="#how-it-works" className="hover:underline">
-                Documentation
+                <T source="Documentation" />{" "}
               </a>
               <a
                 href={MARKER_URL}
@@ -1299,10 +1521,10 @@ export function Landing() {
                 rel="noopener noreferrer"
                 className="hover:underline"
               >
-                Download ArUco Marker
+                <T source="Download ArUco Marker" />{" "}
               </a>
               <Link to="/supervisor/login" className="hover:underline">
-                Supervisor Portal
+                <T source="Supervisor Portal" />{" "}
               </Link>
             </div>
           </div>

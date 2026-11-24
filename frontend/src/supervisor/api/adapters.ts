@@ -14,6 +14,7 @@ import type {
   FlaggedRaw,
   FlaggedItem,
 } from "./schemas";
+import { getCurrentLocale } from "@/lib/i18n";
 
 // ── Confidence ────────────────────────────────────────────────────────────────
 
@@ -24,7 +25,7 @@ import type {
 export function formatConfidence(value: number | undefined | null): string {
   if (value == null || Number.isNaN(value)) return "—";
   const pct = value > 1 ? value : value * 100;
-  return `${pct.toFixed(0)}%`;
+  return `${new Intl.NumberFormat(getCurrentLocale(), { maximumFractionDigits: 0 }).format(pct)}%`;
 }
 
 export function confidencePct(value: number | undefined | null): number {
@@ -47,30 +48,25 @@ export function parseServerDate(raw: string | undefined | null): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-const IST_FMT = new Intl.DateTimeFormat("en-IN", {
-  timeZone: "Asia/Kolkata",
-  dateStyle: "medium",
-  timeStyle: "short",
-});
-
-const IST_DATE_FMT = new Intl.DateTimeFormat("en-IN", {
-  timeZone: "Asia/Kolkata",
-  dateStyle: "medium",
-});
-
 export function formatDateIST(raw: string | undefined | null, dateOnly = false): string {
   const d = parseServerDate(raw);
   if (!d) return "—";
-  return (dateOnly ? IST_DATE_FMT : IST_FMT).format(d) + " IST";
+  const formatter = new Intl.DateTimeFormat(getCurrentLocale(), {
+    timeZone: "Asia/Kolkata",
+    dateStyle: "medium",
+    ...(dateOnly ? {} : { timeStyle: "short" as const }),
+  });
+  return `${formatter.format(d)} IST`;
 }
 
 // ── Numbers ───────────────────────────────────────────────────────────────────
 
-const IN_NUM = new Intl.NumberFormat("en-IN");
-
-export function formatNumber(n: number | undefined | null): string {
+export function formatNumber(
+  n: number | undefined | null,
+  options?: Intl.NumberFormatOptions,
+): string {
   if (n == null || Number.isNaN(n)) return "—";
-  return IN_NUM.format(n);
+  return new Intl.NumberFormat(getCurrentLocale(), options).format(n);
 }
 
 // ── Band shares ───────────────────────────────────────────────────────────────
@@ -502,6 +498,7 @@ export interface FlaggedVM {
   id: string;
   referenceCode: string;
   childName: string;
+  ageCategory: string | undefined;
   guardianName?: string | null | undefined;
   gender?: string | null | undefined;
   dob?: string | null | undefined;
@@ -536,7 +533,8 @@ function adaptFlagged(item: FlaggedItem): FlaggedVM {
   const img = item.image_url ?? item.photo_url ?? item.media_url ?? null;
   const sharpness = item.sharpness ?? item.quality_score ?? null;
 
-  const rawChildName = item.child_name ?? (item as Record<string, unknown>).name as string | undefined;
+  const rawChildName =
+    item.child_name ?? ((item as Record<string, unknown>)["name"] as string | undefined);
   const childName =
     rawChildName && typeof rawChildName === "string" && rawChildName.trim().length > 0
       ? rawChildName.trim()
@@ -547,9 +545,10 @@ function adaptFlagged(item: FlaggedItem): FlaggedVM {
         ? item.child_ref
         : "Child Patient";
 
-  const guardian = (item as Record<string, unknown>).guardian_name as string | undefined;
-  const gender = (item as Record<string, unknown>).gender as string | undefined;
-  const dob = (item as Record<string, unknown>).dob as string | undefined;
+  const guardian = (item as Record<string, unknown>)["guardian_name"] as string | undefined;
+  const gender = (item as Record<string, unknown>)["gender"] as string | undefined;
+  const dob = (item as Record<string, unknown>)["dob"] as string | undefined;
+  const rawAgeCategory = item["age_category"] ?? item["ageCategory"];
 
   return {
     id,
@@ -561,6 +560,7 @@ function adaptFlagged(item: FlaggedItem): FlaggedVM {
             .toUpperCase()
             .slice(0, 6)}`,
     childName,
+    ageCategory: typeof rawAgeCategory === "string" ? rawAgeCategory : undefined,
     guardianName: guardian || null,
     gender: gender || null,
     dob: dob || null,

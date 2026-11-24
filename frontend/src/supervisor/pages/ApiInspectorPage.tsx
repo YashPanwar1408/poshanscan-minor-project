@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 /**
  * API Inspector (DEV ONLY)
  * Shows every supervisor endpoint: status, latency, raw JSON, adapter parse result.
@@ -33,37 +34,49 @@ const INSPECTIONS: {
   params?: (age: AgeCategory) => Record<string, string | number>;
 }[] = [
   {
-    label: "Overview",
+    get label() {
+      return t("Overview");
+    },
     path: ENDPOINTS.overview,
     schema: overviewSchema,
     params: (age) => ({ age_category: age }),
   },
   {
-    label: "Trends",
+    get label() {
+      return t("Trends");
+    },
     path: ENDPOINTS.trends,
     schema: trendsSchema,
     params: (age) => ({ age_category: age, days: 30, group_by: "day" }),
   },
   {
-    label: "Locations",
+    get label() {
+      return t("Locations");
+    },
     path: ENDPOINTS.locations,
     schema: locationsSchema,
     params: (age) => ({ age_category: age }),
   },
   {
-    label: "Workers",
+    get label() {
+      return t("Workers");
+    },
     path: ENDPOINTS.workers,
     schema: workersSchema,
     params: (age) => ({ age_category: age }),
   },
   {
-    label: "Flagged (pending)",
+    get label() {
+      return t("Flagged (pending)");
+    },
     path: ENDPOINTS.flagged,
     schema: flaggedSchema,
     params: (age) => ({ status: "pending", age_category: age }),
   },
   {
-    label: "Flagged (reviewed)",
+    get label() {
+      return t("Flagged (reviewed)");
+    },
     path: ENDPOINTS.flagged,
     schema: flaggedSchema,
     params: (age) => ({ status: "reviewed", age_category: age }),
@@ -120,8 +133,8 @@ export function ApiInspectorPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="API Inspector"
-        description="Dev-only: calls every supervisor endpoint and shows raw responses."
+        title={t("API Inspector")}
+        description={t("Dev-only: calls every supervisor endpoint and shows raw responses.")}
         actions={
           <button
             type="button"
@@ -132,7 +145,7 @@ export function ApiInspectorPage() {
             style={{ background: "var(--sv-primary)" }}
           >
             <ArrowsClockwise size={14} className={running ? "animate-spin" : ""} />
-            {running ? "Running…" : "Run all endpoints"}
+            {running ? t("Running…") : t("Run all endpoints")}
           </button>
         }
       />
@@ -140,7 +153,7 @@ export function ApiInspectorPage() {
       {results.length === 0 && !running && (
         <Panel className="p-8 text-center">
           <p className="text-sm text-[var(--sv-muted)]">
-            Click "Run all endpoints" to inspect the API.
+            <T source={'Click "Run all endpoints" to inspect the API.'} />{" "}
           </p>
         </Panel>
       )}
@@ -181,24 +194,27 @@ export function ApiInspectorPage() {
                 className="ml-2 text-xs text-[var(--sv-muted)]"
                 style={{ fontFamily: "var(--sv-font-mono)" }}
               >
-                {r.latencyMs}ms
+                {r.latencyMs}
+                <T source="ms" />{" "}
               </span>
               {r.parseOk ? (
                 <span
                   className="ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold"
                   style={{ background: "var(--sv-normal-sf)", color: "var(--sv-normal)" }}
                 >
-                  parsed ✓
+                  <T source="parsed ✓" />{" "}
                 </span>
               ) : (
                 <span
                   className="ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold"
                   style={{ background: "var(--sv-sam-sf)", color: "var(--sv-sam)" }}
                 >
-                  parse ✗
+                  <T source="parse ✗" />{" "}
                 </span>
               )}
-              <span className="ml-1 text-xs text-[var(--sv-muted)]">{isOpen ? "▲" : "▼"}</span>
+              <span className="ml-1 text-xs text-[var(--sv-muted)]">
+                {isOpen ? t("▲") : t("▼")}
+              </span>
             </button>
 
             {isOpen && (
@@ -208,7 +224,7 @@ export function ApiInspectorPage() {
                     className="mb-3 rounded-lg px-3 py-2 text-xs"
                     style={{ background: "var(--sv-sam-sf)", color: "var(--sv-sam)" }}
                   >
-                    Parse error: {r.parseError}
+                    <T source="Parse error:" /> {r.parseError}
                   </p>
                 )}
                 <div className="relative">
@@ -219,7 +235,7 @@ export function ApiInspectorPage() {
                     style={{ color: "var(--sv-muted)" }}
                   >
                     <Copy size={12} />
-                    Copy
+                    <T source="Copy" />{" "}
                   </button>
                   <pre
                     className="max-h-80 overflow-auto rounded-lg p-4 text-xs leading-relaxed"

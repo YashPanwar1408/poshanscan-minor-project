@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Visible-skin versus selected amodal upper-arm annotation</title>
+  <desc id="desc">Schematic illustration contrasting visible-skin segmentation that leaves the marker area unlabeled with the selected amodal upper-arm silhouette that continues beneath the attached marker, while staying inside the arm's outer contour.</desc>
+  <defs>
+    <style>
+      .title { font: 700 23px Arial, sans-serif; fill: #17212b; }
+      .label { font: 700 17px Arial, sans-serif; fill: #17212b; }
+      .note { font: 15px Arial, sans-serif; fill: #344454; }
+      .small { font: 13px Arial, sans-serif; fill: #344454; }
+      .skin { fill: #efc3a2; stroke: #805c48; stroke-width: 4; }
+      .clothes { fill: #55758e; stroke: #344c5e; stroke-width: 3; }
+      .visible { fill: #20a36a; fill-opacity: .36; stroke: #087a4b; stroke-width: 5; stroke-linejoin: round; }
+      .amodal { fill: #20a36a; fill-opacity: .36; stroke: #087a4b; stroke-width: 5; stroke-linejoin: round; }
+      .marker { fill: #f8f9fa; stroke: #d18b00; stroke-width: 4; }
+    </style>
+  </defs>
+  <rect width="1200" height="560" fill="#f5f7fa"/>
+  <text x="30" y="40" class="title">PoshanScan target: one upper-arm silhouette from shoulder to elbow</text>
+  <rect x="25" y="62" width="560" height="455" rx="16" fill="#fff" stroke="#cbd5df" stroke-width="2"/>
+  <rect x="615" y="62" width="560" height="455" rx="16" fill="#fff" stroke="#cbd5df" stroke-width="2"/>
+  <text x="50" y="98" class="label">VISIBLE-SKIN MASK (not selected)</text>
+  <text x="640" y="98" class="label">AMODAL MASK (selected policy)</text>
+
+  <!-- Same arm and clothing silhouette in each panel. -->
+  <path class="skin" d="M185 150 C230 112 305 111 352 151 C387 181 407 230 407 283 L405 419 C405 451 385 470 355 470 L246 470 C216 470 198 450 198 421 L198 286 C198 244 179 217 166 190 C157 175 165 161 185 150Z"/>
+  <path class="clothes" d="M166 190 C153 175 159 160 185 150 C230 112 305 111 352 151 L338 174 C301 151 248 150 214 171 C197 182 185 201 180 221Z"/>
+  <!-- Visible skin is split around the occluder and does not label the hidden arm. -->
+  <path class="visible" d="M185 150 C230 112 305 111 352 151 C378 174 397 213 405 256 L335 256 C331 232 320 214 300 202 C276 187 242 186 218 201 C198 213 187 234 185 258 L170 218 C164 193 166 165 185 150Z"/>
+  <path class="visible" d="M198 327 L337 327 L337 419 C337 450 321 470 292 470 L246 470 C216 470 198 450 198 421Z"/>
+  <rect class="marker" x="267" y="252" width="105" height="82" rx="4"/>
+  <path d="M284 269h71v47h-71z" fill="#18222a"/>
+  <path d="M298 280h13v13h-13zM321 280h13v13h-13zM309 294h13v13h-13zM332 299h13v13h-13z" fill="#f5f7fa"/>
+  <text x="50" y="493" class="note">Visible-skin labels stop at the marker, leaving a gap.</text>
+  <text x="50" y="511" class="small">This is not the target for this dataset.</text>
+
+  <path class="skin" d="M775 150 C820 112 895 111 942 151 C977 181 997 230 997 283 L995 419 C995 451 975 470 945 470 L836 470 C806 470 788 450 788 421 L788 286 C788 244 769 217 756 190 C747 175 755 161 775 150Z"/>
+  <path class="clothes" d="M756 190 C743 175 749 160 775 150 C820 112 895 111 942 151 L928 174 C891 151 838 150 804 171 C787 182 775 201 770 221Z"/>
+  <!-- One continuous amodal silhouette passes behind the marker but stays inside the arm contour. -->
+  <path class="amodal" d="M775 150 C820 112 895 111 942 151 C977 181 997 230 997 283 L995 419 C995 451 975 470 945 470 L836 470 C806 470 788 450 788 421 L788 286 C788 244 769 217 756 190 C747 175 755 161 775 150Z"/>
+  <rect class="marker" x="857" y="252" width="105" height="82" rx="4"/>
+  <path d="M874 269h71v47h-71z" fill="#18222a"/>
+  <path d="M888 280h13v13h-13zM911 280h13v13h-13zM899 294h13v13h-13zM922 299h13v13h-13z" fill="#f5f7fa"/>
+  <text x="640" y="493" class="note">Selected: include the arm footprint under the attached tag.</text>
+  <text x="640" y="511" class="small">Trace the shoulder/elbow contour; keep clothing and background out.</text>
+
+  <rect x="33" y="533" width="16" height="16" fill="#20a36a" fill-opacity=".36" stroke="#087a4b" stroke-width="2"/>
+  <text x="58" y="547" class="small">upper_arm region</text>
+  <rect x="211" y="533" width="16" height="16" class="marker"/>
+  <text x="236" y="547" class="small">attached ArUco marker occluder</text>
+  <rect x="502" y="533" width="16" height="16" class="clothes"/>
+  <text x="527" y="547" class="small">clothing outside the mask</text>
+</svg>

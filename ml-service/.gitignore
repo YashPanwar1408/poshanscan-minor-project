@@ -19,9 +19,23 @@ env/
 *.onnx
 *.pkl
 !app/models/demo.pkl
+!app/models/arm_segmentation/best.pt
 
 # Evaluation dumps
 evaluation_results.csv
+
+# Rebuilt from the preserved source images, split lists, and CVAT labels
+/dataset/yolo_working/
+
+# Keep source photos, ground-truth labels, derived datasets, and audit outputs local.
+/dataset/images/
+/dataset/annotations/labels/
+/dataset/reports/
+/dataset/splits/
+/dataset/synthetic/
+/results/
+/poshanscan_annotations.zip
+/app/models/calibration_synthetic.joblib
 
 # Sample photos (folder is kept via sample_images/.gitkeep)
 sample_images/*.jpg

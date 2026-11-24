@@ -131,18 +131,21 @@ async def sync_offline_scans(
 
         try:
             image_bytes = await img.read()
-            image_path = save_upload_file(
-                image_bytes,
-                img.filename or f"{client_scan_id}.jpg",
-                img.content_type or "image/jpeg",
-            )
-            
             cv_res = await run_cv_inference(
                 image_bytes=image_bytes,
                 filename=img.filename or f"{client_scan_id}.jpg",
                 reference_type=ref_type,
                 reference_size_mm=ref_size,
                 age_category=norm_age,
+            )
+
+            # Persist the image only after CV has returned a valid measurement;
+            # per-item failures remain queued on the client and must not leave
+            # unreferenced uploads behind.
+            image_path = save_upload_file(
+                image_bytes,
+                img.filename or f"{client_scan_id}.jpg",
+                img.content_type or "image/jpeg",
             )
 
             raw_band = (cv_res.risk_band or "NORMAL").upper()

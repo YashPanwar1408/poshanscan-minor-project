@@ -45,6 +45,15 @@ poshanscan/
 └── README.md
 ```
 
+### Languages and formatting
+
+The worker application and supervisor portal support English and Hindi. The
+language selector sits beside the theme control in the shared headers and
+updates the page immediately without a reload. The choice is stored in browser
+local storage and uses `en-IN` or `hi-IN` for displayed dates and numbers.
+Internal API values, MUAC calculations, and clinical thresholds remain
+unchanged.
+
 ### Runtime flow
 
 1. The worker signs in and selects a child or adult screening category.
@@ -114,7 +123,13 @@ Open three PowerShell terminals from `D:\minor project complete\poshanscan`.
 
 ```powershell
 cd ml-service
+if (!(Test-Path .venv\Scripts\python.exe)) {
+  $python312 = Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\python.exe"
+  & $python312 -m venv .venv
+}
+.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+python -m pip install -r requirements-segmentation.txt
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
 ```
 
@@ -214,6 +229,24 @@ where applicable. The CSV export uses the selected age category as well.
 capture/inference error such as missing marker, missing arm, or an
 age-specific out-of-range measurement.
 
+The integrated YOLOv8n-seg checkpoint is kept at
+`ml-service/app/models/arm_segmentation/best.pt`; its SHA-256 record is stored
+beside it. The service loads the segmentation model at startup when the
+optional segmentation dependencies are installed. See
+[`ml-service/README.md`](ml-service/README.md) for runtime settings and
+[`ml-service/requirements-segmentation.txt`](ml-service/requirements-segmentation.txt)
+for the pinned Ultralytics package.
+
+## Real-image validation
+
+Use `ml-service/scripts/validate_real_arm_photos.py` with original photographs
+and, optionally, a CSV of manually measured tape references. The validator
+creates per-image diagnostic overlays and a CSV; it calculates paired error
+metrics only when explicit manual values and the real-photograph confirmation
+flag are supplied. Follow the safety and input instructions in
+[`ml-service/REAL_IMAGE_VALIDATION.md`](ml-service/REAL_IMAGE_VALIDATION.md).
+This cleanup did not generate empirical results or make an accuracy claim.
+
 ## Testing and quality checks
 
 Run the focused suites from each service directory:
@@ -230,11 +263,12 @@ cd ..\ml-service
 pytest -q
 ```
 
-The current verified suites cover:
-
-- Frontend: 39 tests
-- Backend: 37 tests
-- ML service: 48 tests
+On 24 November 2026, the available test suites reported 44 frontend tests,
+39 backend tests, and 117 ML-service tests passing. The frontend production
+build and TypeScript check also passed. These automated results do not verify
+real-photo accuracy or prove clinical reliability. Real checkpoint loading
+and inference must be verified in an environment with compatible PyTorch,
+torchvision, and Ultralytics installations.
 
 ## Troubleshooting
 

@@ -1,3 +1,4 @@
+import { T, t } from "@/lib/i18n";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Camera, RotateCcw, Upload, AlertCircle } from "lucide-react";
@@ -18,12 +19,12 @@ export const Route = createFileRoute("/app/capture/$childId")({
   }),
   head: () => ({
     meta: [
-      { title: "Capture photo — PoshanScan" },
-      { name: "description", content: "Guided photo capture for MUAC screening." },
-      { property: "og:title", content: "Capture photo — PoshanScan" },
-      { property: "og:description", content: "Guided photo capture for MUAC screening." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { get title() { return t("Capture photo — PoshanScan"); } },
+      { name: "description", get content() { return t("Guided photo capture for MUAC screening."); } },
+      { property: "og:title", get content() { return t("Capture photo — PoshanScan"); } },
+      { property: "og:description", get content() { return t("Guided photo capture for MUAC screening."); } },
+      { property: "og:type", get content() { return t("website"); } },
+      { name: "twitter:card", get content() { return t("summary"); } },
     ],
   }),
   component: () => (
@@ -199,23 +200,20 @@ function Capture() {
     }
   }
   return (
-    <WorkerShell title="Capture screening photo" backAgeCategory={effectiveAgeCategory ?? undefined}>
+    <WorkerShell title={t("Capture screening photo")} backAgeCategory={effectiveAgeCategory ?? undefined}>
       <div className="grid max-w-5xl gap-10 lg:grid-cols-[1.2fr_.8fr]">
         <div>
           {queued ? (
             <div className="panel p-10 text-center">
               <Upload className="mx-auto text-primary" size={36} />
-              <h2 className="mt-4 text-xl font-semibold">Saved for sync</h2>
+              <h2 className="mt-4 text-xl font-semibold"><T source="Saved for sync" /></h2>
               <p className="mt-3 text-muted-foreground">
-                Your scan is safely saved on this device. It will upload when your connection
-                returns.
-              </p>
+                <T source="Your scan is safely saved on this device. It will upload when your connection returns." />{" "}</p>
               <Button
                 className="mt-6"
                 onClick={() => navigate({ to: "/app/children", search: { register: false, age_category: effectiveAgeCategory ?? undefined } })}
               >
-                Scan another child
-              </Button>
+                <T source="Scan another child" />{" "}</Button>
             </div>
           ) : (
             <>
@@ -223,7 +221,7 @@ function Capture() {
                 {photo ? (
                   <img
                     src={preview}
-                    alt="Captured screening photo"
+                    alt={t("Captured screening photo")}
                     className="h-full w-full object-contain"
                   />
                 ) : (
@@ -237,23 +235,22 @@ function Capture() {
                     />
                     <div className="pointer-events-none absolute inset-[15%] border-2 border-dashed border-primary-foreground/80">
                       <div className="absolute -bottom-9 left-1/2 w-max max-w-full -translate-x-1/2 text-center text-sm font-semibold text-primary-foreground">
-                        Keep arm and marker inside the guide
-                      </div>
+                        <T source="Keep arm and marker inside the guide" />{" "}</div>
                     </div>
                   </>
                 )}
               </div>
-              {cameraError && !photo && <p className="mt-3 text-sm text-warning">{cameraError}</p>}
+              {cameraError && !photo && <p className="mt-3 text-sm text-warning"><T>{cameraError}</T></p>}
               {error && (
                 <div
                   role="alert"
                   className="mt-4 flex gap-2 rounded-md bg-danger-soft p-4 text-sm text-danger"
                 >
                   <AlertCircle size={18} className="shrink-0" />
-                  {error}
+                  <T>{error}</T>
                 </div>
               )}
-              {locationNotice && <p className="mt-3 text-sm text-warning">{locationNotice}</p>}
+              {locationNotice && <p className="mt-3 text-sm text-warning"><T>{locationNotice}</T></p>}
               <div className="mt-5 flex flex-wrap gap-3">
                 {photo ? (
                   <>
@@ -265,28 +262,25 @@ function Capture() {
                       }}
                       disabled={busy}
                     >
-                      <RotateCcw /> Retake
-                    </Button>
+                      <RotateCcw /> {" "}<T source="Retake" />{" "}</Button>
                     <Button
                       type="button"
                       onClick={submit}
                       disabled={busy || !size || size <= 0}
                     >
-                      {busy ? "Analyzing photo — this can take up to a minute" : "Use this photo"}
+                      {busy ? t("Analyzing photo — this can take up to a minute") : t("Use this photo")}
                     </Button>
                   </>
                 ) : (
                   <>
                     <Button onClick={capture} disabled={!!cameraError || !effectiveAgeCategory}>
-                      <Camera /> Capture photo
-                    </Button>
+                      <Camera /> {" "}<T source="Capture photo" />{" "}</Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => fileInput.current?.click()}
                     >
-                      <Upload size={16} /> Upload photo
-                    </Button>
+                      <Upload size={16} /> {" "}<T source="Upload photo" />{" "}</Button>
                     <input
                       ref={fileInput}
                       type="file"
@@ -301,29 +295,20 @@ function Capture() {
           )}
         </div>
         <aside>
-          <p className="eyebrow">CAPTURE CHECKLIST</p>
-          <h2 className="mt-3 font-display text-2xl font-semibold">Get a clear reading</h2>
+          <p className="eyebrow"><T source="CAPTURE CHECKLIST" /></p>
+          <h2 className="mt-3 font-display text-2xl font-semibold"><T source="Get a clear reading" /></h2>
           <ol className="mt-6 space-y-5 text-sm leading-relaxed text-muted-foreground">
             <li>
-              <strong className="text-foreground">01 /</strong> Place the printed marker flat on the
-              middle of the upper arm.
-            </li>
+              <strong className="text-foreground">01 /</strong> {" "}<T source="Place the printed marker flat on the middle of the upper arm." />{" "}</li>
             <li>
-              <strong className="text-foreground">02 /</strong> Keep the arm relaxed and the marker
-              facing the camera.
-            </li>
+              <strong className="text-foreground">02 /</strong> {" "}<T source="Keep the arm relaxed and the marker facing the camera." />{" "}</li>
             <li>
-              <strong className="text-foreground">03 /</strong> Ensure both arm and marker fit
-              inside the square guide.
-            </li>
+              <strong className="text-foreground">03 /</strong> {" "}<T source="Ensure both arm and marker fit inside the square guide." />{" "}</li>
             <li>
-              <strong className="text-foreground">04 /</strong> Use even lighting and avoid blur or
-              shadows.
-            </li>
+              <strong className="text-foreground">04 /</strong> {" "}<T source="Use even lighting and avoid blur or shadows." />{" "}</li>
           </ol>
           <label className="mt-8 block text-sm font-semibold">
-            Measured marker size (mm)
-            <input
+            <T source="Measured marker size (mm)" />{" "}<input
               type="number"
               min="1"
               max="500"
@@ -334,8 +319,7 @@ function Capture() {
             />
           </label>
           <p className="mt-2 text-xs text-muted-foreground">
-            Usually 50 mm. Enter the actual size if your print differs.
-          </p>
+            <T source="Usually 50 mm. Enter the actual size if your print differs." />{" "}</p>
         </aside>
       </div>
     </WorkerShell>
