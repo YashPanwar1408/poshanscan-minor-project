@@ -129,6 +129,8 @@ if (!(Test-Path .venv\Scripts\python.exe)) {
 }
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+# CPU-only local runtime; the production Docker image uses the same wheels
+python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.15.0 torchvision==0.29.2
 python -m pip install -r requirements-segmentation.txt
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
 ```
@@ -232,10 +234,11 @@ age-specific out-of-range measurement.
 The integrated YOLOv8n-seg checkpoint is kept at
 `ml-service/app/models/arm_segmentation/best.pt`; its SHA-256 record is stored
 beside it. The service loads the segmentation model at startup when the
-optional segmentation dependencies are installed. See
+segmentation dependencies are installed; the production Docker image installs
+them by default and validates the checkpoint during build. See
 [`ml-service/README.md`](ml-service/README.md) for runtime settings and
 [`ml-service/requirements-segmentation.txt`](ml-service/requirements-segmentation.txt)
-for the pinned Ultralytics package.
+for the pinned PyTorch, torchvision and Ultralytics packages.
 
 ## Real-image validation
 

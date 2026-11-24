@@ -1,0 +1,7 @@
+# Keep local datasets, generated outputs, environments, and experiments out of the image context.
+**
+!Dockerfile
+!requirements.txt
+!requirements-segmentation.txt
+!app/
+!app/**

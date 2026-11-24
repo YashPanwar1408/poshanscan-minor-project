@@ -11,7 +11,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY requirements-segmentation.txt .
-RUN pip install --no-cache-dir -r requirements-segmentation.txt
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch==2.15.0 torchvision==0.29.2 && pip install --no-cache-dir -r requirements-segmentation.txt
 
 COPY app ./app
 

@@ -1,3 +1,5 @@
-# Install after requirements.txt. Keep the inference runtime pinned to the
-# version used to verify the integrated checkpoint.
+# Install after requirements.txt. These CPU-compatible versions were verified
+# with the integrated checkpoint and avoid pulling CUDA libraries into Render.
+torch==2.15.0
+torchvision==0.29.2
 ultralytics==8.4.216

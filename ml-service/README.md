@@ -175,7 +175,7 @@ midpoint = ((x_shoulder + x_elbow) / 2, (y_shoulder + y_elbow) / 2)
 Confidence is the mean of MediaPipe's own landmark visibility scores; below `0.3` the stage reports `arm_not_detected` rather than returning an unreliable point.
 
 ### 3. Arm segmentation — `segment.py`
-The service loads the trained YOLOv8n-seg checkpoint for the single `upper_arm` class once at startup, when the pinned optional segmentation dependencies are available. It preserves the source image dimensions when returning the mask and falls back to the existing OpenCV HSV + GrabCut segmenter if the checkpoint or YOLO runtime cannot load. This fallback does not verify the YOLO model and should be identified when interpreting validation results.
+The service loads the trained YOLOv8n-seg checkpoint for the single `upper_arm` class once at startup when the pinned segmentation runtime is installed. It preserves the source image dimensions when returning the mask. `/segment` returns an explicit unavailable-model error instead of silently using a fallback; `/infer` retains the existing legacy OpenCV HSV + GrabCut fallback if YOLO cannot load. Production Docker builds install the YOLO runtime by default and fail during build if the integrated checkpoint cannot be verified.
 
 ### 4. MUAC estimation — `estimate.py`
 Width is measured in pixels, converted to millimetres using the scale from step 1, then modelled as the circumference of an ellipse:
@@ -234,6 +234,8 @@ if (!(Test-Path .venv\Scripts\python.exe)) {
 }
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+# CPU-only local runtime, matching the production Docker image
+python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.15.0 torchvision==0.29.2
 python -m pip install -r requirements-segmentation.txt
 $env:POSHANSCAN_SEGMENTATION_MODEL = "yolo"
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
@@ -298,11 +300,17 @@ python scripts/evaluate.py --csv data/eval.csv --with-correction \
 
 ## Deployment
 
-The Dockerfile always installs the pinned YOLO runtime and validates the
-integrated checkpoint during image build. The production Render service uses
-this Dockerfile directly, so it cannot silently build without segmentation
-dependencies. The checkpoint is `app/models/arm_segmentation/best.pt`; its
-expected SHA-256 is recorded in `app/models/arm_segmentation/best.pt.sha256`.
+The Dockerfile installs CPU-only PyTorch and torchvision plus the pinned YOLO
+runtime by default, then validates the integrated checkpoint during image
+build. The production Render service uses this Dockerfile directly, so it
+cannot silently build without segmentation dependencies. The checkpoint is
+`app/models/arm_segmentation/best.pt`; its expected SHA-256 is recorded in
+`app/models/arm_segmentation/best.pt.sha256`. Build it from this directory with
+`docker build -t poshanscan-ml .`; no build argument is required. The Docker
+context excludes datasets, local environments, and generated results.
+
+The current container verification is recorded in
+[`../docs/ML_RUNTIME_VERIFICATION_REPORT.md`](../docs/ML_RUNTIME_VERIFICATION_REPORT.md).
 The checkpoint is not modified by the training workflow. `POSHANSCAN_SEGMENTATION_MODEL`
 and `POSHANSCAN_SEGMENTATION_WEIGHTS` can select the inference mode and weights;
 the remaining threshold settings are documented below.
