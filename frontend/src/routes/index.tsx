@@ -66,7 +66,7 @@ export const Route = createFileRoute("/")({
         },
       },
     ],
-    links: [{ rel: "icon", type: "image/png", href: "/poshanscan_logo.png" }],
+    links: [{ rel: "icon", type: "image/png", href: logo }],
   }),
   component: Landing,
 });
@@ -390,6 +390,8 @@ export function Landing() {
                 className="h-12 w-12 object-contain transition-transform group-hover:scale-105"
                 width="48"
                 height="48"
+                loading="eager"
+                fetchPriority="high"
               />
               <div className="hidden sm:block">
                 <span className="block font-display text-xl font-bold tracking-tight text-teal-900 dark:text-teal-100">
@@ -511,6 +513,8 @@ export function Landing() {
                       className="h-full w-full object-cover object-center opacity-95"
                       width="400"
                       height="500"
+                      loading="eager"
+                      fetchPriority="high"
                     />
 
                     {/* Camera Viewfinder Corners */}
