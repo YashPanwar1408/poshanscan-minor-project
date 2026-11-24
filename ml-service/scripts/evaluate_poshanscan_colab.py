@@ -629,7 +629,7 @@ def run_evaluation(
     output_dir: Path,
     imgsz: int = 416,
     batch: int = 1,
-    api_imgsz: int = 640,
+    api_imgsz: int = 416,
 ) -> dict[str, Any]:
     if batch <= 0:
         raise ValueError("Evaluation batch must be a positive integer. Use --batch 1 or --batch 4.")
@@ -762,7 +762,7 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--imgsz", type=int, default=416)
     parser.add_argument("--batch", type=int, default=1)
-    parser.add_argument("--api-imgsz", type=int, default=640)
+    parser.add_argument("--api-imgsz", type=int, default=416)
     args = parser.parse_args()
     try:
         run_evaluation(

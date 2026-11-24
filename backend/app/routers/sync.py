@@ -134,6 +134,7 @@ async def sync_offline_scans(
             cv_res = await run_cv_inference(
                 image_bytes=image_bytes,
                 filename=img.filename or f"{client_scan_id}.jpg",
+                content_type=img.content_type,
                 reference_type=ref_type,
                 reference_size_mm=ref_size,
                 age_category=norm_age,

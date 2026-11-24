@@ -85,6 +85,7 @@ def mock_cv_for_tests():
     async def fake_cv_inference(
         image_bytes,
         filename="scan.jpg",
+        content_type="image/jpeg",
         reference_type="aruco",
         reference_size_mm=50.0,
         age_category="child_6_59m",

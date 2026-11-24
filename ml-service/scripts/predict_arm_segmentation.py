@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.pipeline.segment import configure_segmentation_model, predict_yolo_image  # noqa: E402
+from app.pipeline.segment import YOLO_DEFAULT_IMAGE_SIZE, configure_segmentation_model, predict_yolo_image  # noqa: E402
 
 DEFAULT_WEIGHTS = ROOT / "app" / "models" / "arm_segmentation" / "best.pt"
 DEFAULT_OUTPUT = ROOT / "results" / "arm_segmentation" / "predictions"
@@ -26,7 +26,7 @@ def predict_image(
     weights: Path = DEFAULT_WEIGHTS,
     output_dir: Path = DEFAULT_OUTPUT,
     *,
-    imgsz: int = 640,
+    imgsz: int = YOLO_DEFAULT_IMAGE_SIZE,
     confidence: float = 0.25,
 ) -> dict[str, object]:
     """Predict, save the binary mask/overlay and return JSON-safe metadata."""
@@ -80,7 +80,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("image", type=Path, help="Path to a new image not used for training.")
     parser.add_argument("--weights", type=Path, default=DEFAULT_WEIGHTS)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--imgsz", type=int, default=640)
+    parser.add_argument("--imgsz", type=int, default=YOLO_DEFAULT_IMAGE_SIZE)
     parser.add_argument("--confidence", type=float, default=0.25)
     args = parser.parse_args(argv)
     try:

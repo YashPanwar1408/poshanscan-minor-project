@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import io
+import logging
 
 import cv2
 import numpy as np
@@ -12,6 +14,19 @@ from app.main import app
 import app.main as main_module
 
 client = TestClient(app)
+
+
+def test_image_diagnostics_are_opt_in_and_log_hash_plus_decoded_dimensions(monkeypatch, caplog) -> None:
+    payload = b"private image bytes"
+    decoded = np.zeros((24, 40, 3), dtype=np.uint8)
+    monkeypatch.setenv("POSHANSCAN_IMAGE_DIAGNOSTICS", "true")
+
+    with caplog.at_level(logging.INFO, logger="poshanscan-cv"):
+        main_module._log_image_diagnostic("ml_infer_received", payload, decoded, "image/jpeg")
+
+    assert hashlib.sha256(payload).hexdigest() in caplog.text
+    assert "decoded_dimensions_wh=40x24" in caplog.text
+    assert "private image bytes" not in caplog.text
 
 
 def test_health() -> None:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import base64
+import hashlib
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
@@ -19,7 +20,9 @@ from starlette.concurrency import run_in_threadpool
 from app.pipeline.estimate import CalibrationCorrector
 from app.pipeline.run import run_muac_pipeline, set_calibrator
 from app.pipeline.classify import AgeCategory
+from app.pipeline.reference_detect import ARUCO_DICT_ID
 from app.pipeline.segment import (
+    YOLO_DEFAULT_IMAGE_SIZE,
     configure_segmentation_model,
     predict_yolo_image,
     segmentation_mode,
@@ -50,6 +53,12 @@ async def _lifespan(_: FastAPI):
     configure_segmentation_model(
         os.getenv("POSHANSCAN_SEGMENTATION_MODEL", "yolo"),
         os.getenv("POSHANSCAN_SEGMENTATION_WEIGHTS"),
+    )
+    logger.info(
+        "runtime: opencv=%s aruco_dictionary=DICT_4X4_50(%s) detector_api=%s",
+        cv2.__version__,
+        ARUCO_DICT_ID,
+        "ArucoDetector" if hasattr(cv2.aruco, "ArucoDetector") else "detectMarkers",
     )
     try:
         yield
@@ -131,6 +140,26 @@ def _decode_image(payload: bytes) -> np.ndarray | None:
     return cv2.imdecode(array, cv2.IMREAD_COLOR)
 
 
+def _log_image_diagnostic(
+    stage: str,
+    payload: bytes,
+    image_bgr: np.ndarray,
+    content_type: Optional[str],
+) -> None:
+    """Log only an opt-in fingerprint and decoded dimensions, never image pixels."""
+    if not _env_enabled(os.getenv("POSHANSCAN_IMAGE_DIAGNOSTICS")):
+        return
+    logger.info(
+        "image_diagnostic stage=%s sha256=%s bytes=%d content_type=%s decoded_dimensions_wh=%dx%d",
+        stage,
+        hashlib.sha256(payload).hexdigest(),
+        len(payload),
+        content_type or "unknown",
+        int(image_bgr.shape[1]),
+        int(image_bgr.shape[0]),
+    )
+
+
 @app.get("/", include_in_schema=False)
 def root() -> RedirectResponse:
     """Send browsers to the Swagger UI."""
@@ -186,6 +215,8 @@ async def infer(
                 "invalid_image",
                 "Could not decode the uploaded file as an image.",
             )
+
+        _log_image_diagnostic("ml_infer_received", payload, bgr, image.content_type)
 
         if (reference_type or "aruco").strip().lower() != "aruco":
             logger.info(
@@ -243,7 +274,7 @@ async def infer(
 async def segment_image(
     image: UploadFile = File(..., description="A new image to segment."),
     confidence: float = Query(0.25, ge=0.0, le=1.0),
-    imgsz: int = Query(640, ge=64, le=2048),
+    imgsz: int = Query(YOLO_DEFAULT_IMAGE_SIZE, ge=64, le=2048),
 ) -> SegmentationResponse | JSONResponse:
     """Return a predicted polygon, mask and overlay without estimating MUAC."""
     payload = await image.read(MAX_SEGMENT_UPLOAD_BYTES + 1)
@@ -252,6 +283,7 @@ async def segment_image(
     bgr = _decode_image(payload)
     if bgr is None:
         return _error(422, "invalid_image", "Could not decode the uploaded file as an image.")
+    _log_image_diagnostic("ml_segment_received", payload, bgr, image.content_type)
     if bgr.shape[0] * bgr.shape[1] > MAX_SEGMENT_IMAGE_PIXELS:
         return _error(422, "image_dimensions_too_large", "Decoded images must contain 20 megapixels or fewer.")
     if segmentation_mode() != "yolo":

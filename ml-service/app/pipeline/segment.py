@@ -27,7 +27,7 @@ YOLO_DEFAULT_CONFIDENCE = 0.25
 YOLO_DEFAULT_MASK_THRESHOLD = 0.5
 YOLO_DEFAULT_MIN_MASK_COVERAGE = 0.005
 YOLO_DEFAULT_MAX_MASK_COVERAGE = 0.95
-YOLO_DEFAULT_IMAGE_SIZE = 640
+YOLO_DEFAULT_IMAGE_SIZE = 416
 logger = logging.getLogger("poshanscan-cv.segmentation")
 
 _SEGMENTATION_LOCK = threading.Lock()
@@ -320,7 +320,7 @@ def segmentation_mode() -> str:
 def predict_yolo_image(
     image_bgr: np.ndarray,
     *,
-    imgsz: int = 640,
+    imgsz: int = YOLO_DEFAULT_IMAGE_SIZE,
     confidence_threshold: Optional[float] = None,
     mask_threshold: Optional[float] = None,
 ) -> dict[str, Any]:

@@ -218,8 +218,11 @@ def test_segment_api_returns_polygon_mask_and_confidence(monkeypatch) -> None:
         boxes = FakeBoxes()
         masks = FakeMasks()
 
+    predict_kwargs = {}
+
     class FakeModel:
-        def predict(self, **_kwargs):
+        def predict(self, **kwargs):
+            predict_kwargs.update(kwargs)
             return [FakeResult()]
 
     # This test exercises the explicit model-unavailable response; isolate it
@@ -241,6 +244,7 @@ def test_segment_api_returns_polygon_mask_and_confidence(monkeypatch) -> None:
     assert body["instances"][0]["confidence"] == pytest.approx(0.91)
     assert body["instances"][0]["bbox_xyxy"] == [8.0, 7.0, 48.0, 56.0]
     assert len(body["instances"][0]["polygon"]) == 4
+    assert predict_kwargs["imgsz"] == segment.YOLO_DEFAULT_IMAGE_SIZE == 416
     mask_bytes = base64.b64decode(body["mask_png_base64"])
     mask = cv2.imdecode(np.frombuffer(mask_bytes, dtype=np.uint8), cv2.IMREAD_GRAYSCALE)
     assert mask is not None and mask.shape == (64, 64) and np.any(mask)
@@ -254,6 +258,7 @@ def test_verified_checkpoint_sha256_matches_supplied_digest() -> None:
 
 
 def test_full_image_yolo_inference_preserves_dimensions_and_uses_cpu_fallback(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("POSHANSCAN_YOLO_IMAGE_SIZE", raising=False)
     weights = tmp_path / "best.pt"
     weights.write_bytes(b"mock")
     image = np.full((64, 96, 3), 90, dtype=np.uint8)
@@ -283,6 +288,7 @@ def test_full_image_yolo_inference_preserves_dimensions_and_uses_cpu_fallback(mo
     monkeypatch.setattr(segment, "_select_yolo_device", lambda: "cpu")
     monkeypatch.setattr(segment, "_mask_predictor_class", lambda _threshold: object())
     assert segment.configure_segmentation_model("yolo", weights)
+    assert segment._YOLO_CONFIG.image_size == 416
     prediction = segment.predict_yolo_image(image)
     assert prediction["mask"].shape == image.shape[:2]
     assert prediction["visualization"].shape == image.shape

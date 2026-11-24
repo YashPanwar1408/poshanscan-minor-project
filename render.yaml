@@ -6,6 +6,9 @@ services:
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     plan: free
+    envVars:
+      - key: POSHANSCAN_YOLO_IMAGE_SIZE
+        value: "416"
 
   - type: web
     name: poshanscan-minor-project

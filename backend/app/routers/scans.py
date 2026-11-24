@@ -117,6 +117,7 @@ async def submit_scan(
         cv_result = await run_cv_inference(
             image_bytes=image_bytes,
             filename=image.filename or "scan.jpg",
+            content_type=image.content_type,
             reference_type=reference_type,
             reference_size_mm=reference_size_mm,
             age_category=norm_age,

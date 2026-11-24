@@ -1,5 +1,8 @@
 import logging
 import asyncio
+import hashlib
+import mimetypes
+import os
 from typing import Optional
 import httpx
 from fastapi import HTTPException, status
@@ -24,6 +27,7 @@ async def run_cv_inference(
     reference_type: str = "aruco",
     reference_size_mm: float = 50.0,
     age_category: str = "child_6_59m",
+    content_type: Optional[str] = None,
 ) -> CVInferResponse:
     """
     Call the production Computer Vision microservice (/infer).
@@ -43,8 +47,21 @@ async def run_cv_inference(
     url = f"{settings.CV_SERVICE_URL.rstrip('/')}/infer"
     logger.info("Calling remote CV service at %s with age_category=%s", url, norm_age)
 
+    upload_content_type = (
+        content_type
+        or mimetypes.guess_type(filename)[0]
+        or "application/octet-stream"
+    )
+    if os.getenv("POSHANSCAN_IMAGE_DIAGNOSTICS", "").strip().lower() in {"1", "true", "yes", "on"}:
+        logger.info(
+            "image_diagnostic stage=backend_cv_forward sha256=%s bytes=%d content_type=%s",
+            hashlib.sha256(image_bytes).hexdigest(),
+            len(image_bytes),
+            upload_content_type,
+        )
+
     files = {
-        "image": (filename, image_bytes, "image/jpeg"),
+        "image": (filename, image_bytes, upload_content_type),
     }
     data = {
         "reference_type": reference_type,
