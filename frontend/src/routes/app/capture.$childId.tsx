@@ -189,9 +189,9 @@ function Capture() {
         const code = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
         setError(
           code === "reference_object_not_detected"
-            ? "We couldn't see the marker clearly. Please retake the photo with the marker fully visible."
+            ? "We couldn't detect the marker. Use the PoshanScan printed ArUco marker (usually 50 mm), keep the full square flat, sharp, and unobstructed in the photo, then retake."
             : code === "arm_not_detected"
-              ? "We couldn't clearly see the arm. Please retake with better lighting and framing."
+              ? "We couldn't clearly see the upper arm. Retake with the whole upper arm in frame, good lighting, and the marker visible."
               : errorMessage(e),
         );
       }

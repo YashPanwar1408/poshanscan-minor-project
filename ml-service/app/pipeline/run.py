@@ -204,17 +204,36 @@ def run_muac_pipeline(
     segmented = segment_arm(image, pose["midpoint_px"], crop_size_px=crop_size)
     mask = segmented["mask"]
     origin = segmented["crop_origin_px"]
+    segmentation_method = str(segmented.get("segmentation_method") or "legacy")
     if diagnostics is not None:
         diagnostics.update({
             "pose_available": pose_source == "mediapipe",
             "pose_source": pose_source,
             "pose": pose,
-            "segmentation_method": segmented.get("segmentation_method"),
+            "segmentation_method": segmentation_method,
             "segmentation_confidence": segmented.get("segmentation_confidence"),
             "segmentation_mask": mask.copy() if isinstance(mask, np.ndarray) else None,
             "crop_origin_px": tuple(int(v) for v in origin),
             "segmentation_foreground_px": int(np.count_nonzero(mask)) if isinstance(mask, np.ndarray) else 0,
         })
+    if segmentation_method == "legacy_fallback":
+        stage_status["segmentation"] = "model_mask_unavailable"
+        if diagnostics is not None:
+            diagnostics.update({
+                "segmentation_status": "model_mask_unavailable",
+                "rejection_reason": "segmentation_failed",
+            })
+        return {
+            "ok": False,
+            "error": "segmentation_failed",
+            "message": (
+                "The upper-arm model could not identify a clear arm mask. "
+                "Retake the photo with the full upper arm visible, the marker flat and fully visible, "
+                "and the arm separated from clothing and background."
+            ),
+            "segmentation_ok": False,
+            "stage_status": stage_status,
+        }
     marker_side_px = 0.0
     marker_points: Optional[np.ndarray] = None
     if corners is not None:
@@ -391,7 +410,6 @@ def run_muac_pipeline(
         })
     seg_quality = _segmentation_quality(mask)
     segmentation_confidence = float(segmented.get("segmentation_confidence") or 0.0)
-    segmentation_method = str(segmented.get("segmentation_method") or "legacy")
     if segmentation_method == "yolo":
         seg_quality = min(seg_quality, segmentation_confidence)
     logger.info(

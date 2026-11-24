@@ -1,0 +1,9 @@
+# Reference class/split mapping. Regenerate the directly usable YAML and image/label
+# staging directories with: python scripts/yolo_dataset.py
+# That command creates dataset/yolo_working/dataset.yaml with a resolved dataset path.
+path: ../yolo_working
+train: images/train
+val: images/val
+test: images/test
+names:
+  0: upper_arm

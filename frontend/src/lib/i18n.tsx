@@ -880,7 +880,7 @@ const remainingCopy = {
   "An unexpected error occurred": "एक अनपेक्षित त्रुटि हुई।",
   "Unknown error": "अज्ञात त्रुटि",
   "The estimated MUAC is outside the supported validity range. No risk category was assigned.":
-    "अनुमानित MUAC मान्य सीमा से बाहर है। कोई जोखिम श्रेणी निर्धारित नहीं की गई।",
+    "अनुमानित MUAC समर्थित सीमा से बाहर है, इसलिए जोखिम श्रेणी निर्धारित नहीं की गई। पूरी ऊपरी बाँह और मार्कर के साथ फिर से तस्वीर लें और मानक MUAC टेप से माप की पुष्टि करें।",
   "Could not connect to the AI/CV estimation service.": "AI/CV मापन सेवा से संपर्क नहीं हो सका।",
   "No image data provided.": "तस्वीर का डेटा नहीं मिला।",
   "Could not decode the uploaded file as an image.":
@@ -934,10 +934,10 @@ const remainingCopy = {
   "Export failed: {message}": "निर्यात विफल हुआ: {message}",
   "A scan for this person and age category ({category}) already exists.":
     "इस व्यक्ति और आयु श्रेणी ({category}) की जाँच पहले से मौजूद है।",
-  "We couldn't see the marker clearly. Please retake the photo with the marker fully visible.":
-    "मार्कर साफ़ दिखाई नहीं दिया। मार्कर को पूरा दिखाते हुए फिर से तस्वीर लें।",
-  "We couldn't clearly see the arm. Please retake with better lighting and framing.":
-    "बाँह साफ़ दिखाई नहीं दी। बेहतर रोशनी और सही फ़्रेम के साथ फिर से तस्वीर लें।",
+  "We couldn't detect the marker. Use the PoshanScan printed ArUco marker (usually 50 mm), keep the full square flat, sharp, and unobstructed in the photo, then retake.":
+    "मार्कर नहीं मिला। PoshanScan का छपा हुआ ArUco मार्कर (आमतौर पर 50 मिमी) इस्तेमाल करें। पूरा चौकोर मार्कर सपाट, साफ़ और बिना रुकावट फ़्रेम में रखकर फिर से तस्वीर लें।",
+  "We couldn't clearly see the upper arm. Retake with the whole upper arm in frame, good lighting, and the marker visible.":
+    "ऊपरी बाँह साफ़ दिखाई नहीं दी। पूरी ऊपरी बाँह और मार्कर को फ़्रेम में रखते हुए अच्छी रोशनी में फिर से तस्वीर लें।",
   "Search {category} by name…": "नाम से {category} खोजें…",
   "View as chart": "चार्ट के रूप में देखें",
   "View as table": "तालिका के रूप में देखें",
@@ -1152,13 +1152,14 @@ const warnedMissing = new Set<string>();
 const errorCodeCatalog: Record<string, string> = {
   invalid_image: "कृपया एक मान्य तस्वीर अपलोड करें।",
   invalid_measurement:
-    "अनुमानित MUAC मान्य सीमा से बाहर है। कोई जोखिम श्रेणी निर्धारित नहीं की गई।",
+    "अनुमानित MUAC समर्थित सीमा से बाहर है, इसलिए जोखिम श्रेणी निर्धारित नहीं की गई। पूरी ऊपरी बाँह और मार्कर के साथ फिर से तस्वीर लें और मानक MUAC टेप से माप की पुष्टि करें।",
   cv_service_unavailable: "जाँच सेवा अभी उपलब्ध नहीं है। कृपया थोड़ी देर बाद फिर से प्रयास करें।",
   scan_already_exists: "इस व्यक्ति और आयु श्रेणी की जाँच पहले से मौजूद है।",
   image_too_large: "तस्वीर का आकार 15 MB या उससे कम होना चाहिए।",
   image_dimensions_too_large: "तस्वीर में 20 मेगापिक्सेल या उससे कम होने चाहिए।",
   segmentation_model_unavailable: "तस्वीर विभाजन सेवा अभी उपलब्ध नहीं है।",
-  segmentation_failed: "तस्वीर का विभाजन नहीं हो सका। कृपया फिर से प्रयास करें।",
+  segmentation_failed:
+    "ऊपरी बाँह का मॉडल साफ़ बाँह मास्क नहीं पहचान सका। पूरी ऊपरी बाँह को फ़्रेम में रखते हुए, मार्कर को सपाट और पूरा दिखाकर फिर से तस्वीर लें।",
   internal_error: "तस्वीर संसाधित करते समय अनपेक्षित त्रुटि हुई।",
   pipeline_failed:
     "जाँच पूरी नहीं हो सकी। बाँह और संदर्भ मार्कर साफ़ दिखाते हुए फिर से तस्वीर लें।",
@@ -1166,14 +1167,15 @@ const errorCodeCatalog: Record<string, string> = {
 const errorCodeEnglish: Record<string, string> = {
   invalid_image: "Please upload a valid image file.",
   invalid_measurement:
-    "The estimated MUAC is outside the supported validity range. No risk category was assigned.",
+    "The estimated MUAC is outside the supported range, so no risk category was assigned. Retake with the full upper arm and marker visible, then confirm with a standard MUAC tape.",
   cv_service_unavailable:
     "The screening service is temporarily unavailable. Please try again shortly.",
   scan_already_exists: "A scan for this person and age category already exists.",
   image_too_large: "Image uploads must be 15 MB or smaller.",
   image_dimensions_too_large: "Decoded images must contain 20 megapixels or fewer.",
   segmentation_model_unavailable: "The segmentation service is temporarily unavailable.",
-  segmentation_failed: "The image could not be segmented. Please try again.",
+  segmentation_failed:
+    "The upper-arm model could not identify a clear arm mask. Retake with the full upper arm visible, the marker flat and fully visible, and the arm separated from clothing and background.",
   internal_error: "An unexpected error occurred while processing the image.",
   pipeline_failed:
     "The screening could not be completed. Retake the photo with the arm and reference marker clearly visible.",
