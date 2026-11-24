@@ -1,0 +1,121 @@
+image_filename,split,duplicate_group,included,status,reason
+10.png,test,GROUP-0010,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+104.png,test,GROUP-0099,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+13.png,test,GROUP-0013,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+39.jpg,test,GROUP-0037,false,QUARANTINED_UNRESOLVED,"The class and image alone do not identify whether separate rows are two arms, a marker-split arm, or an unrelated person/object."
+43.png,test,GROUP-0041,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+48.png,test,GROUP-0046,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+53.png,test,GROUP-0051,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+56.png,test,GROUP-0054,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+59.png,test,GROUP-0057,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+82.jpg,test,GROUP-0079,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+83.jpg,test,GROUP-0080,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+86.jpg,test,GROUP-0083,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+1.jpeg,train,GROUP-0001,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+100.png,train,GROUP-0095,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+101.png,train,GROUP-0096,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+102.png,train,GROUP-0097,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+103.png,train,GROUP-0098,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+105.png,train,GROUP-0100,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+107.png,train,GROUP-0102,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+109.png,train,GROUP-0104,false,QUARANTINED_UNRESOLVED,At native resolution the bottom frame cuts off the arm before the elbow. A complete shoulder-to-elbow polygon cannot be drawn from the available pixels.
+110.png,train,GROUP-0104,false,QUARANTINED_UNRESOLVED,"The current and previous CVAT exports omit this label. The local copy is an older active annotation, not a recovered CVAT correction."
+112.png,train,GROUP-0106,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+113.png,train,GROUP-0107,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+114.png,train,GROUP-0108,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+115.png,train,GROUP-0109,false,QUARANTINED_UNRESOLVED,At native resolution the bottom frame cuts off the arm before the elbow. A complete shoulder-to-elbow polygon cannot be drawn from the available pixels.
+116.jpg,train,GROUP-0110,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+12.png,train,GROUP-0012,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+128.png,train,GROUP-0112,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+129.png,train,GROUP-0113,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+130.png,train,GROUP-0113,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+131.png,train,GROUP-0114,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+14.png,train,GROUP-0014,true,CONFIDENTLY_RETAINED_VISIBLE_CROP,Global visible-region crop policy approved; this is a crop-only queue item; audited candidate raster IoU is 1.0 and no polygon pixel changes.
+15.png,train,GROUP-0015,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+17.png,train,GROUP-0017,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+18.png,train,GROUP-0018,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+19.png,train,GROUP-0019,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+2.png,train,GROUP-0002,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+20.png,train,GROUP-0020,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+21.png,train,GROUP-0021,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+22.png,train,GROUP-0022,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+23.png,train,GROUP-0023,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+24.png,train,GROUP-0024,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+25.png,train,GROUP-0025,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+26.png,train,GROUP-0026,true,CONFIDENTLY_RETAINED_VISIBLE_CROP,Global visible-region crop policy approved; this is a crop-only queue item; audited candidate raster IoU is 1.0 and no polygon pixel changes.
+3.png,train,GROUP-0003,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+30.png,train,GROUP-0029,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+31.png,train,GROUP-0029,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+36.jpg,train,GROUP-0034,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+37.jpg,train,GROUP-0035,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+38.jpg,train,GROUP-0036,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+4.png,train,GROUP-0004,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+40.jpg,train,GROUP-0038,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+41.jpg,train,GROUP-0039,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+44.png,train,GROUP-0042,true,CONFIDENTLY_RETAINED_VISIBLE_CROP,Global visible-region crop policy approved; this is a crop-only queue item; audited candidate raster IoU is 1.0 and no polygon pixel changes.
+45.png,train,GROUP-0043,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+47.png,train,GROUP-0045,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+49.png,train,GROUP-0047,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+5.png,train,GROUP-0005,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+51.png,train,GROUP-0049,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+52.png,train,GROUP-0050,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+55.png,train,GROUP-0053,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+57.png,train,GROUP-0055,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+58.png,train,GROUP-0056,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+6.png,train,GROUP-0006,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+62.png,train,GROUP-0060,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+63.png,train,GROUP-0061,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+64.png,train,GROUP-0062,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+66.png,train,GROUP-0064,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+67.png,train,GROUP-0065,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+69.png,train,GROUP-0067,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+7.png,train,GROUP-0007,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+70.png,train,GROUP-0068,false,QUARANTINED_UNRESOLVED,"The class and image alone do not identify whether separate rows are two arms, a marker-split arm, or an unrelated person/object."
+71.png,train,GROUP-0069,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+72.png,train,GROUP-0070,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+75.png,train,GROUP-0073,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+76.png,train,GROUP-0074,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+77.png,train,GROUP-0075,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+78.jpeg,train,GROUP-0076,false,QUARANTINED_UNRESOLVED,"The class and image alone do not identify whether separate rows are two arms, a marker-split arm, or an unrelated person/object."
+79.png,train,GROUP-0076,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+8.png,train,GROUP-0008,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+80.jpg,train,GROUP-0077,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+81.jpg,train,GROUP-0078,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+85.jpg,train,GROUP-0082,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+87.jpg,train,GROUP-0084,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+88.jpg,train,GROUP-0085,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+89.jpg,train,GROUP-0086,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+9.png,train,GROUP-0009,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+91.jpg,train,GROUP-0038,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+92.jpg,train,GROUP-0088,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+93.jpg,train,GROUP-0089,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+94.jpg,train,GROUP-0039,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+95.png,train,GROUP-0090,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+96.png,train,GROUP-0091,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+97.png,train,GROUP-0092,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+98.png,train,GROUP-0093,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+99.png,train,GROUP-0094,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+106.png,val,GROUP-0101,false,QUARANTINED_UNRESOLVED,At native resolution the bottom frame cuts off the arm before the elbow. A complete shoulder-to-elbow polygon cannot be drawn from the available pixels.
+108.png,val,GROUP-0103,false,QUARANTINED_UNRESOLVED,At native resolution the bottom frame cuts off the arm before the elbow. A complete shoulder-to-elbow polygon cannot be drawn from the available pixels.
+11.png,val,GROUP-0011,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+111.png,val,GROUP-0105,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+127.png,val,GROUP-0111,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+16.png,val,GROUP-0016,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+27.png,val,GROUP-0027,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+28.png,val,GROUP-0028,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+32.png,val,GROUP-0030,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+33.png,val,GROUP-0031,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+34.jpg,val,GROUP-0032,false,QUARANTINED_UNRESOLVED,"The class and image alone do not identify whether separate rows are two arms, a marker-split arm, or an unrelated person/object."
+35.jpg,val,GROUP-0033,false,QUARANTINED_UNRESOLVED,"The class and image alone do not identify whether separate rows are two arms, a marker-split arm, or an unrelated person/object."
+42.jpg,val,GROUP-0040,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+46.png,val,GROUP-0044,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+50.png,val,GROUP-0048,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+54.png,val,GROUP-0052,true,AUTO_CORRECTED_SCOPE,Retained polygon exactly matches the previous reviewed target mask; removed row is an unrelated edge region; marker-gap check is clear.
+60.png,val,GROUP-0058,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+61.png,val,GROUP-0059,true,CONFIDENTLY_RETAINED,Not present in the refreshed unresolved queue; carried forward from previous visual review.
+65.png,val,GROUP-0063,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+68.png,val,GROUP-0066,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+73.png,val,GROUP-0071,false,QUARANTINED_UNRESOLVED,This label differs from the active label that received the previous review; the updated outline needs a focused before/after check.
+74.png,val,GROUP-0072,false,QUARANTINED_UNRESOLVED,The polygon is self-crossing or rasterizes into disconnected components; alternative geometric repair could change the intended arm boundary.
+84.jpg,val,GROUP-0081,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.
+90.jpg,val,GROUP-0087,false,QUARANTINED_UNRESOLVED,The detected marker center falls outside every current polygon. Center coverage is a screening heuristic; it cannot prove the marker's arm footprint or outer contour.

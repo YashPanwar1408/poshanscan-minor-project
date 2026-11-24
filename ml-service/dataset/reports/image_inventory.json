@@ -1,0 +1,388 @@
+{
+  "dataset_label": "synthetic_unverified",
+  "images_directory": "D:\\minor project complete\\poshanscan\\ml-service\\dataset\\images",
+  "total_images": 131,
+  "valid_images": 131,
+  "invalid_images": 0,
+  "duplicate_images": 11,
+  "unique_image_count_after_exact_deduplication": 120,
+  "exact_duplicate_group_count": 11,
+  "exact_duplicate_pair_count": 11,
+  "exact_duplicate_groups": [
+    {
+      "group_id": "EXACT-0027",
+      "canonical_filename": "27.png",
+      "duplicate_filenames": [
+        "29.png"
+      ]
+    },
+    {
+      "group_id": "EXACT-0033",
+      "canonical_filename": "34.jpg",
+      "duplicate_filenames": [
+        "123.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0034",
+      "canonical_filename": "35.jpg",
+      "duplicate_filenames": [
+        "124.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0035",
+      "canonical_filename": "36.jpg",
+      "duplicate_filenames": [
+        "126.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0036",
+      "canonical_filename": "37.jpg",
+      "duplicate_filenames": [
+        "125.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0037",
+      "canonical_filename": "38.jpg",
+      "duplicate_filenames": [
+        "117.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0038",
+      "canonical_filename": "39.jpg",
+      "duplicate_filenames": [
+        "118.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0039",
+      "canonical_filename": "40.jpg",
+      "duplicate_filenames": [
+        "119.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0040",
+      "canonical_filename": "41.jpg",
+      "duplicate_filenames": [
+        "120.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0041",
+      "canonical_filename": "42.jpg",
+      "duplicate_filenames": [
+        "121.jpeg"
+      ]
+    },
+    {
+      "group_id": "EXACT-0115",
+      "canonical_filename": "116.jpg",
+      "duplicate_filenames": [
+        "122.jpeg"
+      ]
+    }
+  ],
+  "exact_duplicate_pairs": [
+    {
+      "first": "27.png",
+      "second": "29.png",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "34.jpg",
+      "second": "123.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "35.jpg",
+      "second": "124.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "36.jpg",
+      "second": "126.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "37.jpg",
+      "second": "125.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "38.jpg",
+      "second": "117.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "39.jpg",
+      "second": "118.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "40.jpg",
+      "second": "119.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "41.jpg",
+      "second": "120.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "42.jpg",
+      "second": "121.jpeg",
+      "dhash_hamming_distance": 0
+    },
+    {
+      "first": "116.jpg",
+      "second": "122.jpeg",
+      "dhash_hamming_distance": 0
+    }
+  ],
+  "near_duplicate_pair_count": 15,
+  "non_exact_near_duplicate_pair_count": 4,
+  "near_duplicate_group_count": 11,
+  "near_duplicate_pairs": [
+    {
+      "first": "27.png",
+      "second": "29.png",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "34.jpg",
+      "second": "123.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "35.jpg",
+      "second": "124.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "36.jpg",
+      "second": "126.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "37.jpg",
+      "second": "125.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "38.jpg",
+      "second": "117.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "39.jpg",
+      "second": "118.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "40.jpg",
+      "second": "91.jpg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": false
+    },
+    {
+      "first": "40.jpg",
+      "second": "119.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "41.jpg",
+      "second": "94.jpg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": false
+    },
+    {
+      "first": "41.jpg",
+      "second": "120.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "42.jpg",
+      "second": "121.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    },
+    {
+      "first": "91.jpg",
+      "second": "119.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": false
+    },
+    {
+      "first": "94.jpg",
+      "second": "120.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": false
+    },
+    {
+      "first": "116.jpg",
+      "second": "122.jpeg",
+      "dhash_hamming_distance": 0,
+      "exact_duplicate": true
+    }
+  ],
+  "images_with_detectable_aruco_markers": 100,
+  "images_without_detectable_aruco_markers": 31,
+  "marker_check_errors": 0,
+  "potentially_insufficient_arm_visibility_count": 31,
+  "file_formats": {
+    "JPEG": 37,
+    "PNG": 94
+  },
+  "dimensions_by_image": {
+    "1.jpeg": "960x1280",
+    "2.png": "1086x1448",
+    "3.png": "1086x1448",
+    "4.png": "1086x1448",
+    "5.png": "1086x1448",
+    "6.png": "1086x1448",
+    "7.png": "1086x1448",
+    "8.png": "1086x1448",
+    "9.png": "1086x1448",
+    "10.png": "1086x1448",
+    "11.png": "1086x1448",
+    "12.png": "1086x1448",
+    "13.png": "1086x1448",
+    "14.png": "1086x1448",
+    "15.png": "1086x1448",
+    "16.png": "1086x1448",
+    "17.png": "1086x1448",
+    "18.png": "1086x1448",
+    "19.png": "1086x1448",
+    "20.png": "1086x1448",
+    "21.png": "1086x1448",
+    "22.png": "1086x1448",
+    "23.png": "1086x1448",
+    "24.png": "1086x1448",
+    "25.png": "1086x1448",
+    "26.png": "1086x1448",
+    "27.png": "1086x1448",
+    "28.png": "1086x1448",
+    "29.png": "1086x1448",
+    "30.png": "1086x1448",
+    "31.png": "1086x1448",
+    "32.png": "1086x1448",
+    "33.png": "1086x1448",
+    "34.jpg": "896x1200",
+    "35.jpg": "896x1200",
+    "36.jpg": "896x1200",
+    "37.jpg": "896x1200",
+    "38.jpg": "896x1200",
+    "39.jpg": "896x1200",
+    "40.jpg": "896x1200",
+    "41.jpg": "896x1200",
+    "42.jpg": "896x1200",
+    "43.png": "1087x1447",
+    "44.png": "1087x1447",
+    "45.png": "1086x1448",
+    "46.png": "1086x1448",
+    "47.png": "1086x1448",
+    "48.png": "1089x1444",
+    "49.png": "1086x1448",
+    "50.png": "1086x1448",
+    "51.png": "1083x1452",
+    "52.png": "1086x1448",
+    "53.png": "1086x1448",
+    "54.png": "832x1283",
+    "55.png": "1083x1452",
+    "56.png": "1083x1452",
+    "57.png": "896x1200",
+    "58.png": "896x1200",
+    "59.png": "896x1200",
+    "60.png": "896x1200",
+    "61.png": "896x1200",
+    "62.png": "896x1200",
+    "63.png": "896x1200",
+    "64.png": "1792x2400",
+    "65.png": "1792x2400",
+    "66.png": "1792x2400",
+    "67.png": "1792x2400",
+    "68.png": "1792x2400",
+    "69.png": "1792x2400",
+    "70.png": "1792x2400",
+    "71.png": "1792x2400",
+    "72.png": "1792x2400",
+    "73.png": "1792x2400",
+    "74.png": "1792x2400",
+    "75.png": "1792x2400",
+    "76.png": "1792x2400",
+    "77.png": "1792x2400",
+    "78.jpeg": "960x1280",
+    "79.png": "1792x2400",
+    "80.jpg": "896x1200",
+    "81.jpg": "896x1200",
+    "82.jpg": "896x1200",
+    "83.jpg": "896x1200",
+    "84.jpg": "896x1200",
+    "85.jpg": "896x1200",
+    "86.jpg": "896x1200",
+    "87.jpg": "896x1200",
+    "88.jpg": "896x1200",
+    "89.jpg": "896x1200",
+    "90.jpg": "896x1200",
+    "91.jpg": "896x1200",
+    "92.jpg": "896x1200",
+    "93.jpg": "896x1200",
+    "94.jpg": "896x1200",
+    "95.png": "1086x1448",
+    "96.png": "1792x2400",
+    "97.png": "1792x2400",
+    "98.png": "1792x2400",
+    "99.png": "1792x2400",
+    "100.png": "1792x2400",
+    "101.png": "1792x2400",
+    "102.png": "1792x2400",
+    "103.png": "1086x1448",
+    "104.png": "1086x1448",
+    "105.png": "1086x1448",
+    "106.png": "1086x1448",
+    "107.png": "1086x1448",
+    "108.png": "1086x1448",
+    "109.png": "1086x1448",
+    "110.png": "1087x1447",
+    "111.png": "1086x1448",
+    "112.png": "1086x1448",
+    "113.png": "1086x1448",
+    "114.png": "1086x1448",
+    "115.png": "1086x1448",
+    "116.jpg": "896x1200",
+    "117.jpeg": "896x1200",
+    "118.jpeg": "896x1200",
+    "119.jpeg": "896x1200",
+    "120.jpeg": "896x1200",
+    "121.jpeg": "896x1200",
+    "122.jpeg": "896x1200",
+    "123.jpeg": "896x1200",
+    "124.jpeg": "896x1200",
+    "125.jpeg": "896x1200",
+    "126.jpeg": "896x1200",
+    "127.png": "1086x1448",
+    "128.png": "1086x1448",
+    "129.png": "1086x1448",
+    "130.png": "1086x1448",
+    "131.png": "1086x1448"
+  },
+  "quality_metrics_note": "Brightness, blur, duplicate, and visibility flags are screening heuristics only. They do not establish a correct arm mask, physical scale, or clinical image quality.",
+  "calibration_note": "Synthetic/unverified images are inventoried only. Marker detection does not prove physical scale, and these images are not tape-labelled calibration samples.",
+  "unique_image_inventory_json": "D:\\minor project complete\\poshanscan\\ml-service\\dataset\\reports\\unique_image_inventory.json",
+  "unique_image_inventory_csv": "D:\\minor project complete\\poshanscan\\ml-service\\dataset\\reports\\unique_image_inventory.csv",
+  "duplicate_pair_audit_csv": "D:\\minor project complete\\poshanscan\\ml-service\\dataset\\reports\\duplicate_pair_audit.csv"
+}

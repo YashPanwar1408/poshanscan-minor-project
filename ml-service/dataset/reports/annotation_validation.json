@@ -1,0 +1,14 @@
+{
+  "image_count": 131,
+  "split_image_count": 120,
+  "images_outside_current_split_without_labels": 11,
+  "valid_annotated_images": 120,
+  "missing_labels": 0,
+  "invalid_annotations_or_orphan_labels": 0,
+  "split_error": "",
+  "training_ready": true,
+  "class_id": 0,
+  "class_name": "upper_arm",
+  "label_format": "Ultralytics YOLO segmentation polygons, normalized coordinates",
+  "note": "Only images listed in the current splits require labels for training. Every provided polygon is checked, including labels for excluded images. No labels are synthesized or inferred from OpenCV output."
+}

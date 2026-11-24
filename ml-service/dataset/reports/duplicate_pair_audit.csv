@@ -1,0 +1,16 @@
+first,second,exact_duplicate,near_duplicate_by_dhash,dhash_hamming_distance
+27.png,29.png,True,True,0
+123.jpeg,34.jpg,True,True,0
+124.jpeg,35.jpg,True,True,0
+126.jpeg,36.jpg,True,True,0
+125.jpeg,37.jpg,True,True,0
+117.jpeg,38.jpg,True,True,0
+118.jpeg,39.jpg,True,True,0
+119.jpeg,40.jpg,True,True,0
+120.jpeg,41.jpg,True,True,0
+121.jpeg,42.jpg,True,True,0
+116.jpg,122.jpeg,True,True,0
+40.jpg,91.jpg,False,True,0
+41.jpg,94.jpg,False,True,0
+119.jpeg,91.jpg,False,True,0
+120.jpeg,94.jpg,False,True,0

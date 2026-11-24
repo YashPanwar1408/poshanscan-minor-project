@@ -1,0 +1,118 @@
+{
+  "source_image_count": 131,
+  "unique_image_count_after_exact_deduplication": 120,
+  "unique_image_count_in_active_splits": 120,
+  "excluded_annotation_image_count": 0,
+  "excluded_annotation_unique_group_count": 0,
+  "excluded_annotation_images": [],
+  "excluded_exact_duplicate_count": 11,
+  "excluded_exact_duplicates": [
+    {
+      "canonical_filename": "27.png",
+      "duplicate_filename": "29.png"
+    },
+    {
+      "canonical_filename": "34.jpg",
+      "duplicate_filename": "123.jpeg"
+    },
+    {
+      "canonical_filename": "35.jpg",
+      "duplicate_filename": "124.jpeg"
+    },
+    {
+      "canonical_filename": "36.jpg",
+      "duplicate_filename": "126.jpeg"
+    },
+    {
+      "canonical_filename": "37.jpg",
+      "duplicate_filename": "125.jpeg"
+    },
+    {
+      "canonical_filename": "38.jpg",
+      "duplicate_filename": "117.jpeg"
+    },
+    {
+      "canonical_filename": "39.jpg",
+      "duplicate_filename": "118.jpeg"
+    },
+    {
+      "canonical_filename": "40.jpg",
+      "duplicate_filename": "119.jpeg"
+    },
+    {
+      "canonical_filename": "41.jpg",
+      "duplicate_filename": "120.jpeg"
+    },
+    {
+      "canonical_filename": "42.jpg",
+      "duplicate_filename": "121.jpeg"
+    },
+    {
+      "canonical_filename": "116.jpg",
+      "duplicate_filename": "122.jpeg"
+    }
+  ],
+  "image_count": 120,
+  "seed": 2026,
+  "near_duplicate_dhash_threshold": 4,
+  "duplicate_or_source_group_count": 114,
+  "near_duplicate_or_source_pairs": [
+    {
+      "first": "30.png",
+      "second": "31.png",
+      "exact_duplicate": false,
+      "dhash_hamming_distance": 25,
+      "same_source_name_group": true
+    },
+    {
+      "first": "40.jpg",
+      "second": "91.jpg",
+      "exact_duplicate": false,
+      "dhash_hamming_distance": 0,
+      "same_source_name_group": false
+    },
+    {
+      "first": "41.jpg",
+      "second": "94.jpg",
+      "exact_duplicate": false,
+      "dhash_hamming_distance": 0,
+      "same_source_name_group": false
+    },
+    {
+      "first": "78.jpeg",
+      "second": "79.png",
+      "exact_duplicate": false,
+      "dhash_hamming_distance": 25,
+      "same_source_name_group": true
+    },
+    {
+      "first": "109.png",
+      "second": "110.png",
+      "exact_duplicate": false,
+      "dhash_hamming_distance": 23,
+      "same_source_name_group": true
+    },
+    {
+      "first": "129.png",
+      "second": "130.png",
+      "exact_duplicate": false,
+      "dhash_hamming_distance": 34,
+      "same_source_name_group": true
+    }
+  ],
+  "groups_per_split": {
+    "train": 78,
+    "val": 24,
+    "test": 12
+  },
+  "split_counts": {
+    "train": 84,
+    "val": 24,
+    "test": 12
+  },
+  "no_duplicate_or_near_duplicate_group_leakage": true,
+  "group_leakage_pairs": [],
+  "annotated_image_count": 120,
+  "all_split_images_have_label_files": true,
+  "note": "Exact duplicate aliases are preserved in dataset/images but omitted from the split to keep one copy. Manually excluded ambiguous images are preserved but omitted when their filename and review reason are recorded in dataset/annotations/excluded_images.csv. Near-duplicate and identifiable source groups remain together. All active split images have label files; scripts/validate_annotations.py checks polygon validity."
+}

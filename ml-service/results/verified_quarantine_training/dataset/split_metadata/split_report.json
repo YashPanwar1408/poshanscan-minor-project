@@ -1,0 +1,23 @@
+{
+  "dataset_profile": "verified_quarantine_subset",
+  "seed": 2026,
+  "source_split_counts": {
+    "train": 84,
+    "val": 24,
+    "test": 12
+  },
+  "split_counts": {
+    "train": 28,
+    "val": 7,
+    "test": 5
+  },
+  "source_split_manifest_sha256": "10576889801d2dda513848a9d216357c0be349959f9a2e8783f57f7f32940e90",
+  "no_duplicate_or_near_duplicate_group_leakage": true,
+  "source_split_regenerated": false,
+  "selection_policy": "Keep prior visually reviewed non-queue images; add three crop-only items covered by approved visible-region policy; apply exact-match val/54 scope cleanup; quarantine all remaining queue rows.",
+  "included_count": 40,
+  "quarantined_count": 80,
+  "class_mapping": {
+    "0": "upper_arm"
+  }
+}
